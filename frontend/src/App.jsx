@@ -14,10 +14,15 @@ import Notifications from './pages/Notifications';
 import Dashboard from './pages/Dashboard';
 import DocumentPage from './pages/DocumentPage';
 import DocumentHistory from './pages/DocumentHistory';
-import Collections from './pages/Collections';
 import Trash from './pages/Trash';
 import Search from './pages/Search';
 import Teamspace from './pages/Teamspace';
+
+/* Pages - Quick Links (New) */
+import CollectionsPage from './pages/CollectionsPage';
+import IdeasPage from './pages/IdeasPage';
+import QuickNotesPage from './pages/QuickNotesPage';
+import TodoListPage from './pages/TodoListPage';
 
 /* Pages - Community / Publishing */
 import CommunityFeed from './pages/CommunityFeed';
@@ -56,10 +61,15 @@ function App() {
           <Route path="/doc/:id" element={<DocumentPage />} />
           <Route path="/doc/:id/history" element={<DocumentHistory />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/collections" element={<Collections />} />
-          <Route path="/collection/:collectionId" element={<Collections />} />
           <Route path="/trash" element={<Trash />} />
           <Route path="/teamspace/:teamId" element={<Teamspace />} />
+
+          {/* Quick Links - Collections, Ideas, Notes, Todos */}
+          <Route path="/collections" element={<CollectionsPage />} />
+          <Route path="/collection/:collectionId" element={<CollectionsPage />} />
+          <Route path="/ideas" element={<IdeasPage />} />
+          <Route path="/quick-notes" element={<QuickNotesPage />} />
+          <Route path="/todos" element={<TodoListPage />} />
 
           {/* Community / Publishing */}
           <Route path="/community" element={<CommunityFeed />} />

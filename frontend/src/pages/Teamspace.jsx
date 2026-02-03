@@ -5,8 +5,8 @@ import { Users, FileText, Plus, Settings, MoreHorizontal } from 'lucide-react';
 const Teamspace = () => {
     const { teamId } = useParams();
 
-    // Mock teamspace data
-    const teamspaces = {
+    // Default mock data
+    const defaultTeamspaces = {
         'engineering': {
             name: 'Engineering',
             icon: '⚙️',
@@ -33,7 +33,14 @@ const Teamspace = () => {
         }
     };
 
-    const team = teamspaces[teamId] || {
+    // Load from local storage or use defaults
+    const savedData = localStorage.getItem('co-notes-teamspaces-full');
+    const teamspaces = savedData ? JSON.parse(savedData) : defaultTeamspaces;
+
+    // Merge in case defaults are missing from local storage (e.g. first run)
+    const mergedTeamspaces = { ...defaultTeamspaces, ...teamspaces };
+
+    const team = mergedTeamspaces[teamId] || {
         name: 'Unknown Team',
         icon: '👥',
         description: 'Team not found',
@@ -52,11 +59,24 @@ const Teamspace = () => {
                     </div>
                 </div>
                 <div className="teamspace-actions">
+                    <div className="members-stack" style={{ display: 'flex', marginRight: '1rem' }}>
+                        {team.memberList && team.memberList.map((member, i) => (
+                            <div key={i} title={member} style={{
+                                width: '32px', height: '32px', borderRadius: '50%',
+                                background: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '0.8rem', fontWeight: 'bold', border: '2px solid white',
+                                marginLeft: i > 0 ? '-10px' : '0'
+                            }}>
+                                {member.charAt(0).toUpperCase()}
+                            </div>
+                        ))}
+                    </div>
                     <button className="btn btn-outline">
                         <Users size={16} />
                         <span>{team.members} members</span>
                     </button>
-                    <button className="btn btn-outline">
+                    <button className="btn btn-outline" title="Settings">
                         <Settings size={16} />
                     </button>
                     <button className="btn btn-primary">
