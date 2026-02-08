@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ArticleCard from '../components/ArticleCard';
-import { TrendingUp, Sparkles, Search, Filter, Plus } from 'lucide-react';
+import { TrendingUp, Sparkles, Search, Filter, Plus, Globe, Star, Grid, List } from 'lucide-react';
 
 const CommunityFeed = () => {
     const [activeTab, setActiveTab] = useState('foryou');
     const [searchQuery, setSearchQuery] = useState('');
+    const [viewMode, setViewMode] = useState('grid');
 
     // Mock Data - Extended
     const articles = [
@@ -90,19 +91,22 @@ const CommunityFeed = () => {
     return (
         <div className="community-page">
             <header className="community-header">
-                <div className="community-title-section">
-                    <h1>Discover</h1>
-                    <p>Explore articles from the community</p>
+                <div className="header-title">
+                    <Globe size={28} className="header-icon" />
+                    <div>
+                        <h1>Discover</h1>
+                        <p>Explore articles from the community</p>
+                    </div>
                 </div>
-                <Link to="/write" className="btn btn-primary">
+                <Link to="/write" className="btn-create-collection">
                     <Plus size={18} /> Write Article
                 </Link>
             </header>
 
             {/* Search and Filter Bar */}
-            <div className="community-toolbar">
-                <div className="community-search">
-                    <Search size={18} className="search-icon" />
+            <div className="collections-toolbar">
+                <div className="search-box">
+                    <Search size={18} />
                     <input
                         type="text"
                         placeholder="Search articles..."
@@ -110,19 +114,35 @@ const CommunityFeed = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <div className="feed-tabs">
+                <div className="toolbar-actions">
                     <button
-                        className={`feed-tab ${activeTab === 'foryou' ? 'active' : ''}`}
+                        className={`filter-btn ${activeTab === 'foryou' ? 'active' : ''}`}
                         onClick={() => setActiveTab('foryou')}
                     >
-                        <Sparkles size={16} /> For You
+                        <Sparkles size={16} />
+                        For You
                     </button>
                     <button
-                        className={`feed-tab ${activeTab === 'trending' ? 'active' : ''}`}
+                        className={`filter-btn ${activeTab === 'trending' ? 'active' : ''}`}
                         onClick={() => setActiveTab('trending')}
                     >
-                        <TrendingUp size={16} /> Trending
+                        <TrendingUp size={16} />
+                        Trending
                     </button>
+                    <div className="view-toggle">
+                        <button
+                            className={viewMode === 'grid' ? 'active' : ''}
+                            onClick={() => setViewMode('grid')}
+                        >
+                            <Grid size={18} />
+                        </button>
+                        <button
+                            className={viewMode === 'list' ? 'active' : ''}
+                            onClick={() => setViewMode('list')}
+                        >
+                            <List size={18} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -158,15 +178,15 @@ const CommunityFeed = () => {
                     {activeTab === 'trending' ? 'Trending Now 🔥' : 'Latest Articles'}
                 </h2>
                 {filteredArticles.length > 0 ? (
-                    <div className="articles-grid">
+                    <div className={`articles-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
                         {filteredArticles.map(article => (
-                            <ArticleCard key={article.id} article={article} />
+                            <ArticleCard key={article.id} article={article} viewMode={viewMode} />
                         ))}
                     </div>
                 ) : (
-                    <div className="no-results">
+                    <div className="empty-state">
                         <Search size={48} />
-                        <h3>No articles found</h3>
+                        <h2>No articles found</h2>
                         <p>Try a different search term</p>
                     </div>
                 )}

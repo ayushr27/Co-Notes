@@ -1,30 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/editor.css';
-
-/* Pages - User & System */
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Settings from './pages/Settings';
 import UserProfile from './pages/UserProfile';
 import Notifications from './pages/Notifications';
-
-/* Pages - Notion-Lite Core */
 import Dashboard from './pages/Dashboard';
 import DocumentPage from './pages/DocumentPage';
 import DocumentHistory from './pages/DocumentHistory';
 import Trash from './pages/Trash';
 import Search from './pages/Search';
 import Teamspace from './pages/Teamspace';
-
-/* Pages - Quick Links (New) */
 import CollectionsPage from './pages/CollectionsPage';
 import IdeasPage from './pages/IdeasPage';
 import QuickNotesPage from './pages/QuickNotesPage';
 import TodoListPage from './pages/TodoListPage';
-
-/* Pages - Community / Publishing */
 import CommunityFeed from './pages/CommunityFeed';
 import ArticlePage from './pages/ArticlePage';
 import WriteArticle from './pages/WriteArticle';
