@@ -205,25 +205,6 @@ const CollectionsPage = () => {
                 </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="quick-links-section">
-                <h2 className="section-label">Quick Links</h2>
-                <div className="quick-links-grid">
-                    <Link to="/ideas" className="quick-link-card ideas">
-                        <Lightbulb size={24} />
-                        <span>Ideas</span>
-                    </Link>
-                    <Link to="/quick-notes" className="quick-link-card notes">
-                        <Zap size={24} />
-                        <span>Quick Notes</span>
-                    </Link>
-                    <Link to="/todos" className="quick-link-card todos">
-                        <CheckSquare size={24} />
-                        <span>To-Do List</span>
-                    </Link>
-                </div>
-            </div>
-
             {/* Collections Grid/List */}
             <div className="collections-section">
                 <h2 className="section-label">Your Collections</h2>

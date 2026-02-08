@@ -5,7 +5,7 @@ import {
     Image as ImageIcon, Eye, Save, Send, ArrowLeft, X, ChevronDown,
     Tag, Folder, Code, Briefcase, TrendingUp, Palette, BookOpen,
     Heart, Cpu, Globe, Mic, MicOff, Clock, Users, Lock, Sparkles,
-    Check, Plus, Search, Zap, Target, Award, Coffee
+    Check, Plus, Search, Zap
 } from 'lucide-react';
 
 // Article Categories with subcategories
@@ -81,14 +81,6 @@ const FRAMEWORKS_TOOLS = [
     'AWS', 'Firebase', 'MongoDB', 'PostgreSQL', 'GraphQL', 'TensorFlow', 'PyTorch'
 ];
 
-// Experience Levels
-const EXPERIENCE_LEVELS = [
-    { id: 'beginner', label: 'Beginner', icon: <Coffee size={16} />, description: 'New to the topic' },
-    { id: 'intermediate', label: 'Intermediate', icon: <Target size={16} />, description: 'Some experience' },
-    { id: 'advanced', label: 'Advanced', icon: <Zap size={16} />, description: 'Experienced readers' },
-    { id: 'expert', label: 'Expert', icon: <Award size={16} />, description: 'Deep expertise required' }
-];
-
 // Voice Recognition Hook
 const useVoiceRecognition = () => {
     const [isListening, setIsListening] = useState(false);
@@ -154,7 +146,6 @@ const WriteArticle = () => {
     const [selectedFrameworks, setSelectedFrameworks] = useState([]);
 
     // Article options
-    const [experienceLevel, setExperienceLevel] = useState('intermediate');
     const [estimatedReadTime, setEstimatedReadTime] = useState(5);
     const [visibility, setVisibility] = useState('public'); // public, unlisted, members
     const [allowComments, setAllowComments] = useState(true);
@@ -259,7 +250,6 @@ const WriteArticle = () => {
             tags,
             languages: selectedLanguages,
             frameworks: selectedFrameworks,
-            experienceLevel,
             estimatedReadTime,
             visibility,
             allowComments,
@@ -520,28 +510,6 @@ const WriteArticle = () => {
                             />
                         </div>
                         <p className="helper-text">Add up to 5 tags to help readers find your article</p>
-                    </div>
-
-                    {/* Experience Level */}
-                    <div className="sidebar-section">
-                        <h3 className="section-title">
-                            <Target size={16} /> Experience Level
-                        </h3>
-                        <div className="experience-options">
-                            {EXPERIENCE_LEVELS.map(level => (
-                                <button
-                                    key={level.id}
-                                    className={`experience-btn ${experienceLevel === level.id ? 'active' : ''}`}
-                                    onClick={() => setExperienceLevel(level.id)}
-                                >
-                                    {level.icon}
-                                    <div>
-                                        <strong>{level.label}</strong>
-                                        <span>{level.description}</span>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
                     </div>
 
                     {/* Article Stats */}

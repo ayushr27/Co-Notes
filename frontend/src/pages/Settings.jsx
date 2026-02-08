@@ -13,9 +13,6 @@ const Settings = () => {
     const tabs = [
         { id: 'profile', label: 'Profile', icon: User },
         { id: 'appearance', label: 'Appearance', icon: Palette },
-        { id: 'notifications', label: 'Notifications', icon: Bell },
-        { id: 'security', label: 'Security', icon: Shield },
-        { id: 'billing', label: 'Billing', icon: CreditCard },
     ];
 
     const handleThemeChange = (newTheme) => {
@@ -29,9 +26,9 @@ const Settings = () => {
     };
 
     return (
-        <div className="settings-page">
+        <div className="settings-page" role="main">
             <div className="settings-container">
-                <header className="settings-header">
+                <header className="settings-header" aria-label="Settings">
                     <h1>Settings</h1>
                     <p>Manage your account settings and preferences</p>
                 </header>
@@ -109,106 +106,6 @@ const Settings = () => {
                                             <span>System</span>
                                         </button>
                                     </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'notifications' && (
-                            <div className="settings-section">
-                                <h2>Notifications</h2>
-                                <p className="section-desc">Configure how you receive notifications</p>
-
-                                <div className="notification-options">
-                                    <div className="notification-item">
-                                        <div className="notification-info">
-                                            <span className="notification-label">Email Notifications</span>
-                                            <span className="notification-desc">Receive updates via email</span>
-                                        </div>
-                                        <label className="toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={notifications.email}
-                                                onChange={(e) => setNotifications({ ...notifications, email: e.target.checked })}
-                                            />
-                                            <span className="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                    <div className="notification-item">
-                                        <div className="notification-info">
-                                            <span className="notification-label">Push Notifications</span>
-                                            <span className="notification-desc">Receive push notifications in browser</span>
-                                        </div>
-                                        <label className="toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={notifications.push}
-                                                onChange={(e) => setNotifications({ ...notifications, push: e.target.checked })}
-                                            />
-                                            <span className="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                    <div className="notification-item">
-                                        <div className="notification-info">
-                                            <span className="notification-label">Weekly Digest</span>
-                                            <span className="notification-desc">Get a weekly summary of your activity</span>
-                                        </div>
-                                        <label className="toggle">
-                                            <input
-                                                type="checkbox"
-                                                checked={notifications.weekly}
-                                                onChange={(e) => setNotifications({ ...notifications, weekly: e.target.checked })}
-                                            />
-                                            <span className="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'security' && (
-                            <div className="settings-section">
-                                <h2>Security</h2>
-                                <p className="section-desc">Manage your account security</p>
-
-                                <div className="security-options">
-                                    <div className="security-item">
-                                        <h3>Change Password</h3>
-                                        <p>Update your password regularly for better security</p>
-                                        <button className="btn btn-outline">Change Password</button>
-                                    </div>
-                                    <div className="security-item">
-                                        <h3>Two-Factor Authentication</h3>
-                                        <p>Add an extra layer of security to your account</p>
-                                        <button className="btn btn-primary">Enable 2FA</button>
-                                    </div>
-                                    <div className="security-item">
-                                        <h3>Active Sessions</h3>
-                                        <p>View and manage your active sessions</p>
-                                        <button className="btn btn-outline">View Sessions</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'billing' && (
-                            <div className="settings-section">
-                                <h2>Billing</h2>
-                                <p className="section-desc">Manage your subscription and billing</p>
-
-                                <div className="current-plan">
-                                    <div className="plan-badge">Free Plan</div>
-                                    <p>You're currently on the free plan</p>
-                                </div>
-
-                                <div className="upgrade-card">
-                                    <h3>Upgrade to Pro</h3>
-                                    <ul className="pro-features">
-                                        <li>✓ Unlimited notes</li>
-                                        <li>✓ Real-time collaboration</li>
-                                        <li>✓ Advanced permissions</li>
-                                        <li>✓ Priority support</li>
-                                    </ul>
-                                    <button className="btn btn-primary btn-lg">Upgrade Now - $9/month</button>
                                 </div>
                             </div>
                         )}

@@ -236,38 +236,32 @@ const Landing = () => {
     {
       icon: <FileText size={28} />,
       title: 'Rich Block Editor',
-      description: 'Notion-style block editor with markdown support, embedded media, code blocks, and beautiful typography.',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      description: 'Notion-style block editor with markdown support, embedded media, code blocks, and beautiful typography.'
     },
     {
       icon: <Users size={28} />,
       title: 'Real-time Collaboration',
-      description: 'Work together seamlessly with live cursors, presence indicators, and instant sync across all devices.',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      description: 'Work together seamlessly with live cursors, presence indicators, and instant sync across all devices.'
     },
     {
       icon: <Share2 size={28} />,
       title: 'Community Publishing',
-      description: 'Transform your notes into blog posts. Build an audience and share knowledge with the community.',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      description: 'Transform your notes into blog posts. Build an audience and share knowledge with the community.'
     },
     {
       icon: <Layers size={28} />,
       title: 'Smart Collections',
-      description: 'Organize with nested folders, tags, and smart views. Find anything instantly with powerful search.',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      description: 'Organize with nested folders, tags, and smart views. Find anything instantly with powerful search.'
     },
     {
       icon: <Shield size={28} />,
       title: 'Version History',
-      description: 'Never lose your work. Git-like version control with full history, diffs, and instant rollback.',
-      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+      description: 'Never lose your work. Git-like version control with full history, diffs, and instant rollback.'
     },
     {
       icon: <Zap size={28} />,
       title: 'Lightning Fast',
-      description: 'Built for speed with optimistic updates, offline support, and near-instant page loads.',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+      description: 'Built for speed with optimistic updates, offline support, and near-instant page loads.'
     }
   ];
 
@@ -320,56 +314,6 @@ const Landing = () => {
     }
   ];
 
-  const pricingPlans = [
-    {
-      name: 'Free',
-      price: '$0',
-      period: 'forever',
-      description: 'Perfect for personal use',
-      features: [
-        'Unlimited notes',
-        '5GB storage',
-        'Basic collaboration',
-        'Community access',
-        'Mobile apps'
-      ],
-      cta: 'Get Started',
-      highlighted: false
-    },
-    {
-      name: 'Pro',
-      price: '$12',
-      period: '/month',
-      description: 'For power users and creators',
-      features: [
-        'Everything in Free',
-        'Unlimited storage',
-        'Version history',
-        'Priority support',
-        'Custom domains',
-        'Advanced analytics'
-      ],
-      cta: 'Start Free Trial',
-      highlighted: true
-    },
-    {
-      name: 'Team',
-      price: '$29',
-      period: '/user/month',
-      description: 'For teams and organizations',
-      features: [
-        'Everything in Pro',
-        'Team workspaces',
-        'Admin controls',
-        'SSO & SAML',
-        'API access',
-        'Dedicated support'
-      ],
-      cta: 'Contact Sales',
-      highlighted: false
-    }
-  ];
-
   return (
     <div className="landing-page-v2">
       {/* Cursor Glow Effect */}
@@ -382,7 +326,7 @@ const Landing = () => {
       />
 
       {/* Navigation */}
-      <nav className={`landing-nav ${isScrolled ? 'scrolled' : ''}`}>
+      <nav className={`landing-nav ${isMenuOpen ? 'menu-open' : ''} ${isScrolled ? 'scrolled' : ''}`} aria-label="Main navigation">
         <div className="nav-container">
           <Link to="/" className="nav-logo">
             <span className="logo-icon">📝</span>
@@ -392,7 +336,6 @@ const Landing = () => {
           <div className="nav-links-desktop">
             <a href="#features" className="nav-link-hover">Features</a>
             <a href="#how-it-works" className="nav-link-hover">How it Works</a>
-            <a href="#pricing" className="nav-link-hover">Pricing</a>
             <Link to="/community" className="nav-link-hover">Community</Link>
           </div>
 
@@ -407,15 +350,18 @@ const Landing = () => {
           </div>
 
           <button
+            type="button"
             className="mobile-menu-btn"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-expanded={isMenuOpen}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
+        <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`} role="dialog" aria-label="Mobile menu">
           <a href="#features" onClick={() => setIsMenuOpen(false)}>Features</a>
           <a href="#how-it-works" onClick={() => setIsMenuOpen(false)}>How it Works</a>
           <a href="#pricing" onClick={() => setIsMenuOpen(false)}>Pricing</a>
@@ -449,10 +395,6 @@ const Landing = () => {
           className="hero-content-v2"
           style={{ transform: `translateY(${heroOffset * 0.5}px)` }}
         >
-          <div className="hero-badge animate-bounce-in">
-            <Sparkles size={14} />
-            <span>Now with AI-powered writing assistance</span>
-          </div>
 
           <h1 className="hero-title">
             <TextReveal>Your Ideas Deserve</TextReveal>
@@ -473,21 +415,16 @@ const Landing = () => {
                 <ArrowRight size={18} />
               </Link>
             </MagneticButton>
-            <a href="#demo" className="btn-hero-secondary hover-lift">
-              <Play size={18} />
-              <span>Watch Demo</span>
-            </a>
           </div>
 
           <div className="hero-social-proof animate-fade-up" style={{ animationDelay: '0.5s' }}>
             <div className="avatar-stack">
-              <div className="stack-avatar hover-pop" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>JD</div>
-              <div className="stack-avatar hover-pop" style={{ background: 'linear-gradient(135deg, #f093fb, #f5576c)', animationDelay: '0.1s' }}>SK</div>
-              <div className="stack-avatar hover-pop" style={{ background: 'linear-gradient(135deg, #4facfe, #00f2fe)', animationDelay: '0.2s' }}>MR</div>
-              <div className="stack-avatar hover-pop" style={{ background: 'linear-gradient(135deg, #43e97b, #38f9d7)', animationDelay: '0.3s' }}>AL</div>
+              <div className="stack-avatar hover-pop">JD</div>
+              <div className="stack-avatar hover-pop" style={{ animationDelay: '0.1s' }}>SK</div>
+              <div className="stack-avatar hover-pop" style={{ animationDelay: '0.2s' }}>MR</div>
+              <div className="stack-avatar hover-pop" style={{ animationDelay: '0.3s' }}>AL</div>
               <div className="stack-avatar more hover-pop" style={{ animationDelay: '0.4s' }}>+2K</div>
             </div>
-            <p>Trusted by <strong>2,000+</strong> creators and teams</p>
           </div>
         </div>
 
@@ -518,7 +455,7 @@ const Landing = () => {
                 </div>
               </div>
             </div>
-            <div className="preview-collab-cursor" style={{ top: '45%', left: '60%' }}>
+            <div className="preview-collab-cursor">
               <div className="cursor-pointer"></div>
               <span className="cursor-label">Sarah</span>
             </div>
@@ -553,9 +490,6 @@ const Landing = () => {
       <section id="features" className="features-section-v2">
         <div className="section-container">
           <div className="section-header">
-            <TextReveal>
-              <span className="section-tag">Features</span>
-            </TextReveal>
             <TextReveal delay={100}>
               <h2 className="section-title">Everything you need to <span className="gradient-text">capture ideas</span></h2>
             </TextReveal>
@@ -569,7 +503,7 @@ const Landing = () => {
           <StaggerContainer className="features-grid" staggerDelay={100}>
             {features.map((feature, index) => (
               <TiltCard key={index} className="feature-card-v2">
-                <div className="feature-icon-v2" style={{ background: feature.gradient }}>
+                <div className="feature-icon-v2">
                   {feature.icon}
                 </div>
                 <h3>{feature.title}</h3>
@@ -587,9 +521,6 @@ const Landing = () => {
       <section id="how-it-works" className="how-it-works-section">
         <div className="section-container">
           <div className="section-header">
-            <TextReveal>
-              <span className="section-tag">How It Works</span>
-            </TextReveal>
             <TextReveal delay={100}>
               <h2 className="section-title">Get started in <span className="gradient-text">3 simple steps</span></h2>
             </TextReveal>
@@ -612,202 +543,15 @@ const Landing = () => {
             ))}
           </StaggerContainer>
         </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="testimonials-section">
-        <div className="section-container">
-          <div className="section-header">
-            <TextReveal>
-              <span className="section-tag">Testimonials</span>
-            </TextReveal>
-            <TextReveal delay={100}>
-              <h2 className="section-title">Loved by <span className="gradient-text">creators worldwide</span></h2>
-            </TextReveal>
-          </div>
-
-          <div className="testimonials-carousel">
-            <div className={`testimonial-card slide-transition`}>
-              <div className="quote-mark">"</div>
-              <p className="testimonial-quote">{testimonials[activeTestimonial].quote}</p>
-              <div className="testimonial-author">
-                <div className="author-avatar pulse-soft">{testimonials[activeTestimonial].avatar}</div>
-                <div className="author-info">
-                  <strong>{testimonials[activeTestimonial].author}</strong>
-                  <span>{testimonials[activeTestimonial].role}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="testimonial-dots">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  className={`dot ${index === activeTestimonial ? 'active' : ''}`}
-                  onClick={() => setActiveTestimonial(index)}
-                />
-              ))}
-            </div>
-          </div>
+        <div className="hero-cta-group animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <MagneticButton>
+            <Link to="/signup" className="btn-hero-primary pulse-glow">
+              <span>Get Started</span>
+              <ArrowRight size={18} />
+            </Link>
+          </MagneticButton>
         </div>
       </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="pricing-section">
-        <div className="section-container">
-          <div className="section-header">
-            <TextReveal>
-              <span className="section-tag">Pricing</span>
-            </TextReveal>
-            <TextReveal delay={100}>
-              <h2 className="section-title">Simple, <span className="gradient-text">transparent pricing</span></h2>
-            </TextReveal>
-            <TextReveal delay={200}>
-              <p className="section-subtitle">
-                Start for free and upgrade when you need more power.
-              </p>
-            </TextReveal>
-          </div>
-
-          <StaggerContainer className="pricing-grid" staggerDelay={150}>
-            {pricingPlans.map((plan, index) => (
-              <TiltCard
-                key={index}
-                className={`pricing-card ${plan.highlighted ? 'highlighted' : ''}`}
-                intensity={8}
-              >
-                {plan.highlighted && <div className="popular-badge shimmer">Most Popular</div>}
-                <h3 className="plan-name">{plan.name}</h3>
-                <div className="plan-price">
-                  <span className="price">{plan.price}</span>
-                  <span className="period">{plan.period}</span>
-                </div>
-                <p className="plan-description">{plan.description}</p>
-                <ul className="plan-features">
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="feature-check-in" style={{ animationDelay: `${fIndex * 0.1}s` }}>
-                      <CheckCircle size={16} />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <MagneticButton>
-                  <Link
-                    to="/signup"
-                    className={`btn-pricing ${plan.highlighted ? 'primary' : 'secondary'} ripple-effect`}
-                  >
-                    {plan.cta}
-                  </Link>
-                </MagneticButton>
-              </TiltCard>
-            ))}
-          </StaggerContainer>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-container hover-glow-soft">
-          <div className="cta-background">
-            <div className="cta-orb orb-1 animate-pulse-slow"></div>
-            <div className="cta-orb orb-2 animate-pulse-slow" style={{ animationDelay: '-2s' }}></div>
-          </div>
-          <div className="cta-content">
-            <TextReveal>
-              <h2>Ready to transform your workflow?</h2>
-            </TextReveal>
-            <TextReveal delay={100}>
-              <p>Join thousands of creators and teams using Co-Notes to build their second brain.</p>
-            </TextReveal>
-            <div className="cta-actions animate-fade-up" style={{ animationDelay: '0.3s' }}>
-              <MagneticButton>
-                <Link to="/signup" className="btn-cta-primary pulse-glow">
-                  Get Started Free
-                  <ArrowRight size={18} />
-                </Link>
-              </MagneticButton>
-              <Link to="/community" className="btn-cta-secondary hover-lift">
-                Explore Community
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="landing-footer-v2">
-        <div className="footer-container">
-          <div className="footer-main">
-            <div className="footer-brand-v2">
-              <Link to="/" className="footer-logo">
-                <span className="logo-icon">📝</span>
-                <span className="logo-text">Co-Notes</span>
-              </Link>
-              <p>Build your second brain with the modern workspace for notes, docs, and collaboration.</p>
-              <div className="footer-social">
-                <a href="#" className="social-btn hover-pop" aria-label="Twitter">
-                  <Twitter size={18} />
-                </a>
-                <a href="#" className="social-btn hover-pop" aria-label="GitHub">
-                  <Github size={18} />
-                </a>
-                <a href="#" className="social-btn hover-pop" aria-label="LinkedIn">
-                  <Linkedin size={18} />
-                </a>
-                <a href="#" className="social-btn hover-pop" aria-label="Website">
-                  <Globe size={18} />
-                </a>
-              </div>
-            </div>
-
-            <div className="footer-links-grid">
-              <div className="footer-col">
-                <h4>Product</h4>
-                <ul>
-                  <li><a href="#features" className="link-underline">Features</a></li>
-                  <li><Link to="/community" className="link-underline">Community</Link></li>
-                  <li><a href="#pricing" className="link-underline">Pricing</a></li>
-                  <li><a href="#" className="link-underline">Changelog</a></li>
-                </ul>
-              </div>
-              <div className="footer-col">
-                <h4>Resources</h4>
-                <ul>
-                  <li><a href="#" className="link-underline">Documentation</a></li>
-                  <li><a href="#" className="link-underline">Help Center</a></li>
-                  <li><a href="#" className="link-underline">API Reference</a></li>
-                  <li><a href="#" className="link-underline">Templates</a></li>
-                </ul>
-              </div>
-              <div className="footer-col">
-                <h4>Company</h4>
-                <ul>
-                  <li><a href="#" className="link-underline">About</a></li>
-                  <li><a href="#" className="link-underline">Careers</a></li>
-                  <li><a href="#" className="link-underline">Blog</a></li>
-                  <li><a href="#" className="link-underline">Contact</a></li>
-                </ul>
-              </div>
-              <div className="footer-col">
-                <h4>Legal</h4>
-                <ul>
-                  <li><a href="#" className="link-underline">Privacy</a></li>
-                  <li><a href="#" className="link-underline">Terms</a></li>
-                  <li><a href="#" className="link-underline">Security</a></li>
-                  <li><a href="#" className="link-underline">Cookies</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="footer-bottom-v2">
-            <p>© {new Date().getFullYear()} Co-Notes. All rights reserved.</p>
-            <p className="made-with">
-              Made with <Heart size={14} className="heart-icon" /> for creators everywhere
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

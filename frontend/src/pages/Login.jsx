@@ -18,7 +18,7 @@ const Login = () => {
 
     return (
         <div className="auth-form-container">
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleSubmit} className="auth-form" aria-labelledby="auth-title" aria-describedby="auth-subtitle">
                 <div className="form-group">
                     <label htmlFor="email">Email</label>
                     <div className="input-icon-wrapper">

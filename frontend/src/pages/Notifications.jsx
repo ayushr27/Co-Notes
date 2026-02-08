@@ -69,9 +69,9 @@ const Notifications = () => {
             : notifications.filter(n => n.read);
 
     return (
-        <div className="notifications-page">
+        <div className="notifications-page" role="main">
             <div className="notifications-container">
-                <header className="notifications-header">
+                <header className="notifications-header" aria-label="Notifications and activity">
                     <h1>Notifications & Activity</h1>
                     <button className="btn btn-outline btn-sm">
                         <Check size={16} /> Mark all as read
@@ -107,25 +107,6 @@ const Notifications = () => {
                                         <span className="notif-time">{notif.time}</span>
                                     </div>
                                     {!notif.read && <div className="unread-dot"></div>}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Activity Log Panel */}
-                    <div className="activity-panel">
-                        <div className="panel-header">
-                            <h2><Clock size={18} /> Activity Log</h2>
-                        </div>
-
-                        <div className="activity-list">
-                            {activityLog.map((activity) => (
-                                <div key={activity.id} className="activity-item">
-                                    <div className="activity-dot"></div>
-                                    <div className="activity-content">
-                                        <p><strong>{activity.action}</strong> {activity.item}</p>
-                                        <span className="activity-time">{activity.time}</span>
-                                    </div>
                                 </div>
                             ))}
                         </div>
