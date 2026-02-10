@@ -147,10 +147,7 @@ const Sidebar = ({ isOpen = false, onClose = () => { }, isMobile = false }) => {
             <div className="sidebar-section">
                 <h3 className="section-title">Account</h3>
                 <div className="sidebar-tree">
-                    <Link to="/settings" className={`tree-item ${isActive('/settings') ? 'active' : ''}`}>
-                        <Settings size={16} />
-                        <span>Settings</span>
-                    </Link>
+                   
                     <Link to="/u/jane" className={`tree-item ${isActive('/u') ? 'active' : ''}`}>
                         <User size={16} />
                         <span>My Profile</span>
@@ -158,6 +155,10 @@ const Sidebar = ({ isOpen = false, onClose = () => { }, isMobile = false }) => {
                     <Link to="/notifications" className={`tree-item ${isActive('/notifications') ? 'active' : ''}`}>
                         <Bell size={16} />
                         <span>Notifications</span>
+                    </Link>
+                     <Link to="/settings" className={`tree-item ${isActive('/settings') ? 'active' : ''}`}>
+                        <Settings size={16} />
+                        <span>Settings</span>
                     </Link>
                 </div>
             </div>

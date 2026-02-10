@@ -22,6 +22,7 @@ const Notifications = lazy(() => import('./pages/Notifications'));
 const Search = lazy(() => import('./pages/Search'));
 const Teamspace = lazy(() => import('./pages/Teamspace'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
+const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage'));
 const IdeasPage = lazy(() => import('./pages/IdeasPage'));
 const QuickNotesPage = lazy(() => import('./pages/QuickNotesPage'));
 const TodoListPage = lazy(() => import('./pages/TodoListPage'));
@@ -70,7 +71,7 @@ function App() {
 
             {/* Quick Links - Collections, Ideas, Notes, Todos */}
             <Route path="/collections" element={<CollectionsPage />} />
-            <Route path="/collection/:collectionId" element={<CollectionsPage />} />
+            <Route path="/collection/:collectionId" element={<CollectionDetailPage />} />
             <Route path="/ideas" element={<IdeasPage />} />
             <Route path="/quick-notes" element={<QuickNotesPage />} />
             <Route path="/todos" element={<TodoListPage />} />

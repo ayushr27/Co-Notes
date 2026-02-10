@@ -11,52 +11,67 @@ import {
 const CollectionsPage = () => {
     const navigate = useNavigate();
 
-    const [collections, setCollections] = useState([
-        {
-            id: 1,
-            name: 'Work Projects',
-            description: 'All work-related documents and notes',
-            icon: '💼',
-            color: '#667eea',
-            itemCount: 12,
-            isPrivate: false,
-            starred: true,
-            createdAt: new Date(Date.now() - 604800000)
-        },
-        {
-            id: 2,
-            name: 'Personal Notes',
-            description: 'My personal thoughts and journals',
-            icon: '📝',
-            color: '#f093fb',
-            itemCount: 8,
-            isPrivate: true,
-            starred: false,
-            createdAt: new Date(Date.now() - 1209600000)
-        },
-        {
-            id: 3,
-            name: 'Learning Resources',
-            description: 'Courses, tutorials, and study materials',
-            icon: '📚',
-            color: '#4facfe',
-            itemCount: 24,
-            isPrivate: false,
-            starred: true,
-            createdAt: new Date(Date.now() - 2592000000)
-        },
-        {
-            id: 4,
-            name: 'Travel Plans',
-            description: 'Trip itineraries and travel ideas',
-            icon: '✈️',
-            color: '#43e97b',
-            itemCount: 5,
-            isPrivate: true,
-            starred: false,
-            createdAt: new Date(Date.now() - 259200000)
+    const [collections, setCollections] = useState(() => {
+        const stored = localStorage.getItem('co-notes-collections');
+        if (stored) {
+            return JSON.parse(stored).map(c => ({ ...c, createdAt: new Date(c.createdAt) }));
         }
-    ]);
+        return [
+            {
+                id: 1,
+                name: 'Work Projects',
+                description: 'All work-related documents and notes',
+                icon: '💼',
+                color: '#667eea',
+                template: 'project',
+                itemCount: 12,
+                isPrivate: false,
+                starred: true,
+                createdAt: new Date(Date.now() - 604800000)
+            },
+            {
+                id: 2,
+                name: 'Personal Notes',
+                description: 'My personal thoughts and journals',
+                icon: '📝',
+                color: '#f093fb',
+                template: 'journal',
+                itemCount: 8,
+                isPrivate: true,
+                starred: false,
+                createdAt: new Date(Date.now() - 1209600000)
+            },
+            {
+                id: 3,
+                name: 'Learning Resources',
+                description: 'Courses, tutorials, and study materials',
+                icon: '📚',
+                color: '#4facfe',
+                template: 'learning',
+                itemCount: 24,
+                isPrivate: false,
+                starred: true,
+                createdAt: new Date(Date.now() - 2592000000)
+            },
+            {
+                id: 4,
+                name: 'Travel Plans',
+                description: 'Trip itineraries and travel ideas',
+                icon: '✈️',
+                color: '#43e97b',
+                template: 'travel',
+                itemCount: 5,
+                isPrivate: true,
+                starred: false,
+                createdAt: new Date(Date.now() - 259200000)
+            }
+        ];
+    });
+
+    // Persist collections to localStorage
+    React.useEffect(() => {
+        localStorage.setItem('co-notes-collections', JSON.stringify(collections));
+    }, [collections]);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -102,6 +117,7 @@ const CollectionsPage = () => {
                 description: newCollection.description,
                 icon: newCollection.icon,
                 color: newCollection.color,
+                template: newCollection.template || 'blank',
                 itemCount: 0,
                 isPrivate: newCollection.isPrivate,
                 starred: false,
