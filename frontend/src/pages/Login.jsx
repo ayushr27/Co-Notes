@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 const Login = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        // Simulate API login
-        setTimeout(() => {
-            setLoading(false);
-            navigate('/dashboard');
-        }, 1500);
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        const response = await axios.post("http://localhost:3000/api/auth/login", {
+            email: email,
+            password: password
+        })
+        console.log(response.data);
     };
 
     return (

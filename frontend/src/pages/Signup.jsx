@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 const Signup = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        setLoading(true);
-        // Simulate API signup
-        setTimeout(() => {
-            setLoading(false);
-            navigate('/dashboard');
-        }, 1500);
+        setLoading(true)
+        const name = e.target.name.value;
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        try {
+            const response = await axios.post('http://localhost:3000/api/auth/register', {
+                name: name, 
+                email : email,
+                password: password
+            })
+            alert(response.data.message)
+            navigate('/login')
+            setLoading(false)
+        } catch (error) {
+            alert(error.response?.data?.message)
+            setLoading(false)
+        }
     };
 
     return (
