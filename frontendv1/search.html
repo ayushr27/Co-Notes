@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .large-search-input {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 1.5rem 1.5rem 3.5rem;
+            font-size: 1.25rem;
+            color: #fff;
+            transition: all 0.2s;
+            outline: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%238b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+            background-repeat: no-repeat;
+            background-position: 1rem center;
+        }
+
+        .large-search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.2);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2358a6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 0.5rem 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-pill:hover, .filter-pill.active {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .search-results {
+            margin-top: 3rem;
+        }
+
+        .result-item {
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+        }
+
+        .result-item:hover {
+            transform: translateX(5px);
+            border-color: #8b949e;
+        }
+
+        .result-title {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .result-path {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .result-snippet {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+
+        .highlight {
+            background-color: rgba(227, 179, 65, 0.3);
+            color: #fff;
+            padding: 0 0.2rem;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Search Workspace</span>
+                </div>
+                <div class="header-right">
+                    <a href="dashboard.html" class="btn btn-secondary">✕ Close Search</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="search-container">
+                    <input type="text" id="globalSearch" class="large-search-input" placeholder="Search across documents, ideas, and collections..." autofocus>
+                    
+                    <div class="filters-row">
+                        <button class="filter-pill active">All Results</button>
+                        <button class="filter-pill">📄 Documents</button>
+                        <button class="filter-pill">💡 Ideas</button>
+                        <button class="filter-pill">☑️ Tasks</button>
+                        <button class="filter-pill">📁 Collections</button>
+                    </div>
+
+                    <div class="search-results" id="searchResults">
+                        <!-- Simulated Results -->
+                        <p style="color: var(--text-muted); text-align: center; margin-top: 4rem;">Start typing to search your entire workspace...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('globalSearch');
+        const searchResults = document.getElementById('searchResults');
+
+        // Mock data
+        const database = [
+            { type: 'Document', title: 'Q3 Marketing Strategy', path: 'Collections / Work Projects', content: 'Our main focus for Q3 is increasing engagement on the platform through gamification and email campaigns.' },
+            { type: 'Idea', title: 'Gamify Note-taking', path: 'Idea Board', content: 'Add achievements and streaks to encourage daily writing habits. Maybe a cute mascot that grows?' },
+            { type: 'Task', title: 'Review marketing copy for landing page', path: 'To-Do List', content: 'Needs to be done before Friday meeting.' },
+            { type: 'Collection', title: 'Marketing Assets', path: 'Collections', content: 'Logos, banners, and copy text for marketing team.' }
+        ];
+
+        let timeout = null;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(timeout);
+            const query = e.target.value.toLowerCase().trim();
+            
+            if(!query) {
+                searchResults.innerHTML = '<p style="color: var(--text-muted); text-align: center; margin-top: 4rem;">Start typing to search your entire workspace...</p>';
+                return;
+            }
+
+            searchResults.innerHTML = '<p style="color: var(--text-muted);">Searching...</p>';
+            
+            timeout = setTimeout(() => {
+                const results = database.filter(item => 
+                    item.title.toLowerCase().includes(query) || 
+                    item.content.toLowerCase().includes(query)
+                );
+
+                if(results.length === 0) {
+                    searchResults.innerHTML = `
+                        <div style="text-align: center; margin-top: 3rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                            <h3 style="color: #fff;">No results found for "${query}"</h3>
+                            <p style="color: var(--text-muted);">Try searching for something else or check your spelling.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                searchResults.innerHTML = `<p style="color: var(--text-muted); margin-bottom: 1.5rem;">Found ${results.length} results</p>`;
+                
+                results.forEach(item => {
+                    const el = document.createElement('a');
+                    el.href = '#';
+                    el.className = 'result-item';
+                    
+                    // Simple highlighting for demo
+                    const regex = new RegExp(`(${query})`, 'gi');
+                    const highlightedContent = item.content.replace(regex, '<span class="highlight">$1</span>');
+                    const highlightedTitle = item.title.replace(regex, '<span class="highlight">$1</span>');
+
+                    el.innerHTML = `
+                        <div class="result-path">${item.type} • ${item.path}</div>
+                        <div class="result-title">${highlightedTitle}</div>
+                        <div class="result-snippet">${highlightedContent}</div>
+                    `;
+                    searchResults.appendChild(el);
+                });
+            }, 300);
+        });
+
+        // Filter pills active state
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

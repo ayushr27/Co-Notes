@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        .settings-nav {
+            padding: 1.5rem 0;
+            border-right: 1px solid var(--border-color);
+            background-color: rgba(13, 17, 23, 0.5);
+        }
+
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            color: var(--text-color);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .settings-nav-item:hover {
+            background-color: var(--border-color);
+        }
+
+        .settings-nav-item.active {
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+            background-color: rgba(88, 166, 255, 0.1);
+        }
+
+        .settings-nav-item.danger {
+            color: var(--danger-color);
+        }
+
+        .settings-nav-item.danger:hover {
+            background-color: rgba(248, 81, 73, 0.1);
+            color: var(--danger-color);
+        }
+
+        .settings-nav-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 1rem 0;
+        }
+
+        .settings-content-area {
+            padding: 2.5rem;
+        }
+
+        .settings-panel {
+            display: none;
+        }
+
+        .settings-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .theme-option {
+            flex: 1;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-option:hover {
+            border-color: #8b949e;
+        }
+
+        .theme-option.active {
+            border-color: var(--primary-color);
+            background-color: rgba(88, 166, 255, 0.05);
+        }
+        
+        .theme-option-icon {
+            font-size: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+            .settings-nav {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                display: flex;
+                overflow-x: auto;
+                padding: 1rem;
+            }
+            .settings-nav-item {
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                padding: 0.5rem 1rem;
+                white-space: nowrap;
+                width: auto;
+            }
+            .settings-nav-item.active {
+                border-left: none;
+                border-bottom: 3px solid var(--primary-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item active">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Settings</span>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <h1>Settings</h1>
+                </div>
+                <p class="page-subtitle">Manage your account settings and preferences</p>
+
+                <div class="settings-layout">
+                    <!-- Settings Navigation -->
+                    <nav class="settings-nav">
+                        <button class="settings-nav-item active" data-target="profile-panel">
+                            <span>👤</span> Profile
+                        </button>
+                        <button class="settings-nav-item" data-target="appearance-panel">
+                            <span>🎨</span> Appearance
+                        </button>
+                        <div class="settings-nav-divider"></div>
+                        <button class="settings-nav-item danger" onclick="window.location.href='index.html'">
+                            <span>🚪</span> Log out
+                        </button>
+                    </nav>
+
+                    <!-- Settings Content -->
+                    <div class="settings-content-area">
+                        
+                        <!-- Profile Panel -->
+                        <div id="profile-panel" class="settings-panel active">
+                            <h2 style="margin-bottom: 1.5rem;">Profile Settings</h2>
+                            
+                            <div class="profile-avatar-section">
+                                <div class="avatar-large">J</div>
+                                <button class="btn btn-secondary">Change Avatar</button>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Display Name</label>
+                                <input type="text" class="form-control" value="Jane Doe">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" value="jane@example.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Bio</label>
+                                <textarea class="form-control" rows="4" placeholder="Tell us about yourself..."></textarea>
+                            </div>
+
+                            <button class="btn btn-primary" onclick="alert('Profile updated')">Save Changes</button>
+                        </div>
+
+                        <!-- Appearance Panel -->
+                        <div id="appearance-panel" class="settings-panel">
+                            <h2 style="margin-bottom: 0.5rem;">Appearance</h2>
+                            <p style="color: var(--text-muted); margin-bottom: 2rem;">Customize how Co-Notes looks on your device</p>
+
+                            <h3 style="margin-bottom: 1rem;">Theme</h3>
+                            <div class="theme-options">
+                                <button class="theme-option active" onclick="setTheme(this, 'dark')">
+                                    <span class="theme-option-icon">🌙</span>
+                                    <span>Dark</span>
+                                </button>
+                                <button class="theme-option" onclick="setTheme(this, 'light')">
+                                    <span class="theme-option-icon">☀️</span>
+                                    <span>Light</span>
+                                </button>
+                                <button class="theme-option" onclick="setTheme(this, 'system')">
+                                    <span class="theme-option-icon">💻</span>
+                                    <span>System</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab switching logic
+        const navItems = document.querySelectorAll('.settings-nav-item[data-target]');
+        const panels = document.querySelectorAll('.settings-panel');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active from all tabs
+                navItems.forEach(nav => nav.classList.remove('active'));
+                
+                // Hide all panels
+                panels.forEach(panel => panel.classList.remove('active'));
+
+                // Activate selected tab and panel
+                item.classList.add('active');
+                const targetId = item.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Theme switching logic (Mock)
+        function setTheme(btn, theme) {
+            const options = document.querySelectorAll('.theme-option');
+            options.forEach(opt => opt.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // In a real app we would apply classes to body or :root here
+            if (theme === 'light') {
+                document.body.style.filter = 'invert(0.9) hue-rotate(180deg)';
+                document.querySelector('.app-background-orbs').style.filter = 'invert(0.9) hue-rotate(180deg)';
+                document.querySelectorAll('img, .avatar-large, .stat-icon').forEach(el => el.style.filter = 'invert(1) hue-rotate(180deg)');
+            } else {
+                document.body.style.filter = 'none';
+                document.querySelector('.app-background-orbs').style.filter = 'none';
+                document.querySelectorAll('img, .avatar-large, .stat-icon').forEach(el => el.style.filter = 'none');
+            }
+        }
+    </script>
+</body>
+</html>

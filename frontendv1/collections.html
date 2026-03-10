@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collections - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            width: 300px;
+            gap: 0.5rem;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            width: 100%;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .collection-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border-top: 4px solid var(--collection-color, var(--primary-color));
+        }
+
+        .collection-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            border-color: #8b949e;
+        }
+
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .collection-icon {
+            font-size: 2rem;
+        }
+
+        .collection-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .icon-btn:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .icon-btn.active {
+            color: #e3b341;
+        }
+
+        .collection-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .collection-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .collection-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .add-card {
+            border: 1px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: rgba(13, 17, 23, 0.5);
+            min-height: 200px;
+        }
+
+        .add-card:hover {
+            border-color: var(--primary-color);
+            border-style: solid;
+        }
+
+        .add-icon {
+            font-size: 2.5rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .add-card:hover .add-icon {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item active">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Collections</span>
+                </div>
+                <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
+                    <a href="search.html" style="color: var(--text-color);">🔍 Search</a>
+                    <button class="btn btn-primary" onclick="openModal()">➕ New Collection</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <span style="font-size: 2.5rem;">📁</span>
+                    <h1>Collections</h1>
+                </div>
+                <p class="page-subtitle">Organize your notes into meaningful groups</p>
+
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" id="searchInput" placeholder="Search collections...">
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" id="filterStarred">⭐ Starred</button>
+                    </div>
+                </div>
+
+                <div class="collections-grid" id="collectionsGrid">
+                    <!-- Add Card -->
+                    <div class="collection-card add-card" style="--collection-color: transparent;" onclick="openModal()">
+                        <div class="add-icon">➕</div>
+                        <h3 style="color: var(--text-color);">Create Collection</h3>
+                    </div>
+                    
+                    <!-- Dymanically Generated Cards -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>✨ Create Collection</h2>
+                <button class="icon-btn" onclick="closeModal()">✕</button>
+            </div>
+            
+            <form id="createForm">
+                <div class="form-group">
+                    <label>Collection Name</label>
+                    <input type="text" id="cName" class="form-control" placeholder="e.g., Marketing Assets" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="cDesc" class="form-control" rows="3" placeholder="What is this collection for?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Icon Emoji</label>
+                    <input type="text" id="cIcon" class="form-control" value="📁" maxlength="2">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        let collections = [
+            { id: 1, name: 'Work Projects', desc: 'All work-related documents', icon: '💼', color: '#667eea', count: 12, private: false, star: true },
+            { id: 2, name: 'Personal Notes', desc: 'My personal thoughts and journals', icon: '📝', color: '#f093fb', count: 8, private: true, star: false },
+            { id: 3, name: 'Learning Resources', desc: 'Courses, tutorials, and materials', icon: '📚', color: '#4facfe', count: 24, private: false, star: true },
+            { id: 4, name: 'Travel Plans', desc: 'Trip itineraries', icon: '✈️', color: '#43e97b', count: 5, private: true, star: false }
+        ];
+
+        let showStarredOnly = false;
+        
+        const grid = document.getElementById('collectionsGrid');
+        const searchInput = document.getElementById('searchInput');
+        let activeSearch = '';
+
+        function render() {
+            // Keep the add card, clear the rest
+            const existingAddCard = grid.querySelector('.add-card');
+            grid.innerHTML = '';
+            grid.appendChild(existingAddCard);
+
+            const filtered = collections.filter(c => {
+                const matchSearch = c.name.toLowerCase().includes(activeSearch.toLowerCase());
+                const matchStar = !showStarredOnly || c.star;
+                return matchSearch && matchStar;
+            });
+
+            filtered.forEach(c => {
+                const a = document.createElement('a');
+                a.href = `document.html?collection=${c.id}`;
+                a.className = 'collection-card';
+                a.style.setProperty('--collection-color', c.color);
+                
+                a.innerHTML = `
+                    <div class="collection-header">
+                        <span class="collection-icon">${c.icon}</span>
+                        <div class="collection-actions">
+                            <button class="icon-btn ${c.star ? 'active' : ''}" onclick="toggleStar(${c.id}, event)">⭐</button>
+                            <button class="icon-btn" onclick="deleteCol(${c.id}, event)">🗑️</button>
+                        </div>
+                    </div>
+                    <h3 class="collection-name">${c.name}</h3>
+                    <p class="collection-desc">${c.desc}</p>
+                    <div class="collection-meta">
+                        <span>📄 ${c.count} items</span>
+                        <span>${c.private ? '🔒 Private' : '🌐 Shared'}</span>
+                    </div>
+                `;
+                grid.appendChild(a);
+            });
+        }
+
+        window.toggleStar = (id, event) => {
+            event.preventDefault(); // stop navigation
+            collections = collections.map(c => c.id === id ? {...c, star: !c.star} : c);
+            render();
+        }
+
+        window.deleteCol = (id, event) => {
+            event.preventDefault();
+            if(confirm('Delete this collection?')) {
+                collections = collections.filter(c => c.id !== id);
+                render();
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            activeSearch = e.target.value;
+            render();
+        });
+
+        document.getElementById('filterStarred').addEventListener('click', (e) => {
+            showStarredOnly = !showStarredOnly;
+            e.target.classList.toggle('btn-primary');
+            e.target.classList.toggle('btn-secondary');
+            render();
+        });
+
+        // Initial render
+        render();
+
+        // Modal Logic
+        const modal = document.getElementById('createModal');
+        window.openModal = () => {
+            modal.classList.add('active');
+        };
+        window.closeModal = () => {
+            modal.classList.remove('active');
+            document.getElementById('createForm').reset();
+        };
+
+        modal.addEventListener('click', () => {
+            closeModal();
+        });
+
+        document.getElementById('createForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const colors = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140'];
+            
+            collections.unshift({
+                id: Date.now(),
+                name: document.getElementById('cName').value,
+                desc: document.getElementById('cDesc').value,
+                icon: document.getElementById('cIcon').value || '📁',
+                color: colors[Math.floor(Math.random() * colors.length)],
+                count: 0,
+                private: true,
+                star: false
+            });
+            render();
+            closeModal();
+        });
+
+    </script>
+</body>
+</html>

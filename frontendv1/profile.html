@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .profile-header {
+            display: flex;
+            align-items: flex-end;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            padding-top: 100px; /* Space for cover photo */
+        }
+
+        .cover-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.2), rgba(163, 113, 247, 0.2));
+            border-radius: 12px;
+            z-index: 0;
+            border: 1px dashed var(--border-color);
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #58a6ff, #bc8cff);
+            border: 4px solid var(--bg-color);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .profile-info {
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-bio {
+            color: var(--text-muted);
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .profile-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-num {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        /* Activity Grid (like GitHub) */
+        .activity-section {
+            margin-top: 3rem;
+        }
+
+        .activity-grid {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            max-width: 800px;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .activity-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background-color: var(--border-color); /* empty */
+        }
+
+        .activity-cell[data-level="1"] { background-color: rgba(63, 185, 80, 0.4); }
+        .activity-cell[data-level="2"] { background-color: rgba(63, 185, 80, 0.6); }
+        .activity-cell[data-level="3"] { background-color: rgba(63, 185, 80, 0.8); }
+        .activity-cell[data-level="4"] { background-color: rgba(63, 185, 80, 1); }
+
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item active">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Profile View</span>
+                </div>
+                <div class="header-right">
+                    <a href="settings.html" class="btn btn-secondary">Edit Profile</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="profile-header">
+                    <div class="cover-photo"></div>
+                    <div class="profile-avatar">J</div>
+                    
+                    <div class="profile-info">
+                        <div>
+                            <h1 class="profile-name">Jane Doe</h1>
+                            <p class="profile-bio">Software Engineer & Tech Writer. Exploring ideas, building systems, and sharing thoughts on productivity and development.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="alert('Profile share link copied!')">Share Profile</button>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span class="stat-num">124</span>
+                        <span class="stat-label">Notes Written</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-num">12</span>
+                        <span class="stat-label">Collections</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-num">1.2k</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                    <div class="profile-stat">
+                        <span class="stat-num">45</span>
+                        <span class="stat-label">Following</span>
+                    </div>
+                </div>
+
+                <div class="activity-section">
+                    <h3 style="color: #fff; margin-bottom: 1rem;">Writing Activity</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">342 contributions in the last year</p>
+                    
+                    <div class="activity-grid" id="activityGrid">
+                        <!-- JS generated grid -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Generate a random GitHub-style contribution graph
+        const grid = document.getElementById('activityGrid');
+        // Let's make roughly 52 weeks * 7 days = 364 boxes
+        for(let i=0; i<364; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'activity-cell';
+            
+            // Randomly assign activity level. More likely to be empty or low.
+            const rand = Math.random();
+            let level = 0;
+            if(rand > 0.6) level = 1;
+            if(rand > 0.8) level = 2;
+            if(rand > 0.9) level = 3;
+            if(rand > 0.95) level = 4;
+
+            cell.setAttribute('data-level', level);
+            cell.title = `${level} contributions on this day`;
+            grid.appendChild(cell);
+        }
+    </script>
+</body>
+</html>

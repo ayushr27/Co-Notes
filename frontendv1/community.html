@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Feed - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .feed-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .category-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .category-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .category-tab.active, .category-tab:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .article-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-card:hover {
+            border-color: #8b949e;
+            transform: translateY(-2px);
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .author-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a8ff78, #78ffd6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .post-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .article-title {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .article-excerpt {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .article-stats {
+            display: flex;
+            gap: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .stat-item:hover {
+            color: var(--primary-color);
+        }
+
+        /* Sidebar stats */
+        .trending-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .trending-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .trending-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .trending-tag {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .trending-title {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+            display: block;
+            text-decoration: none;
+        }
+
+        .trending-title:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .feed-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item active">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Community Feed</span>
+                </div>
+                <div class="header-right">
+                    <a href="write-article.html" class="btn btn-primary">✍️ Write & Publish</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <span style="font-size: 2.5rem; color: #bc8cff;">🌐</span>
+                    <h1>Community Feed</h1>
+                </div>
+                <p class="page-subtitle">Discover ideas, tutorials, and stories from the Co-Notes community.</p>
+
+                <div class="category-nav">
+                    <button class="category-tab active">For You</button>
+                    <button class="category-tab">Following</button>
+                    <button class="category-tab">Technology</button>
+                    <button class="category-tab">Productivity</button>
+                    <button class="category-tab">Writing</button>
+                    <button class="category-tab">Design</button>
+                </div>
+
+                <div class="feed-layout">
+                    <!-- Feed Column -->
+                    <div class="feed-column">
+                        <div class="article-card" onclick="window.location.href='#'">
+                            <div class="article-meta">
+                                <div class="author-avatar" style="background: linear-gradient(135deg, #f6d365, #fda085);">S</div>
+                                <div class="author-info">
+                                    <span class="author-name">Sarah Jenkins</span>
+                                    <span class="post-time">2 hours ago in Productivity</span>
+                                </div>
+                            </div>
+                            <h2 class="article-title">How I structured my second brain in Co-Notes</h2>
+                            <p class="article-excerpt">After trying dozens of tools over the last 5 years, I finally found a system that works for me. It relies heavily on utilizing tags, smart collections, and daily reviews. Here is my exact workflow step by step.</p>
+                            <div class="article-footer">
+                                <div class="article-stats">
+                                    <span class="stat-item">❤️ 125</span>
+                                    <span class="stat-item">💬 34</span>
+                                    <span class="stat-item">🔖 42</span>
+                                </div>
+                                <span class="badge" style="background: none; border: 1px solid var(--border-color);">5 min read</span>
+                            </div>
+                        </div>
+
+                        <div class="article-card" onclick="window.location.href='#'">
+                            <div class="article-meta">
+                                <div class="author-avatar" style="background: linear-gradient(135deg, #84fab0, #8fd3f4);">M</div>
+                                <div class="author-info">
+                                    <span class="author-name">Marcus Dev</span>
+                                    <span class="post-time">5 hours ago in Technology</span>
+                                </div>
+                            </div>
+                            <h2 class="article-title">Understanding Web Components in 2024</h2>
+                            <p class="article-excerpt">Web components have come a long way. Are they ready to replace React? In this deep dive, we explore custom elements, shadow DOM, and HTML templates, and build a simple todo app using zero frameworks.</p>
+                            <div class="article-footer">
+                                <div class="article-stats">
+                                    <span class="stat-item">❤️ 412</span>
+                                    <span class="stat-item">💬 89</span>
+                                    <span class="stat-item">🔖 156</span>
+                                </div>
+                                <span class="badge" style="background: none; border: 1px solid var(--border-color);">12 min read</span>
+                            </div>
+                        </div>
+
+                        <div class="article-card" onclick="window.location.href='#'">
+                            <div class="article-meta">
+                                <div class="author-avatar" style="background: linear-gradient(135deg, #a18cd1, #fbc2eb);">E</div>
+                                <div class="author-info">
+                                    <span class="author-name">Elena UI</span>
+                                    <span class="post-time">1 day ago in Design</span>
+                                </div>
+                            </div>
+                            <h2 class="article-title">The Psychology of Color in UI Design</h2>
+                            <p class="article-excerpt">Color is more than just aesthetics. It drives user behavior, establishes hierarchy, and communicates state. Let's look at how successful apps use color palettes to increase engagement and conversion rates.</p>
+                            <div class="article-footer">
+                                <div class="article-stats">
+                                    <span class="stat-item">❤️ 289</span>
+                                    <span class="stat-item">💬 45</span>
+                                    <span class="stat-item">🔖 112</span>
+                                </div>
+                                <span class="badge" style="background: none; border: 1px solid var(--border-color);">8 min read</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trending Sidebar -->
+                    <div class="trending-sidebar">
+                        <div class="trending-card">
+                            <h3 style="margin-bottom: 2rem; color: #fff;">📈 Trending Now</h3>
+                            
+                            <div class="trending-item">
+                                <span class="trending-tag">#development</span>
+                                <a href="#" class="trending-title">Why I moved from VSCode to Neovim (and you shouldn't)</a>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">15.2k reads</span>
+                            </div>
+
+                            <div class="trending-item">
+                                <span class="trending-tag">#productivity</span>
+                                <a href="#" class="trending-title">The Pomodoro technique is broken. Do this instead.</a>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">12.8k reads</span>
+                            </div>
+
+                            <div class="trending-item">
+                                <span class="trending-tag">#writing</span>
+                                <a href="#" class="trending-title">How to write consistently when you have a full-time job</a>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">9.4k reads</span>
+                            </div>
+                            
+                            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+                            <h3 style="margin-bottom: 1.5rem; color: #fff;">Suggested Authors</h3>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="author-avatar" style="width: 24px; height: 24px; font-size: 0.8rem;">D</div>
+                                    <span style="font-weight: 500; font-size: 0.9rem;">David K.</span>
+                                </div>
+                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Follow</button>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="author-avatar" style="width: 24px; height: 24px; font-size: 0.8rem;">M</div>
+                                    <span style="font-weight: 500; font-size: 0.9rem;">Marina</span>
+                                </div>
+                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Follow</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab logic
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

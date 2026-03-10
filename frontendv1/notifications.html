@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .filter-tab {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .filter-tab.active {
+            color: #fff;
+        }
+
+        .filter-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-item.unread {
+            background-color: rgba(88, 166, 255, 0.05);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .notification-item:hover {
+            background-color: var(--card-bg);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-text {
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+            line-height: 1.5;
+        }
+
+        .notification-text strong {
+            color: #fff;
+        }
+
+        .notification-time {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .notification-actions {
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-item:hover .notification-actions {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item active">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Notifications</span>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <span style="font-size: 2.5rem; color: #43e97b;">🔔</span>
+                    <h1>Inbox</h1>
+                </div>
+
+                <div class="notifications-header">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterNotifs('all', this)">All</button>
+                        <button class="filter-tab" onclick="filterNotifs('unread', this)">Unread</button>
+                        <button class="filter-tab" onclick="filterNotifs('mentions', this)">Mentions</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="markAllRead()" style="font-size: 0.8rem;">✔️ Mark all as read</button>
+                </div>
+
+                <div class="notification-list" id="notifList">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let notifications = [
+            { id: 1, type: 'mention', user: 'Alex Reyes', action: 'mentioned you in', target: 'Project Brainstorm', time: '10 minutes ago', unread: true, icon: '@' },
+            { id: 2, type: 'share', user: 'Sarah Jenkins', action: 'shared a collection with you:', target: 'Q4 Marketing Assets', time: '2 hours ago', unread: true, icon: '📁' },
+            { id: 3, type: 'comment', user: 'Marcus Dev', action: 'commented on your article', target: 'Building with Vanilla JS', time: 'Yesterday', unread: false, icon: '💬' },
+            { id: 4, type: 'system', user: 'System', action: 'Your weekly summary is ready', target: 'View insights', time: '2 days ago', unread: false, icon: '📊' }
+        ];
+
+        const list = document.getElementById('notifList');
+        let currentFilter = 'all';
+
+        function renderNotifs() {
+            list.innerHTML = '';
+            
+            const filtered = notifications.filter(n => {
+                if(currentFilter === 'unread') return n.unread;
+                if(currentFilter === 'mentions') return n.type === 'mention';
+                return true;
+            });
+
+            if(filtered.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">You\'re all caught up!</p>';
+                return;
+            }
+
+            filtered.forEach(n => {
+                const div = document.createElement('div');
+                div.className = `notification-item ${n.unread ? 'unread' : ''}`;
+                
+                div.innerHTML = `
+                    <div class="notification-icon">${n.icon}</div>
+                    <div class="notification-content">
+                        <div class="notification-text">
+                            <strong>${n.user}</strong> ${n.action} <strong>${n.target}</strong>
+                        </div>
+                        <div class="notification-time">${n.time}</div>
+                    </div>
+                    <div class="notification-actions">
+                        ${n.unread ? `<button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size:0.8rem;" onclick="markRead(${n.id}, event)">Mark read</button>` : ''}
+                    </div>
+                `;
+                
+                // clicking item makes it read
+                div.addEventListener('click', () => markRead(n.id, null));
+                list.appendChild(div);
+            });
+        }
+
+        window.filterNotifs = (filter, btn) => {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            renderNotifs();
+        };
+
+        window.markRead = (id, e) => {
+            if(e) e.stopPropagation();
+            notifications = notifications.map(n => n.id === id ? {...n, unread: false} : n);
+            renderNotifs();
+        };
+
+        window.markAllRead = () => {
+            notifications = notifications.map(n => ({...n, unread: false}));
+            renderNotifs();
+        };
+
+        renderNotifs();
+    </script>
+</body>
+</html>

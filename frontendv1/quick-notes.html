@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Notes - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .quick-add-form {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quick-add-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .quick-actions-bar {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn-round {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn-round:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .notes-grid {
+            column-count: 3;
+            column-gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .notes-grid { column-count: 2; }
+        }
+
+        @media (max-width: 640px) {
+            .notes-grid { column-count: 1; }
+        }
+
+        .note-card {
+            background-color: var(--note-color, #1f2428);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            break-inside: avoid;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            color: #fff;
+        }
+
+        .note-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .note-card:hover .note-actions {
+            opacity: 1;
+        }
+
+        .note-content {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .section-label {
+            font-size: 1.25rem;
+            margin: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item active">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <span>Quick Notes</span>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <span style="font-size: 2.5rem; color: #f1e05a;">⚡</span>
+                    <h1>Quick Notes</h1>
+                </div>
+                <p class="page-subtitle">Capture thoughts instantly, organize later</p>
+
+                <form class="quick-add-form" id="addNoteForm">
+                    <input type="text" id="noteInput" class="quick-add-input" placeholder="Jot down a quick note... ✍️" required autocomplete="off">
+                    <div class="quick-actions-bar">
+                        <button type="button" class="icon-btn-round" title="Voice Input" onclick="alert('Mic access requested!')">🎤</button>
+                        <button type="submit" class="btn btn-primary" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">➕</button>
+                    </div>
+                </form>
+
+                <div id="notesContainer">
+                    <h2 class="section-label">📌 Pinned</h2>
+                    <div class="notes-grid" id="pinnedGrid"></div>
+
+                    <h2 class="section-label">🕒 Recent</h2>
+                    <div class="notes-grid" id="recentGrid"></div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let notes = [
+            { id: 1, content: 'Remember to review the quarterly report before Friday meeting 📊', pinned: true, color: '#1f2428', time: '1h ago' },
+            { id: 2, content: 'Call Mom at 5 PM - her birthday next week! 🎂', pinned: true, color: '#321c38', time: '2h ago' },
+            { id: 3, content: 'Grocery list:\n- milk\n- eggs\n- bread\n- coffee\n- avocados', pinned: false, color: '#133020', time: '1d ago' },
+            { id: 4, content: 'New podcast recommendations:\nThe Daily\nHow I Built This\nMasters of Scale', pinned: false, color: '#1a2e45', time: '2d ago' }
+        ];
+
+        const pinnedGrid = document.getElementById('pinnedGrid');
+        const recentGrid = document.getElementById('recentGrid');
+        
+        function renderNotes() {
+            pinnedGrid.innerHTML = '';
+            recentGrid.innerHTML = '';
+
+            notes.forEach(note => {
+                const div = document.createElement('div');
+                div.className = 'note-card';
+                div.style.setProperty('--note-color', note.color);
+                
+                div.innerHTML = `
+                    <div class="note-header">
+                        <span>🕒 ${note.time}</span>
+                        <div class="note-actions">
+                            <button class="icon-btn-round" onclick="togglePin(${note.id})" style="width:24px; height:24px; font-size:10px;">${note.pinned ? '📌' : '📍'}</button>
+                            <button class="icon-btn-round" onclick="deleteNote(${note.id})" style="width:24px; height:24px; font-size:10px;">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="note-content">${note.content}</div>
+                `;
+
+                if(note.pinned) {
+                    pinnedGrid.appendChild(div);
+                } else {
+                    recentGrid.appendChild(div);
+                }
+            });
+            
+            // hide sections if empty
+            if(pinnedGrid.children.length === 0) pinnedGrid.previousElementSibling.style.display = 'none';
+            else pinnedGrid.previousElementSibling.style.display = 'flex';
+            
+            if(recentGrid.children.length === 0) recentGrid.previousElementSibling.style.display = 'none';
+            else recentGrid.previousElementSibling.style.display = 'flex';
+        }
+
+        window.togglePin = (id) => {
+            notes = notes.map(n => n.id === id ? {...n, pinned: !n.pinned} : n);
+            renderNotes();
+        };
+
+        window.deleteNote = (id) => {
+            notes = notes.filter(n => n.id !== id);
+            renderNotes();
+        };
+
+        document.getElementById('addNoteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('noteInput');
+            
+            const randomColors = ['#1f2428', '#321c38', '#133020', '#1a2e45', '#3d2024', '#383212'];
+            
+            notes.unshift({
+                id: Date.now(),
+                content: input.value,
+                pinned: false,
+                color: randomColors[Math.floor(Math.random() * randomColors.length)],
+                time: 'Just now'
+            });
+            
+            input.value = '';
+            renderNotes();
+        });
+
+        renderNotes();
+    </script>
+</body>
+</html>

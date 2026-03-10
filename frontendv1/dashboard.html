@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .stat-info .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            display: block;
+        }
+
+        .stat-info .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-tile {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+            text-decoration: none;
+            display: block;
+        }
+
+        .action-tile:hover {
+            background-color: rgba(88, 166, 255, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .streak-card {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(163, 113, 247, 0.1));
+        }
+
+        .streak-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .streak-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(13, 17, 23, 0.5);
+            border-radius: 8px;
+        }
+
+        .streak-val {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            display: block;
+        }
+
+        .recent-docs .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .recent-docs .doc-item:last-child {
+            border-bottom: none;
+        }
+
+        .doc-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span>📝</span> Co-Notes
+                </a>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item active">🏠 Dashboard</a>
+                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
+                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
+                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item">🌐 Feed</a>
+                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item">👤 Profile</a>
+                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
+                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn btn-secondary" id="mobile-menu-btn" style="display: none;">☰</button>
+                    <span>My Workspace</span>
+                </div>
+                <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
+                    <a href="search.html" style="color: var(--text-color);">🔍 Search</a>
+                    <a href="document.html" class="btn btn-primary">➕ New Page</a>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <span id="greeting-icon">☀️</span>
+                    <h1 id="greeting-text">Good morning, friend</h1>
+                </div>
+                <p class="page-subtitle">Ready to capture your thoughts and ideas today?</p>
+
+                <div class="quick-stats">
+                    <div class="stat-card hover-glow">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="notes-count">47</span>
+                            <span class="stat-label">Total Notes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-icon">💡</div>
+                        <div class="stat-info">
+                            <span class="stat-value">23</span>
+                            <span class="stat-label">Ideas Captured</span>
+                        </div>
+                    </div>
+                    <div class="stat-card hover-glow">
+                        <div class="stat-icon">☑️</div>
+                        <div class="stat-info">
+                            <span class="stat-value">89</span>
+                            <span class="stat-label">Tasks Done</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div>
+                        <div class="card" style="margin-bottom: 2rem;">
+                            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">⚡ Quick Actions</h2>
+                            <div class="quick-actions">
+                                <a class="action-tile" href="document.html">
+                                    <span class="action-icon">➕</span>
+                                    New Note
+                                </a>
+                                <a class="action-tile" href="ideas.html">
+                                    <span class="action-icon">💡</span>
+                                    Capture Idea
+                                </a>
+                                <a class="action-tile" href="todos.html">
+                                    <span class="action-icon">☑️</span>
+                                    Add Task
+                                </a>
+                                <a class="action-tile" href="community.html">
+                                    <span class="action-icon">🌐</span>
+                                    Explore
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card recent-docs">
+                            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">🕒 Recent Documents</h2>
+                            
+                            <div class="doc-item">
+                                <div class="doc-info">
+                                    <span>📄</span>
+                                    <div>
+                                        <strong>Project Vision</strong>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Edited 2h ago</div>
+                                    </div>
+                                </div>
+                                <span class="badge">Private</span>
+                            </div>
+                            <div class="doc-item">
+                                <div class="doc-info">
+                                    <span>📝</span>
+                                    <div>
+                                        <strong>Meeting Notes</strong>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Edited 5h ago</div>
+                                    </div>
+                                </div>
+                                <span class="badge" style="background-color: rgba(63, 185, 80, 0.2); color: #3fb950;">Shared</span>
+                            </div>
+                            <div class="doc-item">
+                                <div class="doc-info">
+                                    <span>🎨</span>
+                                    <div>
+                                        <strong>Design System</strong>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted);">Edited yesterday</div>
+                                    </div>
+                                </div>
+                                <span class="badge">Private</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="card streak-card">
+                            <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">📈 Your Progress</h2>
+                            
+                            <div class="streak-grid">
+                                <div class="streak-item">
+                                    <span class="streak-val">12</span>
+                                    <span style="font-size: 0.9rem; color: var(--text-muted);">Current Streak</span>
+                                </div>
+                                <div class="streak-item">
+                                    <span class="streak-val">156</span>
+                                    <span style="font-size: 0.9rem; color: var(--text-muted);">Total Days</span>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 2rem;">
+                                <h4 style="margin-bottom: 1rem; color: var(--text-muted);">This Month</h4>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Notes Created</span>
+                                    <strong>24</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Words Written</span>
+                                    <strong>12.5k</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Articles Published</span>
+                                    <strong>3</strong>
+                                </div>
+                            </div>
+
+                            <a href="document.html" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">
+                                ✨ Keep Writing!
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Dynamic Greeting
+        const hour = new Date().getHours();
+        let greeting = 'Good evening';
+        let icon = '🌙';
+        
+        if (hour < 12) {
+            greeting = 'Good morning';
+            icon = '☀️';
+        } else if (hour < 18) {
+            greeting = 'Good afternoon';
+            icon = '🌤️';
+        }
+
+        document.getElementById('greeting-text').innerHTML = `${greeting}, Jane!`;
+        document.getElementById('greeting-icon').innerHTML = icon;
+
+        // Animate numbers up
+        const animateValue = (id, start, end, duration) => {
+            let current = start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / (end - start)));
+            const obj = document.getElementById(id);
+            const timer = setInterval(() => {
+                current += increment;
+                obj.innerHTML = current;
+                if (current == end) {
+                    clearInterval(timer);
+                }
+            }, stepTime);
+        }
+
+        // Delay starting animation slightly for visual effect
+        setTimeout(() => {
+            const countEl = document.getElementById('notes-count');
+            const target = parseInt(countEl.innerText);
+            countEl.innerText = '0';
+            animateValue('notes-count', 0, target, 1000);
+        }, 300);
+
+        // Mobile sidebar handling logic
+        const sidebar = document.getElementById('sidebar');
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        
+        // Simple responsive check to show/hide btn
+        if(window.innerWidth <= 768) {
+            mobileBtn.style.display = 'block';
+            sidebar.style.transform = 'translateX(-100%)';
+            sidebar.style.position = 'fixed';
+            
+            mobileBtn.addEventListener('click', () => {
+                if(sidebar.style.transform === 'translateX(-100%)') {
+                    sidebar.style.transform = 'translateX(0)';
+                } else {
+                    sidebar.style.transform = 'translateX(-100%)';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

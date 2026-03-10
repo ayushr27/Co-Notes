@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+</head>
+<body class="auth-page">
+    <div class="app-background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <a href="index.html" style="font-size: 2rem; color: #fff; text-decoration: none;">📝</a>
+            <h1 style="color: #fff; margin-top: 1rem; margin-bottom: 0.5rem;">Welcome back</h1>
+            <p style="color: var(--text-muted)">Login to continue to your workspace</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label for="password" style="margin-bottom: 0;">Password</label>
+                    <a href="#" style="font-size: 0.8rem;">Forgot password?</a>
+                </div>
+                <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Log In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
+            Don't have an account? <a href="signup.html">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Simulate login and redirect to dashboard
+            const btn = e.target.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Logging in...';
+            btn.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 800);
+        });
+    </script>
+</body>
+</html>
