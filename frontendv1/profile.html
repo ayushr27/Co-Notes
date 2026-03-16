@@ -217,7 +217,7 @@
 
                 <div class="activity-section">
                     <h3 style="color: #fff; margin-bottom: 1rem;">Writing Activity</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">342 contributions in the last year</p>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">0 contributions in the last year</p>
 
                     <div class="activity-grid" id="activityGrid">
                         <!-- JS generated grid -->
@@ -267,13 +267,8 @@
             const cell = document.createElement('div');
             cell.className = 'activity-cell';
 
-            // Randomly assign activity level. More likely to be empty or low.
-            const rand = Math.random();
+            // Set activity level to 0
             let level = 0;
-            if (rand > 0.6) level = 1;
-            if (rand > 0.8) level = 2;
-            if (rand > 0.9) level = 3;
-            if (rand > 0.95) level = 4;
 
             cell.setAttribute('data-level', level);
             cell.title = `${level} contributions on this day`;
