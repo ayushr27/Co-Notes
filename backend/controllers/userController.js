@@ -75,14 +75,16 @@ export async function getDashboardStats(req, res) {
             completedTodos,
             pendingTodos,
             articleCount,
-            quickNoteCount
+            quickNoteCount,
+            collectionCount
         ] = await Promise.all([
             Document.countDocuments({ userId: req.userId }),
             Idea.countDocuments({ userId: req.userId }),
             Todo.countDocuments({ userId: req.userId, completed: true }),
             Todo.countDocuments({ userId: req.userId, completed: false }),
             Article.countDocuments({ userId: req.userId, published: true }),
-            QuickNote.countDocuments({ userId: req.userId })
+            QuickNote.countDocuments({ userId: req.userId }),
+            Collection.countDocuments({ userId: req.userId })
         ]);
 
         return res.json({
@@ -91,7 +93,8 @@ export async function getDashboardStats(req, res) {
             todosCompleted: completedTodos,
             todosPending: pendingTodos,
             articles: articleCount,
-            quickNotes: quickNoteCount
+            quickNotes: quickNoteCount,
+            collections: collectionCount
         });
     } catch (error) {
         console.error("getDashboardStats error:", error.message);
