@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     Zap, Plus, Mic, MicOff, Trash2, Clock, Edit2, Check, X,
-    Pin, PinOff, Search, Palette
+    Pin, PinOff, Search, Palette, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 // Voice Recognition Hook
 const useVoiceRecognition = () => {
@@ -67,37 +68,22 @@ const useVoiceRecognition = () => {
 };
 
 const QuickNotesPage = () => {
-    const [notes, setNotes] = useState([
-        {
-            id: 1,
-            content: 'Remember to review the quarterly report before Friday meeting 📊',
-            pinned: true,
-            color: '#667eea',
-            createdAt: new Date(Date.now() - 3600000)
-        },
-        {
-            id: 2,
-            content: 'Call Mom at 5 PM - her birthday next week! 🎂',
-            pinned: true,
-            color: '#f093fb',
-            createdAt: new Date(Date.now() - 7200000)
-        },
-        {
-            id: 3,
-            content: 'Grocery list: milk, eggs, bread, coffee, avocados',
-            pinned: false,
-            color: '#43e97b',
-            createdAt: new Date(Date.now() - 86400000)
-        },
-        {
-            id: 4,
-            content: 'New podcast recommendations: The Daily, How I Built This, Masters of Scale',
-            pinned: false,
-            color: '#4facfe',
-            createdAt: new Date(Date.now() - 172800000)
-        }
-    ]);
+    const [notes, setNotes] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        const fetchNotes = async () => {
+            try {
+                const res = await api.get('/quick-notes');
+                setNotes(res.data);
+            } catch (error) {
+                console.error('Failed to fetch quick notes:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchNotes();
+    }, []);
     const [newNoteContent, setNewNoteContent] = useState('');
     const [editingNote, setEditingNote] = useState(null);
     const [editContent, setEditContent] = useState('');
@@ -121,30 +107,41 @@ const QuickNotesPage = () => {
         }
     }, [transcript]);
 
-    const handleAddNote = (e) => {
+    const handleAddNote = async (e) => {
         e.preventDefault();
         if (newNoteContent.trim()) {
-            const newNote = {
-                id: Date.now(),
-                content: newNoteContent.trim(),
-                pinned: false,
-                color: selectedColor,
-                createdAt: new Date()
-            };
-            setNotes([newNote, ...notes]);
-            setNewNoteContent('');
-            if (isListening) stopListening();
+            try {
+                const res = await api.post('/quick-notes', {
+                    content: newNoteContent.trim(),
+                    color: selectedColor
+                });
+                setNotes([res.data, ...notes]);
+                setNewNoteContent('');
+                if (isListening) stopListening();
+            } catch (error) {
+                console.error('Failed to add note:', error);
+            }
         }
     };
 
-    const togglePin = (id) => {
-        setNotes(notes.map(note =>
-            note.id === id ? { ...note, pinned: !note.pinned } : note
-        ));
+    const togglePin = async (id) => {
+        try {
+            const res = await api.patch(`/quick-notes/${id}/pin`);
+            setNotes(notes.map(note =>
+                note.id === id ? res.data : note
+            ));
+        } catch (error) {
+            console.error('Failed to toggle pin:', error);
+        }
     };
 
-    const deleteNote = (id) => {
-        setNotes(notes.filter(note => note.id !== id));
+    const deleteNote = async (id) => {
+        try {
+            await api.delete(`/quick-notes/${id}`);
+            setNotes(notes.filter(note => note.id !== id));
+        } catch (error) {
+            console.error('Failed to delete note:', error);
+        }
     };
 
     const startEditing = (note) => {
@@ -152,12 +149,17 @@ const QuickNotesPage = () => {
         setEditContent(note.content);
     };
 
-    const saveEdit = (id) => {
-        setNotes(notes.map(note =>
-            note.id === id ? { ...note, content: editContent } : note
-        ));
-        setEditingNote(null);
-        setEditContent('');
+    const saveEdit = async (id) => {
+        try {
+            const res = await api.put(`/quick-notes/${id}`, { content: editContent });
+            setNotes(notes.map(note =>
+                note.id === id ? res.data : note
+            ));
+            setEditingNote(null);
+            setEditContent('');
+        } catch (error) {
+            console.error('Failed to update note:', error);
+        }
     };
 
     const cancelEdit = () => {
@@ -165,13 +167,21 @@ const QuickNotesPage = () => {
         setEditContent('');
     };
 
-    const changeNoteColor = (id, color) => {
-        setNotes(notes.map(note =>
-            note.id === id ? { ...note, color } : note
-        ));
+    const changeNoteColor = async (id, color) => {
+        try {
+            const res = await api.patch(`/quick-notes/${id}/color`, { color });
+            setNotes(notes.map(note =>
+                note.id === id ? res.data : note
+            ));
+            setSelectedColor('#667eea'); // Reset after applying? Or keep selected.
+        } catch (error) {
+            console.error('Failed to change color:', error);
+        }
     };
 
-    const formatTime = (date) => {
+    const formatTime = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
         const now = new Date();
         const diff = (now - date) / 1000;
         if (diff < 60) return 'Just now';

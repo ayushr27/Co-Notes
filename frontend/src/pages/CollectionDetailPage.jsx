@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
     ArrowLeft, Share2, Star, MoreHorizontal, Settings,
-    Briefcase, Plane, GraduationCap, Lightbulb, BookOpen, Folder
+    Briefcase, Plane, GraduationCap, Lightbulb, BookOpen, Folder, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 import MemberStack from '../components/MemberStack';
 import InviteModal from '../components/InviteModal';
 import ProjectHub from '../components/templates/ProjectHub';
@@ -33,23 +34,33 @@ const CollectionDetailPage = () => {
     const { collectionId } = useParams();
     const navigate = useNavigate();
 
-    // Load collection from localStorage or defaults
-    const [collection, setCollection] = useState(() => {
-        const stored = localStorage.getItem('co-notes-collections');
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            const found = parsed.find(c => String(c.id) === String(collectionId));
-            if (found) return found;
-        }
-        return DEFAULT_COLLECTIONS[collectionId] || {
-            id: collectionId,
-            name: 'Untitled Collection',
-            icon: '📁',
-            color: '#667eea',
-            template: 'blank',
-            isPrivate: false
+    const [collection, setCollection] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCollection = async () => {
+            try {
+                const res = await api.get(`/collections/${collectionId}`);
+                setCollection(res.data);
+                setStarred(res.data.starred || false);
+            } catch (error) {
+                console.error('Failed to load collection:', error);
+                // Fallback / error handling
+                setCollection(DEFAULT_COLLECTIONS[collectionId] || {
+                    id: collectionId,
+                    name: 'Untitled Collection',
+                    icon: '📁',
+                    color: '#667eea',
+                    template: 'blank',
+                    isPrivate: false
+                });
+            } finally {
+                setLoading(false);
+            }
         };
-    });
+
+        fetchCollection();
+    }, [collectionId]);
 
     // Active members state (collaboration)
     const [activeMembers, setActiveMembers] = useState([
@@ -67,9 +78,20 @@ const CollectionDetailPage = () => {
         setActiveMembers(prev => prev.filter(m => m.id !== userId));
     };
 
-    const templateType = collection.template || 'blank';
+    const templateType = collection?.template || 'blank';
     const templateInfo = TEMPLATE_INFO[templateType] || TEMPLATE_INFO.blank;
     const isShared = activeMembers.length > 1;
+
+    const handleStarToggle = async () => {
+        setStarred(!starred);
+        // Assuming we can star it via a direct call
+        try {
+            await api.patch(`/collections/${collectionId}/star`);
+        } catch (error) {
+            console.error('Failed to star collection', error);
+            setStarred(starred); // revert on failure
+        }
+    };
 
     const renderTemplate = () => {
         switch (templateType) {
@@ -88,6 +110,18 @@ const CollectionDetailPage = () => {
                 return <BlankCollection activeMembers={activeMembers} />;
         }
     };
+
+    if (loading) {
+        return (
+            <div className="collection-detail-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Loader2 size={40} className="spin" style={{ color: 'var(--primary)' }} />
+            </div>
+        );
+    }
+
+    if (!collection) {
+        return <div className="collection-detail-page">Collection not found</div>;
+    }
 
     return (
         <div className="collection-detail-page">
@@ -110,7 +144,7 @@ const CollectionDetailPage = () => {
                     <MemberStack members={activeMembers} />
                     <button
                         className={`cd-star-btn ${starred ? 'starred' : ''}`}
-                        onClick={() => setStarred(!starred)}
+                        onClick={handleStarToggle}
                     >
                         <Star size={18} fill={starred ? 'currentColor' : 'none'} />
                     </button>

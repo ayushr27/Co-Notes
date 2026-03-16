@@ -41,18 +41,37 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Simulate login and redirect to dashboard
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
             const btn = e.target.querySelector('button');
             const originalText = btn.textContent;
+            
             btn.textContent = 'Logging in...';
             btn.style.opacity = '0.7';
+            btn.disabled = true;
             
-            setTimeout(() => {
+            try {
+                const response = await apiFetch('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                // Store token
+                localStorage.setItem('token', response.token);
+                
+                // Redirect on success
                 window.location.href = 'dashboard.html';
-            }, 800);
+            } catch (error) {
+                alert(error.message || 'Login failed. Please check your credentials.');
+                btn.textContent = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
         });
     </script>
 </body>

@@ -5,73 +5,29 @@ import {
     Grid, List, FolderPlus, X, Palette, Lock, Globe, Trash2,
     Edit2, ChevronRight, FileText, Image, Hash, Sparkles,
     Lightbulb, CheckSquare, Zap, BookOpen, Code, Music, Camera,
-    Heart, Briefcase, GraduationCap, Home, Plane, Coffee
+    Heart, Briefcase, GraduationCap, Home, Plane, Coffee, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 const CollectionsPage = () => {
     const navigate = useNavigate();
 
-    const [collections, setCollections] = useState(() => {
-        const stored = localStorage.getItem('co-notes-collections');
-        if (stored) {
-            return JSON.parse(stored).map(c => ({ ...c, createdAt: new Date(c.createdAt) }));
-        }
-        return [
-            {
-                id: 1,
-                name: 'Work Projects',
-                description: 'All work-related documents and notes',
-                icon: '💼',
-                color: '#667eea',
-                template: 'project',
-                itemCount: 12,
-                isPrivate: false,
-                starred: true,
-                createdAt: new Date(Date.now() - 604800000)
-            },
-            {
-                id: 2,
-                name: 'Personal Notes',
-                description: 'My personal thoughts and journals',
-                icon: '📝',
-                color: '#f093fb',
-                template: 'journal',
-                itemCount: 8,
-                isPrivate: true,
-                starred: false,
-                createdAt: new Date(Date.now() - 1209600000)
-            },
-            {
-                id: 3,
-                name: 'Learning Resources',
-                description: 'Courses, tutorials, and study materials',
-                icon: '📚',
-                color: '#4facfe',
-                template: 'learning',
-                itemCount: 24,
-                isPrivate: false,
-                starred: true,
-                createdAt: new Date(Date.now() - 2592000000)
-            },
-            {
-                id: 4,
-                name: 'Travel Plans',
-                description: 'Trip itineraries and travel ideas',
-                icon: '✈️',
-                color: '#43e97b',
-                template: 'travel',
-                itemCount: 5,
-                isPrivate: true,
-                starred: false,
-                createdAt: new Date(Date.now() - 259200000)
-            }
-        ];
-    });
+    const [collections, setCollections] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Persist collections to localStorage
-    React.useEffect(() => {
-        localStorage.setItem('co-notes-collections', JSON.stringify(collections));
-    }, [collections]);
+    useEffect(() => {
+        const fetchCollections = async () => {
+            try {
+                const res = await api.get('/collections');
+                setCollections(res.data);
+            } catch (error) {
+                console.error('Failed to load collections:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCollections();
+    }, []);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -109,23 +65,22 @@ const CollectionsPage = () => {
         { id: 'travel', name: 'Travel Planner', icon: <Plane size={24} />, description: 'Plan trips and save destinations' }
     ];
 
-    const handleCreateCollection = () => {
+    const handleCreateCollection = async () => {
         if (newCollection.name.trim()) {
-            const created = {
-                id: Date.now(),
-                name: newCollection.name,
-                description: newCollection.description,
-                icon: newCollection.icon,
-                color: newCollection.color,
-                template: newCollection.template || 'blank',
-                itemCount: 0,
-                isPrivate: newCollection.isPrivate,
-                starred: false,
-                createdAt: new Date()
-            };
-            setCollections([created, ...collections]);
-            resetCreateModal();
-            navigate(`/collection/${created.id}`);
+            try {
+                const res = await api.post('/collections', {
+                    name: newCollection.name,
+                    description: newCollection.description,
+                    icon: newCollection.icon,
+                    color: newCollection.color,
+                    isPrivate: newCollection.isPrivate
+                });
+                setCollections([res.data, ...collections]);
+                resetCreateModal();
+                navigate(`/collection/${res.data.id}`);
+            } catch (error) {
+                console.error('Failed to create collection:', error);
+            }
         }
     };
 
@@ -142,32 +97,52 @@ const CollectionsPage = () => {
         });
     };
 
-    const toggleStar = (id, e) => {
+    const toggleStar = async (id, e) => {
         e.preventDefault();
         e.stopPropagation();
-        setCollections(collections.map(c =>
-            c.id === id ? { ...c, starred: !c.starred } : c
-        ));
+        try {
+            const res = await api.patch(`/collections/${id}/star`);
+            setCollections(collections.map(c =>
+                c.id === id ? { ...c, starred: res.data.starred } : c
+            ));
+        } catch (error) {
+            console.error('Failed to toggle star:', error);
+        }
     };
 
-    const deleteCollection = (id, e) => {
+    const deleteCollection = async (id, e) => {
         e.preventDefault();
         e.stopPropagation();
         if (window.confirm('Are you sure you want to delete this collection?')) {
-            setCollections(collections.filter(c => c.id !== id));
+            try {
+                await api.delete(`/collections/${id}`);
+                setCollections(collections.filter(c => c.id !== id));
+            } catch (error) {
+                console.error('Failed to delete collection:', error);
+            }
         }
     };
 
     const filteredCollections = collections.filter(c => {
-        const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            c.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (c.description || '').toLowerCase().includes(searchQuery.toLowerCase());
         const matchesFilter = !filterStarred || c.starred;
         return matchesSearch && matchesFilter;
     });
 
-    const formatDate = (date) => {
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
+
+    if (loading) {
+        return (
+            <div className="collections-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Loader2 size={40} className="spin" style={{ color: 'var(--primary)' }} />
+            </div>
+        );
+    }
 
     return (
         <div className="collections-page">

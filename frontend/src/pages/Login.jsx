@@ -9,13 +9,22 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const email = e.target.email.value;
         const password = e.target.password.value;
-        const response = await axios.post("http://localhost:3000/api/auth/login", {
-            email: email,
-            password: password
-        })
-        console.log(response.data);
+        try {
+            const response = await axios.post("http://localhost:3000/api/auth/login", {
+                email,
+                password
+            });
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            navigate('/dashboard');
+        } catch (error) {
+            alert(error.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

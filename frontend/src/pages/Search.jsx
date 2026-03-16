@@ -1,41 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search as SearchIcon, FileText, Clock, ArrowLeft, X } from 'lucide-react';
+import { Search as SearchIcon, FileText, Clock, ArrowLeft, X, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const Search = () => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    // Mock search data
-    const allDocs = [
-        { id: 'project-vision', title: 'Project Vision', icon: '📄', type: 'document', lastEdited: '2h ago' },
-        { id: 'meeting-notes', title: 'Meeting Notes', icon: '📝', type: 'document', lastEdited: '5h ago' },
-        { id: 'launch-plan', title: 'Launch Plan', icon: '🚀', type: 'document', lastEdited: 'yesterday' },
-        { id: 'product-roadmap', title: 'Product Roadmap', icon: '📊', type: 'document', lastEdited: '3 days ago' },
-        { id: 'quarterly-goals', title: 'Quarterly Goals', icon: '🎯', type: 'document', lastEdited: '1 week ago' },
-        { id: 'getting-started', title: 'Getting Started', icon: '📖', type: 'document', lastEdited: '2 weeks ago' },
-        { id: 'personal-home', title: 'Personal Home', icon: '🏠', type: 'document', lastEdited: '1 month ago' },
-        { id: 'journal', title: 'Journal', icon: '📓', type: 'document', lastEdited: 'today' },
-    ];
-
-    const handleSearch = (e) => {
-        const value = e.target.value;
-        setQuery(value);
-
-        if (value.trim() === '') {
+    useEffect(() => {
+        if (!query.trim()) {
             setResults([]);
             return;
         }
 
-        const filtered = allDocs.filter(doc =>
-            doc.title.toLowerCase().includes(value.toLowerCase())
-        );
-        setResults(filtered);
+        const delayDebounceFn = setTimeout(async () => {
+            setLoading(true);
+            try {
+                const res = await api.get(`/search?q=${encodeURIComponent(query)}`);
+                // Backend returns: [{ id, title, type, icon, lastEdited }, ...]
+                setResults(res.data);
+            } catch (error) {
+                console.error('Search failed:', error);
+                setResults([]);
+            } finally {
+                setLoading(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [query]);
+
+    const handleSearch = (e) => {
+        setQuery(e.target.value);
     };
 
     const clearSearch = () => {
         setQuery('');
         setResults([]);
+    };
+
+    const getLinkForType = (type, id) => {
+        switch (type) {
+            case 'document': return `/doc/${id}`;
+            case 'collection': return `/collection/${id}`;
+            case 'article': return `/community/article/${id}`;
+            case 'idea': return `/ideas`;
+            default: return '/dashboard';
+        }
+    };
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
     return (
@@ -67,25 +85,24 @@ const Search = () => {
                         <div className="search-recent">
                             <h3><Clock size={14} /> Recent Searches</h3>
                             <div className="recent-list">
-                                <Link to="/doc/project-vision" className="recent-item">
-                                    <FileText size={16} />
-                                    <span>Project Vision</span>
-                                </Link>
-                                <Link to="/doc/meeting-notes" className="recent-item">
-                                    <FileText size={16} />
-                                    <span>Meeting Notes</span>
-                                </Link>
+                                <span className="recent-item" style={{ opacity: 0.5 }}>No recent searches...</span>
                             </div>
+                        </div>
+                    ) : loading ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+                            <Loader2 size={24} className="spin" style={{ color: 'var(--primary.main)' }} />
                         </div>
                     ) : results.length > 0 ? (
                         <div className="search-results-list">
                             <h3>Results ({results.length})</h3>
-                            {results.map((doc) => (
-                                <Link to={`/doc/${doc.id}`} key={doc.id} className="search-result-item">
-                                    <span className="result-icon">{doc.icon}</span>
+                            {results.map((item) => (
+                                <Link to={getLinkForType(item.type, item.id)} key={`${item.type}-${item.id}`} className="search-result-item">
+                                    <span className="result-icon">{item.icon || '📄'}</span>
                                     <div className="result-info">
-                                        <span className="result-title">{doc.title}</span>
-                                        <span className="result-meta">Edited {doc.lastEdited}</span>
+                                        <span className="result-title">{item.title}</span>
+                                        <span className="result-meta">
+                                            {item.type} • Edited {formatDate(item.lastEdited)}
+                                        </span>
                                     </div>
                                 </Link>
                             ))}

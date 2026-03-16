@@ -1,19 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
     Clock, Star, File, Plus, Users, Lock, Globe,
     Zap, ChevronRight, Sparkles, BookOpen, Lightbulb,
     CheckSquare, ArrowUpRight, BarChart3, Folder, PenTool,
-    Sun, Moon, Sunrise, Calendar, Award, Brain, Trophy, Target
+    Sun, Moon, Sunrise, Calendar, Award, Brain, Trophy, Target,
+    Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 const Dashboard = () => {
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
+    const [stats, setStats] = useState(null);
+    const [recentDocs, setRecentDocs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
     const greetingIcon = hour < 12 ? <Sunrise size={28} /> : hour < 18 ? <Sun size={28} /> : <Moon size={28} />;
 
-    // Streak data
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                // Fetch user profile, stats, and recent docs in parallel
+                const [profileRes, statsRes, docsRes] = await Promise.all([
+                    api.get('/users/me'),
+                    api.get('/users/me/stats'),
+                    api.get('/documents') // We can slice the first few
+                ]);
+
+                setUser(profileRes.data);
+                setStats(statsRes.data);
+                // The documents API returns an object with a documents array
+                setRecentDocs(docsRes.data.documents ? docsRes.data.documents.slice(0, 4) : []);
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+                // If unauthorized, redirect to login
+                if (error.response?.status === 401) {
+                    navigate('/login');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [navigate]);
+
+    // Streak data (Keeping mock for now since backend doesn't track streaks yet)
     const streakData = {
         currentStreak: 12,
         longestStreak: 28,
@@ -32,21 +67,13 @@ const Dashboard = () => {
         ]
     };
 
-    // Mock recent documents
-    const recentDocs = [
-        { id: 'project-vision', title: 'Project Vision', icon: '📄', edited: '2h ago', permission: 'private' },
-        { id: 'meeting-notes', title: 'Meeting Notes', icon: '📝', edited: '5h ago', permission: 'collaborative' },
-        { id: 'launch-plan', title: 'Launch Plan', icon: '🚀', edited: 'yesterday', permission: 'public' },
-        { id: 'design-system', title: 'Design System', icon: '🎨', edited: '2 days ago', permission: 'private' },
-    ];
-
-    // Quick stats - monochrome
-    const quickStats = [
-        { label: 'Notes', value: '47', icon: <File size={20} />, trend: '+5 this week' },
-        { label: 'Ideas', value: '23', icon: <Lightbulb size={20} />, trend: '+3 this week' },
-        { label: 'Tasks Done', value: '89', icon: <CheckSquare size={20} />, trend: '12 pending' },
-        { label: 'Articles', value: '8', icon: <PenTool size={20} />, trend: '2 drafts' },
-    ];
+    // Quick stats using backend data
+    const quickStats = stats ? [
+        { label: 'Notes', value: stats.documents.toString(), icon: <File size={20} />, trend: 'Active' },
+        { label: 'Ideas', value: stats.ideas.toString(), icon: <Lightbulb size={20} />, trend: 'Active' },
+        { label: 'Tasks Done', value: stats.todosCompleted.toString(), icon: <CheckSquare size={20} />, trend: `${stats.todosPending} pending` },
+        { label: 'Quick Notes', value: stats.quickNotes.toString(), icon: <PenTool size={20} />, trend: 'Captured' },
+    ] : [];
 
     const handleCreateNote = () => {
         const newId = `new-${Date.now()}`;
@@ -61,6 +88,14 @@ const Dashboard = () => {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="dashboard-v2" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Loader2 size={40} className="spin" style={{ color: '#667eea' }} />
+            </div>
+        );
+    }
+
     return (
         <div className="dashboard-v2" role="main">
             {/* Hero Section */}
@@ -69,7 +104,7 @@ const Dashboard = () => {
                     <div className="greeting-area">
                         <div className="greeting-icon">{greetingIcon}</div>
                         <div>
-                            <h1>{greeting}, Jane!</h1>
+                            <h1>{greeting}, {user?.name?.split(' ')[0] || 'User'}!</h1>
                             <p>Ready to capture your thoughts and ideas today?</p>
                         </div>
                     </div>

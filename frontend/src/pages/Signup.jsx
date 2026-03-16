@@ -1,29 +1,33 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, AtSign, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
 const Signup = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true)
         const name = e.target.name.value;
+        const username = e.target.username.value;
         const email = e.target.email.value;
         const password = e.target.password.value;
         try {
             const response = await axios.post('http://localhost:3000/api/auth/register', {
-                name: name, 
-                email : email,
-                password: password
+                name,
+                username,
+                email,
+                password
             })
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
             alert(response.data.message)
-            navigate('/login')
+            navigate('/dashboard')
             setLoading(false)
         } catch (error) {
-            alert(error.response?.data?.message)
+            alert(error.response?.data?.message || 'Registration failed')
             setLoading(false)
         }
     };
@@ -40,6 +44,23 @@ const Signup = () => {
                             id="name"
                             placeholder="Jane Doe"
                             required
+                        />
+                    </div>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="username">Username</label>
+                    <div className="input-icon-wrapper">
+                        <AtSign size={18} className="input-icon" />
+                        <input
+                            type="text"
+                            id="username"
+                            placeholder="janedoe"
+                            required
+                            minLength={3}
+                            maxLength={30}
+                            pattern="[a-zA-Z0-9_]+"
+                            title="Letters, numbers, and underscores only"
                         />
                     </div>
                 </div>

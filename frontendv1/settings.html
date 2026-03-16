@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,8 +79,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .profile-avatar-section {
@@ -131,7 +139,7 @@
             border-color: var(--primary-color);
             background-color: rgba(88, 166, 255, 0.05);
         }
-        
+
         .theme-option-icon {
             font-size: 2rem;
         }
@@ -140,6 +148,7 @@
             .settings-layout {
                 grid-template-columns: 1fr;
             }
+
             .settings-nav {
                 border-right: none;
                 border-bottom: 1px solid var(--border-color);
@@ -147,6 +156,7 @@
                 overflow-x: auto;
                 padding: 1rem;
             }
+
             .settings-nav-item {
                 border-left: none;
                 border-bottom: 3px solid transparent;
@@ -154,6 +164,7 @@
                 white-space: nowrap;
                 width: auto;
             }
+
             .settings-nav-item.active {
                 border-left: none;
                 border-bottom: 3px solid var(--primary-color);
@@ -161,6 +172,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -170,7 +182,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -231,11 +243,11 @@
 
                     <!-- Settings Content -->
                     <div class="settings-content-area">
-                        
+
                         <!-- Profile Panel -->
                         <div id="profile-panel" class="settings-panel active">
                             <h2 style="margin-bottom: 1.5rem;">Profile Settings</h2>
-                            
+
                             <div class="profile-avatar-section">
                                 <div class="avatar-large">J</div>
                                 <button class="btn btn-secondary">Change Avatar</button>
@@ -243,26 +255,35 @@
 
                             <div class="form-group">
                                 <label>Display Name</label>
-                                <input type="text" class="form-control" value="Jane Doe">
+                                <input type="text" id="setting-name" class="form-control" value="Loading...">
                             </div>
 
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" class="form-control" value="jane@example.com">
+                                <input type="email" id="setting-email" class="form-control" value="loading@example.com"
+                                    disabled title="Email cannot be changed">
                             </div>
 
                             <div class="form-group">
                                 <label>Bio</label>
-                                <textarea class="form-control" rows="4" placeholder="Tell us about yourself..."></textarea>
+                                <textarea id="setting-bio" class="form-control" rows="4"
+                                    placeholder="Tell us about yourself..."></textarea>
                             </div>
 
-                            <button class="btn btn-primary" onclick="alert('Profile updated')">Save Changes</button>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <input type="text" id="setting-location" class="form-control"
+                                    placeholder="e.g. San Francisco, CA">
+                            </div>
+
+                            <button class="btn btn-primary" id="save-profile-btn">Save Changes</button>
                         </div>
 
                         <!-- Appearance Panel -->
                         <div id="appearance-panel" class="settings-panel">
                             <h2 style="margin-bottom: 0.5rem;">Appearance</h2>
-                            <p style="color: var(--text-muted); margin-bottom: 2rem;">Customize how Co-Notes looks on your device</p>
+                            <p style="color: var(--text-muted); margin-bottom: 2rem;">Customize how Co-Notes looks on
+                                your device</p>
 
                             <h3 style="margin-bottom: 1rem;">Theme</h3>
                             <div class="theme-options">
@@ -287,7 +308,56 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
+        checkAuth();
+
+        async function initSettings() {
+            try {
+                const user = await apiFetch('/users/me');
+
+                document.getElementById('setting-name').value = user.name || "";
+                document.getElementById('setting-email').value = user.email || "";
+                document.getElementById('setting-bio').value = user.bio || "";
+                document.getElementById('setting-location').value = user.location || "";
+
+                const avatarEl = document.querySelector('.avatar-large');
+                if (user.avatar) {
+                    avatarEl.innerHTML = `<img src="${user.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                } else {
+                    avatarEl.innerText = user.name ? user.name.charAt(0).toUpperCase() : "U";
+                }
+            } catch (error) {
+                console.error("Settings init error:", error);
+            }
+        }
+
+        initSettings();
+
+        document.getElementById('save-profile-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            const originalText = btn.textContent;
+            btn.textContent = "Saving...";
+            btn.disabled = true;
+
+            const name = document.getElementById('setting-name').value;
+            const bio = document.getElementById('setting-bio').value;
+            const location = document.getElementById('setting-location').value;
+
+            try {
+                await apiFetch('/users/me', {
+                    method: 'PUT',
+                    body: JSON.stringify({ name, bio, location })
+                });
+                alert("Profile settings updated successfully!");
+            } catch (error) {
+                alert("Failed to update profile: " + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
         // Tab switching logic
         const navItems = document.querySelectorAll('.settings-nav-item[data-target]');
         const panels = document.querySelectorAll('.settings-panel');
@@ -296,7 +366,7 @@
             item.addEventListener('click', () => {
                 // Remove active from all tabs
                 navItems.forEach(nav => nav.classList.remove('active'));
-                
+
                 // Hide all panels
                 panels.forEach(panel => panel.classList.remove('active'));
 
@@ -312,7 +382,7 @@
             const options = document.querySelectorAll('.theme-option');
             options.forEach(opt => opt.classList.remove('active'));
             btn.classList.add('active');
-            
+
             // In a real app we would apply classes to body or :root here
             if (theme === 'light') {
                 document.body.style.filter = 'invert(0.9) hue-rotate(180deg)';
@@ -326,4 +396,5 @@
         }
     </script>
 </body>
+
 </html>

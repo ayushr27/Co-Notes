@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Write article - Co-Notes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
 
   <style>
     :root {
@@ -15,31 +18,31 @@
       --bg-overlay: #1e1e24;
       --bg-hover: #25252d;
       --bg-active: #2d2d38;
-      --border: rgba(255,255,255,0.07);
-      --border-strong: rgba(255,255,255,0.12);
+      --border: rgba(255, 255, 255, 0.07);
+      --border-strong: rgba(255, 255, 255, 0.12);
       --text-primary: #f0ede8;
       --text-secondary: #9b97a0;
       --text-muted: #5c5868;
       --accent: #d4a853;
-      --accent-soft: rgba(212,168,83,0.12);
-      --accent-glow: rgba(212,168,83,0.25);
+      --accent-soft: rgba(212, 168, 83, 0.12);
+      --accent-glow: rgba(212, 168, 83, 0.25);
       --danger: #e05c5c;
-      --danger-soft: rgba(224,92,92,0.12);
+      --danger-soft: rgba(224, 92, 92, 0.12);
       --success: #5bbf8a;
-      --success-soft: rgba(91,191,138,0.12);
+      --success-soft: rgba(91, 191, 138, 0.12);
       --info: #5ba8e0;
       --radius-sm: 6px;
       --radius-md: 10px;
       --radius-lg: 16px;
       --radius-xl: 22px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
-      --shadow-glow: 0 0 24px rgba(212,168,83,0.15);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+      --shadow-glow: 0 0 24px rgba(212, 168, 83, 0.15);
       --sidebar-w: 240px;
       --header-h: 58px;
       --editor-w: 420px;
-      --transition: 0.18s cubic-bezier(0.4,0,0.2,1);
+      --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [data-theme="light"] {
@@ -48,26 +51,30 @@
       --bg-overlay: #f0ede8;
       --bg-hover: #ebe7e0;
       --bg-active: #e2ddd5;
-      --border: rgba(0,0,0,0.07);
-      --border-strong: rgba(0,0,0,0.12);
+      --border: rgba(0, 0, 0, 0.07);
+      --border-strong: rgba(0, 0, 0, 0.12);
       --text-primary: #1a1714;
       --text-secondary: #6b6460;
       --text-muted: #a09890;
       --accent: #b8892a;
-      --accent-soft: rgba(184,137,42,0.1);
-      --accent-glow: rgba(184,137,42,0.2);
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+      --accent-soft: rgba(184, 137, 42, 0.1);
+      --accent-glow: rgba(184, 137, 42, 0.2);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
     }
 
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html { font-size: 15px; }
+    html {
+      font-size: 15px;
+    }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -80,10 +87,23 @@
       transition: background var(--transition), color var(--transition);
     }
 
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--bg-active); border-radius: 99px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-active);
+      border-radius: 99px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
 
     #header {
       height: var(--header-h);
@@ -163,7 +183,9 @@
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
-    #searchInput::placeholder { color: var(--text-muted); }
+    #searchInput::placeholder {
+      color: var(--text-muted);
+    }
 
     .header-actions {
       display: flex;
@@ -200,7 +222,9 @@
       border-color: var(--accent);
     }
 
-    .sort-wrap { position: relative; }
+    .sort-wrap {
+      position: relative;
+    }
 
     #sortMenu {
       position: absolute;
@@ -217,7 +241,9 @@
       animation: fadeIn .15s ease;
     }
 
-    #sortMenu.open { display: block; }
+    #sortMenu.open {
+      display: block;
+    }
 
     .sort-item {
       padding: 9px 14px;
@@ -257,7 +283,9 @@
       transition: width var(--transition), transform var(--transition);
     }
 
-    .sidebar-section { padding: 16px 12px 8px; }
+    .sidebar-section {
+      padding: 16px 12px 8px;
+    }
 
     .sidebar-label {
       font-size: .7rem;
@@ -381,7 +409,9 @@
       gap: 8px;
     }
 
-    .stat-item { text-align: center; }
+    .stat-item {
+      text-align: center;
+    }
 
     .stat-num {
       font-family: 'Playfair Display', serif;
@@ -498,7 +528,7 @@
 
     #notesGrid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 12px;
       transition: all var(--transition);
     }
@@ -524,8 +554,15 @@
     }
 
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .note-card::before {
@@ -573,6 +610,7 @@
       word-break: break-word;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -594,12 +632,12 @@
     }
 
     .badge-pin {
-      background: rgba(212,168,83,0.2);
+      background: rgba(212, 168, 83, 0.2);
       color: var(--accent);
     }
 
     .badge-fav {
-      background: rgba(224,92,92,0.2);
+      background: rgba(224, 92, 92, 0.2);
       color: var(--danger);
     }
 
@@ -609,13 +647,17 @@
       line-height: 1.5;
       display: -webkit-box;
       -webkit-line-clamp: 3;
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       flex: 1;
       white-space: pre-line;
     }
 
-    .list-view .card-body { -webkit-line-clamp: 1; }
+    .list-view .card-body {
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+    }
 
     .card-tags {
       display: flex;
@@ -655,7 +697,9 @@
       transition: opacity var(--transition);
     }
 
-    .note-card:hover .card-actions { opacity: 1; }
+    .note-card:hover .card-actions {
+      opacity: 1;
+    }
 
     .card-btn {
       width: 26px;
@@ -682,12 +726,29 @@
       color: var(--danger);
     }
 
-    .note-card[data-color="red"]    { --card-color: #e05c5c; }
-    .note-card[data-color="amber"]  { --card-color: #d4a853; }
-    .note-card[data-color="green"]  { --card-color: #5bbf8a; }
-    .note-card[data-color="blue"]   { --card-color: #5ba8e0; }
-    .note-card[data-color="purple"] { --card-color: #a87fd4; }
-    .note-card[data-color="pink"]   { --card-color: #d45ba3; }
+    .note-card[data-color="red"] {
+      --card-color: #e05c5c;
+    }
+
+    .note-card[data-color="amber"] {
+      --card-color: #d4a853;
+    }
+
+    .note-card[data-color="green"] {
+      --card-color: #5bbf8a;
+    }
+
+    .note-card[data-color="blue"] {
+      --card-color: #5ba8e0;
+    }
+
+    .note-card[data-color="purple"] {
+      --card-color: #a87fd4;
+    }
+
+    .note-card[data-color="pink"] {
+      --card-color: #d45ba3;
+    }
 
     #editorPanel {
       width: var(--editor-w);
@@ -697,11 +758,13 @@
       flex-direction: column;
       flex-shrink: 0;
       transform: translateX(100%);
-      transition: transform .25s cubic-bezier(0.4,0,0.2,1);
+      transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
     }
 
-    #editorPanel.open { transform: translateX(0); }
+    #editorPanel.open {
+      transform: translateX(0);
+    }
 
     .editor-header {
       padding: 14px 16px;
@@ -728,7 +791,9 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .autosave-indicator.saved { color: var(--success); }
+    .autosave-indicator.saved {
+      color: var(--success);
+    }
 
     .autosave-dot {
       width: 6px;
@@ -759,7 +824,9 @@
       overflow: hidden;
     }
 
-    #editorTitle::placeholder { color: var(--text-muted); }
+    #editorTitle::placeholder {
+      color: var(--text-muted);
+    }
 
     #editorContent {
       padding: 0 18px 18px;
@@ -776,7 +843,9 @@
       resize: none;
     }
 
-    #editorContent::placeholder { color: var(--text-muted); }
+    #editorContent::placeholder {
+      color: var(--text-muted);
+    }
 
     .editor-meta {
       padding: 12px 18px;
@@ -837,7 +906,9 @@
       align-items: center;
     }
 
-    .editor-tag .remove-tag:hover { color: var(--danger); }
+    .editor-tag .remove-tag:hover {
+      color: var(--danger);
+    }
 
     #tagInput {
       border: none;
@@ -850,9 +921,14 @@
       flex: 1;
     }
 
-    #tagInput::placeholder { color: var(--text-muted); }
+    #tagInput::placeholder {
+      color: var(--text-muted);
+    }
 
-    .color-picker { display: flex; gap: 6px; }
+    .color-picker {
+      display: flex;
+      gap: 6px;
+    }
 
     .color-swatch {
       width: 20px;
@@ -864,20 +940,43 @@
       position: relative;
     }
 
-    .color-swatch:hover { transform: scale(1.2); }
+    .color-swatch:hover {
+      transform: scale(1.2);
+    }
 
     .color-swatch.active {
       border-color: var(--text-primary);
       box-shadow: 0 0 0 2px var(--bg-elevated);
     }
 
-    .color-swatch[data-c="none"]   { background: var(--bg-active); border-color: var(--border-strong); }
-    .color-swatch[data-c="red"]    { background: #e05c5c; }
-    .color-swatch[data-c="amber"]  { background: #d4a853; }
-    .color-swatch[data-c="green"]  { background: #5bbf8a; }
-    .color-swatch[data-c="blue"]   { background: #5ba8e0; }
-    .color-swatch[data-c="purple"] { background: #a87fd4; }
-    .color-swatch[data-c="pink"]   { background: #d45ba3; }
+    .color-swatch[data-c="none"] {
+      background: var(--bg-active);
+      border-color: var(--border-strong);
+    }
+
+    .color-swatch[data-c="red"] {
+      background: #e05c5c;
+    }
+
+    .color-swatch[data-c="amber"] {
+      background: #d4a853;
+    }
+
+    .color-swatch[data-c="green"] {
+      background: #5bbf8a;
+    }
+
+    .color-swatch[data-c="blue"] {
+      background: #5ba8e0;
+    }
+
+    .color-swatch[data-c="purple"] {
+      background: #a87fd4;
+    }
+
+    .color-swatch[data-c="pink"] {
+      background: #d45ba3;
+    }
 
     .toggle-btn {
       display: flex;
@@ -1005,7 +1104,7 @@
       color: #0f0e0b;
       font-size: 22px;
       cursor: pointer;
-      box-shadow: 0 4px 20px var(--accent-glow), 0 2px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 20px var(--accent-glow), 0 2px 8px rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1025,7 +1124,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(4px);
       z-index: 1000;
       display: none;
@@ -1034,11 +1133,18 @@
       animation: fadeIn .15s ease;
     }
 
-    .modal-overlay.open { display: flex; }
+    .modal-overlay.open {
+      display: flex;
+    }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .modal {
@@ -1053,8 +1159,15 @@
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .modal-icon {
@@ -1105,7 +1218,9 @@
       margin-top: 12px;
     }
 
-    #importTextArea:focus { border-color: var(--accent); }
+    #importTextArea:focus {
+      border-color: var(--accent);
+    }
 
     #toastContainer {
       position: fixed;
@@ -1132,31 +1247,66 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      animation: toastIn .25s cubic-bezier(0.34,1.56,0.64,1);
+      animation: toastIn .25s cubic-bezier(0.34, 1.56, 0.64, 1);
       pointer-events: all;
       white-space: nowrap;
       max-width: 340px;
     }
 
-    .toast.exit { animation: toastOut .2s ease forwards; }
+    .toast.exit {
+      animation: toastOut .2s ease forwards;
+    }
 
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(16px) scale(0.9); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     @keyframes toastOut {
-      to { opacity: 0; transform: translateY(-8px) scale(0.95); }
+      to {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+      }
     }
 
-    .toast-success { border-color: var(--success); }
-    .toast-success .toast-icon { color: var(--success); }
-    .toast-error   { border-color: var(--danger); }
-    .toast-error   .toast-icon { color: var(--danger); }
-    .toast-info    { border-color: var(--info); }
-    .toast-info    .toast-icon { color: var(--info); }
-    .toast-warning { border-color: var(--accent); }
-    .toast-warning .toast-icon { color: var(--accent); }
+    .toast-success {
+      border-color: var(--success);
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-error {
+      border-color: var(--danger);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    .toast-info {
+      border-color: var(--info);
+    }
+
+    .toast-info .toast-icon {
+      color: var(--info);
+    }
+
+    .toast-warning {
+      border-color: var(--accent);
+    }
+
+    .toast-warning .toast-icon {
+      color: var(--accent);
+    }
 
     .empty-state {
       display: flex;
@@ -1188,7 +1338,9 @@
       line-height: 1.6;
     }
 
-    #sidebarToggle { display: none; }
+    #sidebarToggle {
+      display: none;
+    }
 
     @media (max-width: 900px) {
       :root {
@@ -1205,11 +1357,15 @@
         box-shadow: var(--shadow-lg);
       }
 
-      #fab.shifted { right: 24px; }
+      #fab.shifted {
+        right: 24px;
+      }
     }
 
     @media (max-width: 680px) {
-      :root { --sidebar-w: 100vw; }
+      :root {
+        --sidebar-w: 100vw;
+      }
 
       #sidebar {
         position: fixed;
@@ -1218,19 +1374,29 @@
         bottom: 0;
         z-index: 80;
         transform: translateX(-100%);
-        transition: transform .25s cubic-bezier(0.4,0,0.2,1);
+        transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: var(--shadow-lg);
       }
 
-      #sidebar.open { transform: translateX(0); }
+      #sidebar.open {
+        transform: translateX(0);
+      }
 
-      #sidebarToggle { display: flex; }
+      #sidebarToggle {
+        display: flex;
+      }
 
-      #notesGrid { grid-template-columns: 1fr; }
+      #notesGrid {
+        grid-template-columns: 1fr;
+      }
 
-      .logo-text { display: none; }
+      .logo-text {
+        display: none;
+      }
 
-      .search-wrap { max-width: none; }
+      .search-wrap {
+        max-width: none;
+      }
     }
 
     .section-divider {
@@ -1259,6 +1425,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <header id="header">
@@ -1316,7 +1483,8 @@
       </button>
 
       <button class="icon-btn" id="themeBtn" title="Toggle theme (T)" type="button">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" id="themeIcon">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+          id="themeIcon">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
           <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -1348,7 +1516,9 @@
         <div class="nav-item" data-section="pinned">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <line x1="12" y1="17" x2="12" y2="22"></line>
-            <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path>
+            <path
+              d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z">
+            </path>
           </svg>
           Pinned
           <span class="nav-badge" id="badge-pinned">0</span>
@@ -1356,7 +1526,9 @@
 
         <div class="nav-item" data-section="favorites">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+            </path>
           </svg>
           Favorites
           <span class="nav-badge" id="badge-favorites">0</span>
@@ -1376,7 +1548,8 @@
       <div class="sidebar-section">
         <div class="sidebar-label">Tags</div>
         <div class="tag-list" id="tagList">
-          <div class="tag-filter-item" style="color:var(--text-muted);font-size:.8rem;padding-left:6px">No tags yet</div>
+          <div class="tag-filter-item" style="color:var(--text-muted);font-size:.8rem;padding-left:6px">No tags yet
+          </div>
         </div>
       </div>
 
@@ -1385,10 +1558,22 @@
       <div class="stats-card">
         <div class="stats-title">Dashboard</div>
         <div class="stats-grid">
-          <div class="stat-item"><div class="stat-num" id="stat-total">0</div><div class="stat-lbl">Total</div></div>
-          <div class="stat-item"><div class="stat-num" id="stat-words">0</div><div class="stat-lbl">Words</div></div>
-          <div class="stat-item"><div class="stat-num" id="stat-tags">0</div><div class="stat-lbl">Tags</div></div>
-          <div class="stat-item"><div class="stat-num" id="stat-pinned">0</div><div class="stat-lbl">Pinned</div></div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-total">0</div>
+            <div class="stat-lbl">Total</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-words">0</div>
+            <div class="stat-lbl">Words</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-tags">0</div>
+            <div class="stat-lbl">Tags</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num" id="stat-pinned">0</div>
+            <div class="stat-lbl">Pinned</div>
+          </div>
         </div>
       </div>
 
@@ -1431,7 +1616,8 @@
             </svg>
           </button>
 
-          <button class="icon-btn btn-ghost" id="clearAllBtn" title="Clear all notes" type="button" style="width:30px;height:30px;border-radius:var(--radius-sm);margin-left:4px">
+          <button class="icon-btn btn-ghost" id="clearAllBtn" title="Clear all notes" type="button"
+            style="width:30px;height:30px;border-radius:var(--radius-sm);margin-left:4px">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6l-1 14H6L5 6"></path>
@@ -1544,9 +1730,11 @@
 
   <div id="toastContainer"></div>
 
+  <script src="api.js"></script>
   <script>
-    const STORAGE_KEY = "folio_notes_v2";
+    checkAuth();
 
+    // We will still keep state.notes to manage local UI rendering
     let state = {
       notes: [],
       activeNote: null,
@@ -1559,21 +1747,31 @@
       autosaveTimer: null,
     };
 
-    function loadStorage() {
+    async function loadStorage() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) state.notes = JSON.parse(raw);
+        const response = await apiFetch('/documents?limit=100');
+        // Map backend objects to UI format
+        state.notes = (response.documents || []).map(doc => ({
+          id: doc.id || doc._id,
+          title: doc.title || "",
+          content: doc.content || "",
+          tags: doc.tags || [],
+          color: doc.color || "none",
+          pinned: !!doc.isPinned,
+          favorite: !!doc.isStarred,
+          archived: !!doc.isArchived,
+          created: new Date(doc.createdAt).getTime(),
+          updated: new Date(doc.updatedAt).getTime(),
+        }));
+        renderAll();
       } catch (e) {
+        console.error(e);
         state.notes = [];
       }
     }
 
     function saveStorage() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.notes));
-      } catch (e) {
-        showToast("Storage full — some data may not be saved.", "error");
-      }
+      // Intentionally left blank. Real persistence is via individual API calls.
     }
 
     function uid() {
@@ -1581,85 +1779,7 @@
     }
 
     function seedData() {
-      if (state.notes.length > 0) return;
-
-      const now = Date.now();
-      state.notes = [
-        {
-          id: uid(),
-          title: "Welcome to Folio ✦",
-          content: "Folio is your premium notes workspace. Create beautiful notes, organise with tags, pin your most important ones, and export everything as JSON.\n\nTry the keyboard shortcut Ctrl+N to create a new note, or press / to search.",
-          tags: ["welcome", "getting-started"],
-          color: "amber",
-          pinned: true,
-          favorite: false,
-          archived: false,
-          created: now - 86400000 * 3,
-          updated: now - 3600000,
-        },
-        {
-          id: uid(),
-          title: "Project Ideas 💡",
-          content: "Vision Language Model for IDD dataset\n- BLIP fine-tuning on Indian road images\n- Gradio demo for captioning\n- BLEU evaluation pipeline\n\nOther ideas:\n- Personal finance tracker\n- Recipe organiser app",
-          tags: ["project", "ideas", "college"],
-          color: "blue",
-          pinned: false,
-          favorite: true,
-          archived: false,
-          created: now - 86400000 * 2,
-          updated: now - 7200000,
-        },
-        {
-          id: uid(),
-          title: "Reading List 📚",
-          content: "Books to read:\n1. Deep Learning — Goodfellow et al.\n2. Designing Data-Intensive Applications\n3. The Pragmatic Programmer\n4. Attention is All You Need (paper)\n5. BLIP paper — Li et al. 2022",
-          tags: ["reading", "learning"],
-          color: "green",
-          pinned: true,
-          favorite: false,
-          archived: false,
-          created: now - 86400000,
-          updated: now - 1800000,
-        },
-        {
-          id: uid(),
-          title: "Meeting Notes — AI Lab",
-          content: "Discussed progress on IDD captioning project. Professor suggested adding CLIP-based image-text similarity scores.\n\nAction items:\n- Fine-tune for 10 more epochs\n- Compute BLEU-2 alongside BLEU-1\n- Prepare Gradio demo for next session",
-          tags: ["meeting", "college", "ai"],
-          color: "purple",
-          pinned: false,
-          favorite: false,
-          archived: false,
-          created: now - 43200000,
-          updated: now - 900000,
-        },
-        {
-          id: uid(),
-          title: "Daily Journal",
-          content: "Today was productive. Finished the dataset loader and trainer script. The BLIP model generates surprisingly decent captions even without fine-tuning on Indian images.\n\nMost interesting observation: beam search with k=5 produces noticeably better captions than greedy decoding.",
-          tags: ["journal", "daily"],
-          color: "none",
-          pinned: false,
-          favorite: true,
-          archived: false,
-          created: now - 21600000,
-          updated: now - 600000,
-        },
-        {
-          id: uid(),
-          title: "Old Setup Notes",
-          content: "Previous Conda environment config — archived since we migrated to requirements.txt.\npip install transformers==4.28.0 torch==1.13.0",
-          tags: ["archive", "setup"],
-          color: "none",
-          pinned: false,
-          favorite: false,
-          archived: true,
-          created: now - 86400000 * 10,
-          updated: now - 86400000 * 5,
-        },
-      ];
-
-      saveStorage();
+      // Not seeding data here, handled by backend
     }
 
     function filteredNotes() {
@@ -1993,7 +2113,7 @@
       const titleEl = document.getElementById("editorTitle");
       const contentEl = document.getElementById("editorContent");
 
-      titleEl.value = note.title;
+      titleEl.value = note.title === "Untitled" ? "" : note.title;
       contentEl.value = note.content;
       autoResizeTextarea(titleEl);
 
@@ -2016,29 +2136,42 @@
       renderNotes();
     }
 
-    function newNote() {
-      const note = {
-        id: uid(),
-        title: "",
-        content: "",
-        tags: [],
-        color: "none",
-        pinned: false,
-        favorite: false,
-        archived: false,
-        created: Date.now(),
-        updated: Date.now(),
-      };
+    async function newNote() {
+      try {
+        const response = await apiFetch('/documents', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: "Untitled",
+            content: "",
+          })
+        });
 
-      state.notes.unshift(note);
-      saveStorage();
-      openEditor(note.id);
-      document.getElementById("editorTitle").focus();
-      document.getElementById("editorModeLabel").textContent = "New Note";
-      showToast("New note created", "success");
+        const doc = response.document || response;
+
+        const note = {
+          id: doc.id || doc._id,
+          title: doc.title || "",
+          content: doc.content || "",
+          tags: [],
+          color: "none",
+          pinned: false,
+          favorite: false,
+          archived: false,
+          created: Date.now(),
+          updated: Date.now(),
+        };
+
+        state.notes.unshift(note);
+        openEditor(note.id);
+        document.getElementById("editorTitle").focus();
+        document.getElementById("editorModeLabel").textContent = "New Note";
+        showToast("New note created", "success");
+      } catch (error) {
+        showToast("Error creating note", "error");
+      }
     }
 
-    function saveActiveNote(silent = false) {
+    async function saveActiveNote(silent = false) {
       if (!state.activeNote) return;
 
       const note = state.notes.find((n) => n.id === state.activeNote);
@@ -2051,13 +2184,29 @@
       note.content = contentEl.value;
       note.updated = Date.now();
 
-      saveStorage();
-      state.isDirty = false;
-      updateAutosave(true);
-      updateEditorMeta(note);
-      renderAll();
+      try {
+        await apiFetch(`/documents/${note.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            title: note.title,
+            content: note.content,
+            tags: note.tags,
+            color: note.color,
+            isPinned: note.pinned,
+            isStarred: note.favorite,
+            isArchived: note.archived
+          })
+        });
 
-      if (!silent) showToast("Note saved", "success");
+        state.isDirty = false;
+        updateAutosave(true);
+        updateEditorMeta(note);
+        renderAll();
+
+        if (!silent) showToast("Note saved", "success");
+      } catch (error) {
+        if (!silent) showToast("Failed to save", "error");
+      }
     }
 
     function scheduleAutosave() {
@@ -2089,7 +2238,7 @@
       scheduleAutosave();
     }
 
-    function toggleProp(id, prop) {
+    async function toggleProp(id, prop) {
       const note = state.notes.find((n) => n.id === id);
       if (!note) return;
 
@@ -2102,11 +2251,24 @@
         if (prop === "archived") updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "📦 Archive", "📦 Archived", false);
       }
 
-      saveStorage();
       renderAll();
 
       const labels = { pinned: "Pinned", favorite: "Favorited", archived: "Archived" };
       showToast(note[prop] ? labels[prop] : `Removed ${labels[prop].toLowerCase()}`, "info");
+
+      // Background save
+      try {
+        await apiFetch(`/documents/${note.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            isPinned: note.pinned,
+            isStarred: note.favorite,
+            isArchived: note.archived
+          })
+        });
+      } catch (e) {
+        console.error("Failed to sync prop toggle");
+      }
     }
 
     function archiveNote(id) {
@@ -2114,24 +2276,39 @@
       if (id === state.activeNote && state.section !== "archived") closeEditorPanel();
     }
 
-    function duplicateNote(id) {
+    async function duplicateNote(id) {
       const note = state.notes.find((n) => n.id === id);
       if (!note) return;
 
-      const copy = {
-        ...note,
-        id: uid(),
-        title: `${note.title} (copy)`,
-        pinned: false,
-        created: Date.now(),
-        updated: Date.now(),
-      };
+      try {
+        const response = await apiFetch('/documents', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: `${note.title} (copy)`,
+            content: note.content,
+            tags: note.tags,
+            color: note.color
+          })
+        });
 
-      const idx = state.notes.findIndex((n) => n.id === id);
-      state.notes.splice(idx + 1, 0, copy);
-      saveStorage();
-      renderAll();
-      showToast("Note duplicated", "success");
+        const doc = response.document || response;
+
+        const copy = {
+          ...note,
+          id: doc.id || doc._id,
+          title: doc.title || "",
+          pinned: false,
+          created: Date.now(),
+          updated: Date.now(),
+        };
+
+        const idx = state.notes.findIndex((n) => n.id === id);
+        state.notes.splice(idx + 1, 0, copy);
+        renderAll();
+        showToast("Note duplicated", "success");
+      } catch (error) {
+        showToast("Error duplicating note", "error");
+      }
     }
 
     let pendingDeleteId = null;
@@ -2145,12 +2322,16 @@
       document.getElementById("confirmModal").classList.add("open");
     }
 
-    function deleteNote(id) {
-      state.notes = state.notes.filter((n) => n.id !== id);
-      if (state.activeNote === id) closeEditorPanel();
-      saveStorage();
-      renderAll();
-      showToast("Note deleted", "error");
+    async function deleteNote(id) {
+      try {
+        await apiFetch(`/documents/${id}`, { method: 'DELETE' });
+        state.notes = state.notes.filter((n) => n.id !== id);
+        if (state.activeNote === id) closeEditorPanel();
+        renderAll();
+        showToast("Note deleted", "error");
+      } catch (error) {
+        showToast("Failed to delete note", "error");
+      }
     }
 
     function clearAllNotes() {
@@ -2527,14 +2708,23 @@
       }
 
       loadStorage();
-      seedData();
+      // seedData();
       bindEvents();
       setActiveNav("all");
-      renderAll();
+      // renderAll() is already called in loadStorage()
 
       const title = document.getElementById("editorTitle");
       title.style.overflow = "hidden";
+
+      // Auto-open specific document if ?id=xyz
+      const urlParams = new URLSearchParams(window.location.search);
+      const docId = urlParams.get('id');
+      if (docId) {
+        // give it a tiny delay for fetch to finish
+        setTimeout(() => openEditor(docId), 500);
+      }
     })();
   </script>
 </body>
+
 </html>

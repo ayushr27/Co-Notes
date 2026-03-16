@@ -5,8 +5,9 @@ import {
     Image as ImageIcon, Eye, Save, Send, ArrowLeft, X, ChevronDown,
     Tag, Folder, Code, Briefcase, TrendingUp, Palette, BookOpen,
     Heart, Cpu, Globe, Mic, MicOff, Clock, Users, Lock, Sparkles,
-    Check, Plus, Search, Zap
+    Check, Plus, Search, Zap, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 // Article Categories with subcategories
 const ARTICLE_CATEGORIES = [
@@ -134,6 +135,7 @@ const WriteArticle = () => {
     const [subtitle, setSubtitle] = useState('');
     const [content, setContent] = useState('');
     const [coverImage, setCoverImage] = useState('');
+    const [articleId, setArticleId] = useState(null);
 
     // Categorization state
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -218,12 +220,38 @@ const WriteArticle = () => {
         }
     };
 
-    const handleSaveDraft = () => {
+    const handleSaveDraft = async () => {
         setIsSaving(true);
-        setTimeout(() => {
+        try {
+            const articleData = {
+                title: title || 'Untitled Draft',
+                subtitle,
+                content,
+                coverImage,
+                category: selectedCategory?.id || 'misc',
+                subcategory: selectedSubcategory,
+                tags,
+                languages: selectedLanguages,
+                frameworks: selectedFrameworks,
+                estimatedReadTime,
+                visibility,
+                allowComments,
+                isSeriesPart,
+                seriesName
+            };
+
+            if (articleId) {
+                await api.put(`/articles/${articleId}`, articleData);
+            } else {
+                const res = await api.post('/articles', articleData);
+                setArticleId(res.data.id);
+            }
+        } catch (error) {
+            console.error('Failed to save draft:', error);
+            alert('Failed to save draft');
+        } finally {
             setIsSaving(false);
-            alert('Draft saved successfully!');
-        }, 1000);
+        }
     };
 
     const handlePublish = () => {
@@ -238,28 +266,33 @@ const WriteArticle = () => {
         setShowPublishModal(true);
     };
 
-    const confirmPublish = () => {
-        // Mock publish with all metadata
-        const articleData = {
-            title,
-            subtitle,
-            content,
-            coverImage,
-            category: selectedCategory,
-            subcategory: selectedSubcategory,
-            tags,
-            languages: selectedLanguages,
-            frameworks: selectedFrameworks,
-            estimatedReadTime,
-            visibility,
-            allowComments,
-            isSeriesPart,
-            seriesName,
-            publishedAt: new Date().toISOString()
-        };
-        console.log('Publishing article:', articleData);
-        alert('Article published successfully!');
-        navigate('/my-articles');
+    const confirmPublish = async () => {
+        try {
+            const articleData = {
+                title, subtitle, content, coverImage,
+                category: selectedCategory.id, subcategory: selectedSubcategory,
+                tags, languages: selectedLanguages, frameworks: selectedFrameworks,
+                estimatedReadTime, visibility, allowComments,
+                isSeriesPart, seriesName
+            };
+
+            let idToPublish = articleId;
+            if (idToPublish) {
+                await api.put(`/articles/${idToPublish}`, articleData);
+            } else {
+                const res = await api.post('/articles', articleData);
+                idToPublish = res.data.id;
+                setArticleId(idToPublish);
+            }
+
+            await api.patch(`/articles/${idToPublish}/publish`);
+
+            setShowPublishModal(false);
+            navigate(-1);
+        } catch (error) {
+            console.error('Failed to publish article:', error);
+            alert('Failed to publish article');
+        }
     };
 
     const handlePreview = () => {

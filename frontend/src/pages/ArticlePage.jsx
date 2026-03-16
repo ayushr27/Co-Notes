@@ -1,33 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import TiptapEditor from '../components/TiptapEditor';
-import { Clock, Calendar, ArrowLeft } from 'lucide-react';
+import { Clock, Calendar, ArrowLeft, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const ArticlePage = () => {
     const { id } = useParams();
     const [article, setArticle] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Mock data fetch
-        setArticle({
-            id,
-            title: "The Future of Personal Knowledge Management",
-            content: `
-                <h2>Introduction</h2>
-                <p>We are living in an information age where the ability to manage personal knowledge is more critical than ever.</p>
-                <p>This article explores the evolution of note-taking tools, from simple text editors to graph-based knowledge networks.</p>
-                <h3>The Block-Based Revolution</h3>
-                <p>Tools like Notion introduced the concept of "blocks," transforming documents into LEGO-like structures that can be rearranged and transformed.</p>
-                <blockquote>"The tool you use shapes the way you think."</blockquote>
-            `,
-            cover: "https://images.unsplash.com/photo-1499750310159-5b5f87e8e195?w=1200",
-            date: "Oct 24, 2024",
-            readTime: "5 min read",
-            author: { name: "Sarah Lin", initials: "SL" }
-        });
+        const fetchArticle = async () => {
+            try {
+                const res = await api.get(`/articles/${id}`);
+                const data = res.data;
+                setArticle({
+                    ...data,
+                    cover: data.coverImage,
+                    date: new Date(data.publishedAt || data.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    readTime: `${data.estimatedReadTime || 5} min read`,
+                    author: data.author || { name: 'Unknown', initials: 'U' },
+                    content: data.content || ''
+                });
+            } catch (error) {
+                console.error('Failed to fetch article:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchArticle();
     }, [id]);
 
-    if (!article) return <div className="loading-state">Loading article...</div>;
+    if (loading) {
+        return (
+            <div className="article-read-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Loader2 size={40} className="spin" style={{ color: 'var(--primary)' }} />
+            </div>
+        );
+    }
+
+    if (!article) return <div className="loading-state">Article not found</div>;
 
     return (
         <div className="article-read-page">

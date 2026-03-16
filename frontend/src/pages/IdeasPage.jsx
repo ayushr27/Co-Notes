@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import {
     Lightbulb, Plus, Mic, MicOff, Trash2, Star, Clock,
     Sparkles, Tag, MoreHorizontal, Search, Filter, X,
-    ChevronDown, ArrowUpRight
+    ChevronDown, ArrowUpRight, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 // Voice Recognition Hook
 const useVoiceRecognition = () => {
@@ -77,42 +78,30 @@ const useVoiceRecognition = () => {
 };
 
 const IdeasPage = () => {
-    const [ideas, setIdeas] = useState([
-        {
-            id: 1,
-            title: 'App redesign concept',
-            description: 'Create a more intuitive dashboard with drag-and-drop widgets',
-            tags: ['design', 'ui'],
-            starred: true,
-            createdAt: new Date(Date.now() - 86400000),
-            color: '#667eea'
-        },
-        {
-            id: 2,
-            title: 'Weekly newsletter format',
-            description: 'Include tips, community highlights, and product updates',
-            tags: ['marketing', 'content'],
-            starred: false,
-            createdAt: new Date(Date.now() - 172800000),
-            color: '#f093fb'
-        },
-        {
-            id: 3,
-            title: 'AI writing assistant',
-            description: 'Integrate GPT for smart suggestions and auto-complete',
-            tags: ['ai', 'feature'],
-            starred: true,
-            createdAt: new Date(Date.now() - 259200000),
-            color: '#4facfe'
-        }
-    ]);
-
+    const [ideas, setIdeas] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showNewIdea, setShowNewIdea] = useState(false);
     const [newIdeaTitle, setNewIdeaTitle] = useState('');
     const [newIdeaDescription, setNewIdeaDescription] = useState('');
     const [newIdeaTags, setNewIdeaTags] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStarred, setFilterStarred] = useState(false);
+
+    useEffect(() => {
+        const fetchIdeas = async () => {
+            try {
+                const res = filterStarred
+                    ? await api.get('/ideas?starred=true')
+                    : await api.get('/ideas');
+                setIdeas(res.data);
+            } catch (error) {
+                console.error('Failed to load ideas:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchIdeas();
+    }, [filterStarred]);
 
     const { isListening, transcript, isSupported, toggleListening, setTranscript } = useVoiceRecognition();
     const inputRef = useRef(null);
@@ -127,33 +116,55 @@ const IdeasPage = () => {
 
     const colorOptions = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140'];
 
-    const handleAddIdea = () => {
+    const handleAddIdea = async () => {
         if (newIdeaTitle.trim()) {
-            const newIdea = {
-                id: Date.now(),
-                title: newIdeaTitle,
-                description: newIdeaDescription,
-                tags: newIdeaTags.split(',').map(t => t.trim()).filter(t => t),
-                starred: false,
-                createdAt: new Date(),
-                color: colorOptions[Math.floor(Math.random() * colorOptions.length)]
-            };
-            setIdeas([newIdea, ...ideas]);
-            setNewIdeaTitle('');
-            setNewIdeaDescription('');
-            setNewIdeaTags('');
-            setShowNewIdea(false);
+            try {
+                const color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+                const tags = newIdeaTags.split(',').map(t => t.trim()).filter(t => t);
+                const res = await api.post('/ideas', {
+                    title: newIdeaTitle,
+                    description: newIdeaDescription,
+                    tags,
+                    color
+                });
+
+                // If we are showing starred only, new idea might not be starred (it's not by default)
+                // We just safely unshift if we're not filtering or if we want to add to local state
+                if (!filterStarred) {
+                    setIdeas([res.data, ...ideas]);
+                }
+
+                setNewIdeaTitle('');
+                setNewIdeaDescription('');
+                setNewIdeaTags('');
+                setShowNewIdea(false);
+            } catch (error) {
+                console.error('Failed to create idea:', error);
+            }
         }
     };
 
-    const toggleStar = (id) => {
-        setIdeas(ideas.map(idea =>
-            idea.id === id ? { ...idea, starred: !idea.starred } : idea
-        ));
+    const toggleStar = async (id) => {
+        try {
+            const res = await api.patch(`/ideas/${id}/star`);
+            if (filterStarred && !res.data.starred) {
+                // Remove from local trace if unstarred and filter is on
+                setIdeas(ideas.filter(idea => idea.id !== id));
+            } else {
+                setIdeas(ideas.map(idea => idea.id === id ? { ...idea, starred: res.data.starred } : idea));
+            }
+        } catch (error) {
+            console.error('Failed to star idea:', error);
+        }
     };
 
-    const deleteIdea = (id) => {
-        setIdeas(ideas.filter(idea => idea.id !== id));
+    const deleteIdea = async (id) => {
+        try {
+            await api.delete(`/ideas/${id}`);
+            setIdeas(ideas.filter(idea => idea.id !== id));
+        } catch (error) {
+            console.error('Failed to delete idea:', error);
+        }
     };
 
     const filteredIdeas = ideas.filter(idea => {
@@ -163,13 +174,23 @@ const IdeasPage = () => {
         return matchesSearch && matchesFilter;
     });
 
-    const formatDate = (date) => {
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
         const now = new Date();
         const diff = now - date;
         if (diff < 86400000) return 'Today';
         if (diff < 172800000) return 'Yesterday';
         return date.toLocaleDateString();
     };
+
+    if (loading) {
+        return (
+            <div className="ideas-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Loader2 size={40} className="spin" style={{ color: 'var(--primary)' }} />
+            </div>
+        );
+    }
 
     return (
         <div className="ideas-page">

@@ -1,45 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Eye, Edit2, Trash2, MoreHorizontal, Plus, Globe, Lock } from 'lucide-react';
+import { FileText, Eye, Edit2, Trash2, MoreHorizontal, Plus, Globe, Lock, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const MyArticles = () => {
     const [activeTab, setActiveTab] = useState('published');
+    const [articles, setArticles] = useState({ published: [], drafts: [] });
+    const [loading, setLoading] = useState(true);
 
-    // Mock articles
-    const articles = {
-        published: [
-            {
-                id: 'future-pkm',
-                title: 'The Future of Personal Knowledge Management',
-                excerpt: 'Exploring how modern tools are changing the way we think and learn...',
-                publishedAt: 'Oct 24, 2024',
-                views: 1234,
-                likes: 89
-            },
-            {
-                id: 'productivity-tips',
-                title: '10 Productivity Tips for Developers',
-                excerpt: 'Simple habits that can transform your workday...',
-                publishedAt: 'Oct 18, 2024',
-                views: 856,
-                likes: 52
-            },
-        ],
-        drafts: [
-            {
-                id: 'draft-1',
-                title: 'Building a Second Brain',
-                excerpt: 'How to organize your digital life effectively...',
-                lastEdited: '2 hours ago',
-            },
-            {
-                id: 'draft-2',
-                title: 'Untitled Draft',
-                excerpt: 'Started working on something new...',
-                lastEdited: 'yesterday',
-            },
-        ]
+    useEffect(() => {
+        fetchArticles();
+    }, []);
+
+    const fetchArticles = async () => {
+        try {
+            setLoading(true);
+            const res = await api.get('/articles/my');
+
+            // Assuming res.data is an array of articles
+            const published = res.data.filter(a => a.published)
+                .sort((a, b) => new Date(b.publishedAt || b.updatedAt) - new Date(a.publishedAt || a.updatedAt));
+            const drafts = res.data.filter(a => !a.published)
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+            setArticles({ published, drafts });
+        } catch (error) {
+            console.error('Failed to load articles:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this article?')) return;
+        try {
+            await api.delete(`/articles/${id}`);
+            fetchArticles();
+        } catch (error) {
+            console.error('Failed to delete article:', error);
+            alert('Failed to delete article');
+        }
+    };
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    if (loading) {
+        return (
+            <div className="my-articles-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <Loader2 size={40} className="spin" style={{ color: 'var(--primary)' }} />
+            </div>
+        );
+    }
 
     return (
         <div className="my-articles-page">
@@ -78,23 +93,23 @@ const MyArticles = () => {
                                         <Link to={`/community/article/${article.id}`} className="article-title-link">
                                             <h3>{article.title}</h3>
                                         </Link>
-                                        <p className="article-excerpt">{article.excerpt}</p>
+                                        <p className="article-excerpt">{article.subtitle || article.excerpt}</p>
                                         <div className="article-stats">
-                                            <span>Published {article.publishedAt}</span>
+                                            <span>Published {formatDate(article.publishedAt)}</span>
                                             <span>•</span>
-                                            <span>{article.views} views</span>
+                                            <span>{article.views || 0} views</span>
                                             <span>•</span>
-                                            <span>{article.likes} likes</span>
+                                            <span>{article.likes?.length || 0} likes</span>
                                         </div>
                                     </div>
                                     <div className="article-actions">
                                         <Link to={`/community/article/${article.id}`} className="btn btn-sm btn-outline">
                                             <Eye size={14} /> View
                                         </Link>
-                                        <button className="btn btn-sm btn-outline">
+                                        <Link to={`/write?draft=${article.id}`} className="btn btn-sm btn-outline">
                                             <Edit2 size={14} /> Edit
-                                        </button>
-                                        <button className="btn btn-sm btn-outline danger">
+                                        </Link>
+                                        <button className="btn btn-sm btn-outline danger" onClick={() => handleDelete(article.id)}>
                                             <Trash2 size={14} />
                                         </button>
                                     </div>
@@ -109,16 +124,16 @@ const MyArticles = () => {
                                 <div key={draft.id} className="article-row draft">
                                     <div className="article-main">
                                         <h3>{draft.title}</h3>
-                                        <p className="article-excerpt">{draft.excerpt}</p>
+                                        <p className="article-excerpt">{draft.subtitle || draft.excerpt}</p>
                                         <div className="article-stats">
-                                            <span>Last edited {draft.lastEdited}</span>
+                                            <span>Last edited {formatDate(draft.updatedAt)}</span>
                                         </div>
                                     </div>
                                     <div className="article-actions">
                                         <Link to={`/write?draft=${draft.id}`} className="btn btn-sm btn-primary">
                                             <Edit2 size={14} /> Continue
                                         </Link>
-                                        <button className="btn btn-sm btn-outline danger">
+                                        <button className="btn btn-sm btn-outline danger" onClick={() => handleDelete(draft.id)}>
                                             <Trash2 size={14} />
                                         </button>
                                     </div>

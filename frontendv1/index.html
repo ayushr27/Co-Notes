@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,7 +110,7 @@
 
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border-color: var(--primary-color);
         }
 
@@ -149,6 +150,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="cursor-glow" id="cursorGlow"></div>
     <div class="app-background-orbs">
@@ -181,26 +183,31 @@
             publish to the community, and build your knowledge base with powerful tools.
         </p>
         <div class="fade-in" style="transition-delay: 0.4s">
-            <a href="signup.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Start for Free</a>
+            <a href="signup.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Start for
+                Free</a>
         </div>
     </section>
 
     <section id="features" class="features">
         <div style="text-align: center; margin-bottom: 3rem;">
-            <h2 class="fade-in" style="font-size: 2.5rem; color: #fff;">Everything you need to <span class="gradient-text">capture ideas</span></h2>
-            <p class="fade-in" style="font-size: 1.1rem; color: var(--text-muted); margin-top: 1rem;">Powerful tools designed to help you write, organize, and share your best thinking.</p>
+            <h2 class="fade-in" style="font-size: 2.5rem; color: #fff;">Everything you need to <span
+                    class="gradient-text">capture ideas</span></h2>
+            <p class="fade-in" style="font-size: 1.1rem; color: var(--text-muted); margin-top: 1rem;">Powerful tools
+                designed to help you write, organize, and share your best thinking.</p>
         </div>
-        
+
         <div class="features-grid">
             <div class="feature-card fade-in">
                 <div class="feature-icon">📄</div>
                 <h3 class="feature-title">Rich Block Editor</h3>
-                <p>Notion-style block editor with markdown support, embedded media, code blocks, and beautiful typography.</p>
+                <p>Notion-style block editor with markdown support, embedded media, code blocks, and beautiful
+                    typography.</p>
             </div>
             <div class="feature-card fade-in" style="transition-delay: 0.1s">
                 <div class="feature-icon">👥</div>
                 <h3 class="feature-title">Real-time Collaboration</h3>
-                <p>Work together seamlessly with live cursors, presence indicators, and instant sync across all devices.</p>
+                <p>Work together seamlessly with live cursors, presence indicators, and instant sync across all devices.
+                </p>
             </div>
             <div class="feature-card fade-in" style="transition-delay: 0.2s">
                 <div class="feature-icon">🌐</div>
@@ -210,7 +217,8 @@
             <div class="feature-card fade-in" style="transition-delay: 0.3s">
                 <div class="feature-icon">📁</div>
                 <h3 class="feature-title">Smart Collections</h3>
-                <p>Organize with nested folders, tags, and smart views. Find anything instantly with powerful search.</p>
+                <p>Organize with nested folders, tags, and smart views. Find anything instantly with powerful search.
+                </p>
             </div>
             <div class="feature-card fade-in" style="transition-delay: 0.4s">
                 <div class="feature-icon">⚡</div>
@@ -251,6 +259,12 @@
         });
 
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // Redirect if already logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = 'dashboard.html';
+        }
     </script>
 </body>
+
 </html>

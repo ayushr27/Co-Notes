@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -79,9 +80,17 @@
             transition: all 0.2s;
         }
 
-        .todo-item.priority-high .todo-checkbox { border-color: var(--danger-color); }
-        .todo-item.priority-medium .todo-checkbox { border-color: #e3b341; }
-        .todo-item.priority-low .todo-checkbox { border-color: var(--success-color); }
+        .todo-item.priority-high .todo-checkbox {
+            border-color: var(--danger-color);
+        }
+
+        .todo-item.priority-medium .todo-checkbox {
+            border-color: #e3b341;
+        }
+
+        .todo-item.priority-low .todo-checkbox {
+            border-color: var(--success-color);
+        }
 
         .todo-checkbox:checked {
             background-color: var(--success-color);
@@ -153,6 +162,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -162,7 +172,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -239,23 +249,20 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        let todos = [
-            { id: 1, text: 'Complete project proposal', completed: false, priority: 'high', category: 'work' },
-            { id: 2, text: 'Review pull requests on GitHub', completed: true, priority: 'medium', category: 'work' },
-            { id: 3, text: 'Buy groceries for the week', completed: false, priority: 'low', category: 'personal' },
-            { id: 4, text: 'Schedule dentist appointment', completed: false, priority: 'medium', category: 'personal' },
-            { id: 5, text: 'Prepare presentation slides', completed: false, priority: 'high', category: 'work' }
-        ];
+        checkAuth();
+
+        let todos = [];
 
         const list = document.getElementById('todoList');
-        
+
         function getBadgeClass(cat) {
-            return 'badge'; 
+            return 'badge';
         }
 
         function updateProgress() {
-            if(todos.length === 0) {
+            if (todos.length === 0) {
                 document.getElementById('progressBar').style.width = '0%';
                 document.getElementById('progressText').innerText = '0%';
                 document.getElementById('taskCountText').innerText = '0 tasks remaining • 0 completed';
@@ -264,7 +271,7 @@
             const completed = todos.filter(t => t.completed).length;
             const active = todos.length - completed;
             const pct = Math.round((completed / todos.length) * 100);
-            
+
             document.getElementById('progressBar').style.width = pct + '%';
             document.getElementById('progressText').innerText = pct + '%';
             document.getElementById('taskCountText').innerText = `${active} tasks remaining • ${completed} completed`;
@@ -272,28 +279,33 @@
 
         function renderTodos() {
             list.innerHTML = '';
-            
+
             // sort to put completed at the bottom
-            const sortedTodos = [...todos].sort((a,b) => {
-                if(a.completed !== b.completed) return a.completed ? 1 : -1;
-                return b.id - a.id;
+            const sortedTodos = [...todos].sort((a, b) => {
+                const aDone = a.isCompleted || a.completed;
+                const bDone = b.isCompleted || b.completed;
+                if (aDone !== bDone) return aDone ? 1 : -1;
+                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
             });
 
             sortedTodos.forEach(todo => {
+                const isCompleted = todo.isCompleted || todo.completed;
+                const id = todo._id || todo.id;
+
                 const div = document.createElement('div');
-                div.className = `todo-item priority-${todo.priority} ${todo.completed ? 'completed' : ''}`;
-                
+                div.className = `todo-item priority-${todo.priority} ${isCompleted ? 'completed' : ''}`;
+
                 div.innerHTML = `
-                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo(${todo.id})">
+                    <input type="checkbox" class="todo-checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleTodo('${id}')">
                     <div class="todo-content">
                         <span class="todo-text">${todo.text}</span>
                         <div class="todo-meta">
                             <span class="badge" style="background-color: rgba(255,255,255,0.05);">${todo.category}</span>
-                            <span class="badge" style="background-color: transparent; border: 1px solid var(--border-color);">${todo.priority.toUpperCase()}</span>
+                            <span class="badge" style="background-color: transparent; border: 1px solid var(--border-color);">${(todo.priority || 'medium').toUpperCase()}</span>
                         </div>
                     </div>
                     <div class="todo-actions">
-                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteTodo(${todo.id})">🗑️</button>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteTodo('${id}')">🗑️</button>
                     </div>
                 `;
                 list.appendChild(div);
@@ -301,30 +313,83 @@
             updateProgress();
         }
 
-        window.toggleTodo = (id) => {
-            todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t);
+        async function fetchTodos() {
+            try {
+                const response = await apiFetch('/todos');
+                todos = response.todos || response || [];
+                // standardise completed 
+                todos = todos.map(t => ({ ...t, completed: t.isCompleted }));
+                renderTodos();
+            } catch (error) {
+                console.error('Failed to fetch todos:', error);
+            }
+        }
+
+        window.toggleTodo = async (id) => {
+            const todo = todos.find(t => (t._id || t.id) === id);
+            if (!todo) return;
+
+            const newDone = !(todo.isCompleted || todo.completed);
+            todo.isCompleted = newDone;
+            todo.completed = newDone;
             renderTodos();
+
+            try {
+                await apiFetch(`/todos/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isCompleted: newDone })
+                });
+            } catch (error) {
+                todo.isCompleted = !newDone;
+                todo.completed = !newDone;
+                renderTodos();
+                alert('Failed to update todo');
+            }
         };
 
-        window.deleteTodo = (id) => {
-            todos = todos.filter(t => t.id !== id);
-            renderTodos();
+        window.deleteTodo = async (id) => {
+            if (!confirm("Delete this task?")) return;
+            try {
+                await apiFetch(`/todos/${id}`, { method: 'DELETE' });
+                todos = todos.filter(t => (t._id || t.id) !== id);
+                renderTodos();
+            } catch (error) {
+                alert('Failed to delete todo');
+            }
         };
 
-        document.getElementById('todoForm').addEventListener('submit', (e) => {
+        document.getElementById('todoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            todos.push({
-                id: Date.now(),
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const payload = {
                 text: document.getElementById('todoInput').value,
-                completed: false,
                 priority: document.getElementById('todoPriority').value,
                 category: document.getElementById('todoCategory').value
-            });
-            document.getElementById('todoInput').value = '';
-            renderTodos();
+            };
+
+            try {
+                const response = await apiFetch('/todos', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const newTodo = response.todo || response;
+                newTodo.completed = newTodo.isCompleted;
+                todos.unshift(newTodo);
+
+                document.getElementById('todoInput').value = '';
+                renderTodos();
+            } catch (error) {
+                alert('Failed to add task: ' + error.message);
+            } finally {
+                btn.disabled = false;
+            }
         });
 
-        renderTodos();
+        // Initial fetch
+        fetchTodos();
     </script>
 </body>
+
 </html>

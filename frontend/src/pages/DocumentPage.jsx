@@ -14,8 +14,9 @@ import {
     Maximize2, Minimize2, Type, Heading1, Heading2, Heading3,
     List, ListOrdered, ToggleRight,
     AlertCircle, Info, Lightbulb, Zap,
-    BarChart3, Database, FileCode, Image
+    BarChart3, Database, FileCode, Image, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 // Block type options for slash command menu
 const BLOCK_TYPES = [
@@ -125,63 +126,85 @@ const DocumentPage = () => {
         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200',
     ];
 
-    // Document templates
-    const documentTemplates = {
-        'project-vision': {
-            title: 'Project Vision',
-            icon: '📄',
-            cover: 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=1200',
-            content: '<h2>Vision Statement</h2><p>Our vision is to create the most intuitive note-taking and collaboration platform...</p><h2>Goals</h2><ul><li>Build a seamless experience</li><li>Enable real-time collaboration</li><li>Foster a community of creators</li></ul>',
-            tags: ['work', 'vision']
-        },
-        'meeting-notes': {
-            title: 'Meeting Notes',
-            icon: '📝',
-            content: '<h2>Weekly Standup - Feb 3, 2024</h2><p><strong>Attendees:</strong> Jane, John, Sarah</p><h3>Discussion Points</h3><ul><li>Sprint progress review</li><li>Blockers and dependencies</li><li>Next sprint planning</li></ul>',
-            tags: ['meeting', 'sprint']
-        },
-        'getting-started': {
-            title: 'Welcome to Co-Notes',
-            icon: '👋',
-            content: '<h2>Welcome to Co-Notes! 🎉</h2><p>This is your personal workspace for notes, ideas, and collaboration.</p><h3>Quick Tips</h3><ul><li>Use the toolbar above to format your text</li><li>Click the icon to personalize your page</li><li>Add a cover image to make it beautiful</li><li>Use tags to organize your notes</li></ul>',
-            tags: ['onboarding', 'tutorial']
-        }
-    };
+    const [isLoading, setIsLoading] = useState(true);
 
     // Initialize document
     useEffect(() => {
-        const template = documentTemplates[id];
-        if (template) {
-            setTitle(template.title);
-            setIcon(template.icon);
-            setCoverImage(template.cover || null);
-            setContent(template.content || '');
-            setTags(template.tags || []);
-        } else if (id?.startsWith('new-')) {
-            setTitle('');
-            setIcon('📄');
-            setContent('');
-            setTags([]);
-            setTimeout(() => titleRef.current?.focus(), 100);
-        } else {
-            setTitle('Untitled');
-            setContent('<p></p>');
-            setIcon('📄');
-            setTags([]);
-        }
+        const fetchDocument = async () => {
+            if (id?.startsWith('new-')) {
+                setTitle('');
+                setIcon('📄');
+                setContent('');
+                setTags([]);
+                setIsFavorite(false);
+                setIsLoading(false);
+                setTimeout(() => titleRef.current?.focus(), 100);
+            } else {
+                try {
+                    const res = await api.get(`/documents/${id}`);
+                    const doc = res.data;
+                    setTitle(doc.title);
+                    setIcon(doc.icon || '📄');
+                    setCoverImage(doc.coverImage);
+                    setContent(doc.content || '');
+                    setTags(doc.tags || []);
+                    setPermission(doc.permission || 'private');
+                    setIsFavorite(doc.isFavorite || false);
+                } catch (error) {
+                    console.error('Failed to load document:', error);
+                    // Fallback to empty if not found
+                    setTitle('Untitled');
+                    setContent('<p></p>');
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        fetchDocument();
     }, [id]);
 
-    // Auto-save simulation
+    // Auto-save logic
     useEffect(() => {
-        if (content || title) {
+        if (isLoading) return; // Don't auto-save during initial load
+        if (!content && !title) return;
+
+        const timer = setTimeout(async () => {
             setIsSaving(true);
-            const timer = setTimeout(() => {
-                setLastSaved('Just now');
+            try {
+                if (id?.startsWith('new-')) {
+                    const res = await api.post('/documents', {
+                        title: title || 'Untitled',
+                        content,
+                        icon,
+                        coverImage,
+                        permission,
+                        tags,
+                        isFavorite
+                    });
+                    setLastSaved('Just now');
+                    navigate(`/doc/${res.data.id}`, { replace: true });
+                } else {
+                    await api.put(`/documents/${id}`, {
+                        title: title || 'Untitled',
+                        content,
+                        icon,
+                        coverImage,
+                        permission,
+                        tags,
+                        isFavorite
+                    });
+                    setLastSaved('Just now');
+                }
+            } catch (error) {
+                console.error('Auto-save failed:', error);
+            } finally {
                 setIsSaving(false);
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [content, title, tags]);
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [content, title, icon, coverImage, permission, tags, isFavorite, id, isLoading, navigate]);
 
     // Calculate document stats
     useEffect(() => {
@@ -243,11 +266,26 @@ const DocumentPage = () => {
         navigate(`/doc/${newId}`);
     };
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (window.confirm('Are you sure you want to move this to trash?')) {
+            if (!id?.startsWith('new-')) {
+                try {
+                    await api.delete(`/documents/${id}`);
+                } catch (error) {
+                    console.error('Failed to delete document:', error);
+                }
+            }
             navigate('/dashboard');
         }
     };
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-main)' }}>
+                <Loader2 size={40} className="spin" style={{ color: 'var(--primary)' }} />
+            </div>
+        );
+    }
 
     const handleExport = (format) => {
         alert(`Exporting as ${format}... (Simulated)`);

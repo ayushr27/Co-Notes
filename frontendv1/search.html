@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,7 +50,8 @@
             transition: all 0.2s;
         }
 
-        .filter-pill:hover, .filter-pill.active {
+        .filter-pill:hover,
+        .filter-pill.active {
             background-color: rgba(88, 166, 255, 0.1);
             border-color: var(--primary-color);
             color: var(--primary-color);
@@ -103,6 +105,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -112,7 +115,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -155,8 +158,9 @@
 
             <div class="page-content">
                 <div class="search-container">
-                    <input type="text" id="globalSearch" class="large-search-input" placeholder="Search across documents, ideas, and collections..." autofocus>
-                    
+                    <input type="text" id="globalSearch" class="large-search-input"
+                        placeholder="Search across documents, ideas, and collections..." autofocus>
+
                     <div class="filters-row">
                         <button class="filter-pill active">All Results</button>
                         <button class="filter-pill">📄 Documents</button>
@@ -167,74 +171,93 @@
 
                     <div class="search-results" id="searchResults">
                         <!-- Simulated Results -->
-                        <p style="color: var(--text-muted); text-align: center; margin-top: 4rem;">Start typing to search your entire workspace...</p>
+                        <p style="color: var(--text-muted); text-align: center; margin-top: 4rem;">Start typing to
+                            search your entire workspace...</p>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
+        checkAuth();
+
         const searchInput = document.getElementById('globalSearch');
         const searchResults = document.getElementById('searchResults');
 
-        // Mock data
-        const database = [
-            { type: 'Document', title: 'Q3 Marketing Strategy', path: 'Collections / Work Projects', content: 'Our main focus for Q3 is increasing engagement on the platform through gamification and email campaigns.' },
-            { type: 'Idea', title: 'Gamify Note-taking', path: 'Idea Board', content: 'Add achievements and streaks to encourage daily writing habits. Maybe a cute mascot that grows?' },
-            { type: 'Task', title: 'Review marketing copy for landing page', path: 'To-Do List', content: 'Needs to be done before Friday meeting.' },
-            { type: 'Collection', title: 'Marketing Assets', path: 'Collections', content: 'Logos, banners, and copy text for marketing team.' }
-        ];
+        let activeFilter = 'All Results';
 
         let timeout = null;
 
         searchInput.addEventListener('input', (e) => {
             clearTimeout(timeout);
             const query = e.target.value.toLowerCase().trim();
-            
-            if(!query) {
+
+            if (!query) {
                 searchResults.innerHTML = '<p style="color: var(--text-muted); text-align: center; margin-top: 4rem;">Start typing to search your entire workspace...</p>';
                 return;
             }
 
             searchResults.innerHTML = '<p style="color: var(--text-muted);">Searching...</p>';
-            
-            timeout = setTimeout(() => {
-                const results = database.filter(item => 
-                    item.title.toLowerCase().includes(query) || 
-                    item.content.toLowerCase().includes(query)
-                );
 
-                if(results.length === 0) {
-                    searchResults.innerHTML = `
-                        <div style="text-align: center; margin-top: 3rem;">
-                            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
-                            <h3 style="color: #fff;">No results found for "${query}"</h3>
-                            <p style="color: var(--text-muted);">Try searching for something else or check your spelling.</p>
-                        </div>
-                    `;
-                    return;
+            timeout = setTimeout(async () => {
+                try {
+                    const response = await apiFetch(`/search?q=${encodeURIComponent(query)}`);
+
+                    let allResults = [];
+                    if (response.documents) {
+                        response.documents.forEach(d => allResults.push({ type: '📄 Documents', title: d.title || 'Untitled', path: 'Workspace', content: 'Document', link: `document.html?id=${d._id}` }));
+                    }
+                    if (response.collections) {
+                        response.collections.forEach(c => allResults.push({ type: '📁 Collections', title: c.name || 'Unnamed', path: 'Collections', content: c.description || 'Collection', link: `document.html?collection=${c._id}` }));
+                    }
+                    if (response.articles) {
+                        response.articles.forEach(a => allResults.push({ type: 'Community', title: a.title || 'Untitled', path: 'Articles', content: 'Published Article', link: '#' }));
+                    }
+                    if (response.ideas) {
+                        response.ideas.forEach(i => allResults.push({ type: '💡 Ideas', title: i.title || 'Untitled', path: 'Idea Board', content: i.description || 'Idea', link: 'ideas.html' }));
+                    }
+
+                    // Apply filter
+                    if (activeFilter !== 'All Results') {
+                        allResults = allResults.filter(item => item.type === activeFilter);
+                    }
+
+                    if (allResults.length === 0) {
+                        searchResults.innerHTML = `
+                            <div style="text-align: center; margin-top: 3rem;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                                <h3 style="color: #fff;">No results found for "${query}"</h3>
+                                <p style="color: var(--text-muted);">Try searching for something else or check your spelling.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    searchResults.innerHTML = `<p style="color: var(--text-muted); margin-bottom: 1.5rem;">Found ${allResults.length} results</p>`;
+
+                    allResults.forEach(item => {
+                        const el = document.createElement('a');
+                        el.href = item.link;
+                        el.className = 'result-item';
+
+                        // Simple highlighting
+                        const regex = new RegExp(`(${query})`, 'gi');
+                        const highlightedContent = (item.content || '').replace(regex, '<span class="highlight">$1</span>');
+                        const highlightedTitle = (item.title || '').replace(regex, '<span class="highlight">$1</span>');
+
+                        el.innerHTML = `
+                            <div class="result-path">${item.type} • ${item.path}</div>
+                            <div class="result-title">${highlightedTitle}</div>
+                            <div class="result-snippet">${highlightedContent}</div>
+                        `;
+                        searchResults.appendChild(el);
+                    });
+                } catch (error) {
+                    console.error('Search error', error);
+                    searchResults.innerHTML = '<p style="color: var(--danger-color); text-align: center;">Error performing search. Please try again later.</p>';
                 }
-
-                searchResults.innerHTML = `<p style="color: var(--text-muted); margin-bottom: 1.5rem;">Found ${results.length} results</p>`;
-                
-                results.forEach(item => {
-                    const el = document.createElement('a');
-                    el.href = '#';
-                    el.className = 'result-item';
-                    
-                    // Simple highlighting for demo
-                    const regex = new RegExp(`(${query})`, 'gi');
-                    const highlightedContent = item.content.replace(regex, '<span class="highlight">$1</span>');
-                    const highlightedTitle = item.title.replace(regex, '<span class="highlight">$1</span>');
-
-                    el.innerHTML = `
-                        <div class="result-path">${item.type} • ${item.path}</div>
-                        <div class="result-title">${highlightedTitle}</div>
-                        <div class="result-snippet">${highlightedContent}</div>
-                    `;
-                    searchResults.appendChild(el);
-                });
             }, 300);
         });
 
@@ -243,8 +266,12 @@
             pill.addEventListener('click', (e) => {
                 document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
                 e.target.classList.add('active');
+                activeFilter = e.target.textContent;
+                // re-trigger search
+                searchInput.dispatchEvent(new Event('input'));
             });
         });
     </script>
 </body>
+
 </html>

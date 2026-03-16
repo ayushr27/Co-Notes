@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
             gap: 2rem;
             margin-bottom: 3rem;
             position: relative;
-            padding-top: 100px; /* Space for cover photo */
+            padding-top: 100px;
+            /* Space for cover photo */
         }
 
         .cover-photo {
@@ -108,16 +110,28 @@
             width: 12px;
             height: 12px;
             border-radius: 2px;
-            background-color: var(--border-color); /* empty */
+            background-color: var(--border-color);
+            /* empty */
         }
 
-        .activity-cell[data-level="1"] { background-color: rgba(63, 185, 80, 0.4); }
-        .activity-cell[data-level="2"] { background-color: rgba(63, 185, 80, 0.6); }
-        .activity-cell[data-level="3"] { background-color: rgba(63, 185, 80, 0.8); }
-        .activity-cell[data-level="4"] { background-color: rgba(63, 185, 80, 1); }
+        .activity-cell[data-level="1"] {
+            background-color: rgba(63, 185, 80, 0.4);
+        }
 
+        .activity-cell[data-level="2"] {
+            background-color: rgba(63, 185, 80, 0.6);
+        }
+
+        .activity-cell[data-level="3"] {
+            background-color: rgba(63, 185, 80, 0.8);
+        }
+
+        .activity-cell[data-level="4"] {
+            background-color: rgba(63, 185, 80, 1);
+        }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -127,7 +141,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -172,39 +186,39 @@
                 <div class="profile-header">
                     <div class="cover-photo"></div>
                     <div class="profile-avatar">J</div>
-                    
+
                     <div class="profile-info">
                         <div>
-                            <h1 class="profile-name">Jane Doe</h1>
-                            <p class="profile-bio">Software Engineer & Tech Writer. Exploring ideas, building systems, and sharing thoughts on productivity and development.</p>
+                            <h1 class="profile-name" id="user-name">Loading...</h1>
+                            <p class="profile-bio" id="user-bio">...</p>
                         </div>
-                        <button class="btn btn-primary" onclick="alert('Profile share link copied!')">Share Profile</button>
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                            <span style="color: var(--text-muted); font-size: 0.9rem;" id="user-location"></span>
+                            <button class="btn btn-primary" onclick="alert('Profile share link copied!')">Share
+                                Profile</button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="profile-stats">
                     <div class="profile-stat">
-                        <span class="stat-num">124</span>
+                        <span class="stat-num" id="stat-documents">0</span>
                         <span class="stat-label">Notes Written</span>
                     </div>
                     <div class="profile-stat">
-                        <span class="stat-num">12</span>
+                        <span class="stat-num" id="stat-collections">0</span>
                         <span class="stat-label">Collections</span>
                     </div>
                     <div class="profile-stat">
-                        <span class="stat-num">1.2k</span>
-                        <span class="stat-label">Followers</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="stat-num">45</span>
-                        <span class="stat-label">Following</span>
+                        <span class="stat-num" id="stat-articles">0</span>
+                        <span class="stat-label">Articles Published</span>
                     </div>
                 </div>
 
                 <div class="activity-section">
                     <h3 style="color: #fff; margin-bottom: 1rem;">Writing Activity</h3>
                     <p style="color: var(--text-muted); margin-bottom: 1rem;">342 contributions in the last year</p>
-                    
+
                     <div class="activity-grid" id="activityGrid">
                         <!-- JS generated grid -->
                     </div>
@@ -214,21 +228,52 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
+        checkAuth();
+
+        async function initProfile() {
+            try {
+                const user = await apiFetch('/users/me');
+                document.getElementById('user-name').innerText = user.name;
+
+                // Avatar Letter
+                const avatarEl = document.querySelector('.profile-avatar');
+                if (user.avatar) {
+                    avatarEl.innerHTML = `<img src="${user.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                } else {
+                    avatarEl.innerText = user.name.charAt(0).toUpperCase();
+                }
+
+                document.getElementById('user-bio').innerText = user.bio || "No bio added yet.";
+                document.getElementById('user-location').innerText = user.location ? `📍 ${user.location}` : "";
+
+                const stats = await apiFetch('/users/me/stats');
+                document.getElementById('stat-documents').innerText = stats.documents;
+                document.getElementById('stat-collections').innerText = stats.collections;
+                document.getElementById('stat-articles').innerText = stats.articles;
+
+            } catch (error) {
+                console.error("Profile error:", error);
+            }
+        }
+
+        initProfile();
+
         // Generate a random GitHub-style contribution graph
         const grid = document.getElementById('activityGrid');
         // Let's make roughly 52 weeks * 7 days = 364 boxes
-        for(let i=0; i<364; i++) {
+        for (let i = 0; i < 364; i++) {
             const cell = document.createElement('div');
             cell.className = 'activity-cell';
-            
+
             // Randomly assign activity level. More likely to be empty or low.
             const rand = Math.random();
             let level = 0;
-            if(rand > 0.6) level = 1;
-            if(rand > 0.8) level = 2;
-            if(rand > 0.9) level = 3;
-            if(rand > 0.95) level = 4;
+            if (rand > 0.6) level = 1;
+            if (rand > 0.8) level = 2;
+            if (rand > 0.9) level = 3;
+            if (rand > 0.95) level = 4;
 
             cell.setAttribute('data-level', level);
             cell.title = `${level} contributions on this day`;
@@ -236,4 +281,5 @@
         }
     </script>
 </body>
+
 </html>

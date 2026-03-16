@@ -3,8 +3,9 @@ import {
     CheckSquare, Plus, Mic, MicOff, Trash2, Clock, Calendar,
     Circle, CheckCircle2, Star, Flag, ChevronDown, ChevronRight,
     Sun, Moon, Sunrise, Filter, SortAsc, MoreHorizontal, X,
-    AlertCircle, Zap
+    AlertCircle, Zap, Loader2
 } from 'lucide-react';
+import api from '../services/api';
 
 // Voice Recognition Hook
 const useVoiceRecognition = () => {
@@ -53,54 +54,22 @@ const useVoiceRecognition = () => {
 };
 
 const TodoListPage = () => {
-    const [todos, setTodos] = useState([
-        {
-            id: 1,
-            text: 'Complete project proposal',
-            completed: false,
-            priority: 'high',
-            dueDate: new Date(Date.now() + 86400000),
-            category: 'work',
-            starred: true
-        },
-        {
-            id: 2,
-            text: 'Review pull requests on GitHub',
-            completed: true,
-            priority: 'medium',
-            dueDate: new Date(),
-            category: 'work',
-            starred: false
-        },
-        {
-            id: 3,
-            text: 'Buy groceries for the week',
-            completed: false,
-            priority: 'low',
-            dueDate: new Date(Date.now() + 172800000),
-            category: 'personal',
-            starred: false
-        },
-        {
-            id: 4,
-            text: 'Schedule dentist appointment',
-            completed: false,
-            priority: 'medium',
-            dueDate: null,
-            category: 'personal',
-            starred: false
-        },
-        {
-            id: 5,
-            text: 'Prepare presentation slides',
-            completed: false,
-            priority: 'high',
-            dueDate: new Date(Date.now() + 259200000),
-            category: 'work',
-            starred: true
-        }
-    ]);
+    const [todos, setTodos] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    useEffect(() => {
+        const fetchTodos = async () => {
+            try {
+                const res = await api.get('/todos');
+                setTodos(res.data);
+            } catch (error) {
+                console.error('Failed to fetch todos:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTodos();
+    }, []);
     const [newTodoText, setNewTodoText] = useState('');
     const [newTodoPriority, setNewTodoPriority] = useState('medium');
     const [newTodoCategory, setNewTodoCategory] = useState('personal');
@@ -129,38 +98,53 @@ const TodoListPage = () => {
         }
     }, [transcript]);
 
-    const handleAddTodo = (e) => {
+    const handleAddTodo = async (e) => {
         e.preventDefault();
         if (newTodoText.trim()) {
-            const newTodo = {
-                id: Date.now(),
-                text: newTodoText.trim(),
-                completed: false,
-                priority: newTodoPriority,
-                dueDate: null,
-                category: newTodoCategory,
-                starred: false
-            };
-            setTodos([newTodo, ...todos]);
-            setNewTodoText('');
-            setShowAddForm(false);
+            try {
+                const res = await api.post('/todos', {
+                    text: newTodoText.trim(),
+                    priority: newTodoPriority,
+                    category: newTodoCategory,
+                });
+                setTodos([res.data, ...todos]);
+                setNewTodoText('');
+                setShowAddForm(false);
+            } catch (error) {
+                console.error('Failed to add todo:', error);
+            }
         }
     };
 
-    const toggleComplete = (id) => {
-        setTodos(todos.map(todo =>
-            todo.id === id ? { ...todo, completed: !todo.completed } : todo
-        ));
+    const toggleComplete = async (id) => {
+        try {
+            const res = await api.patch(`/todos/${id}/toggle`);
+            setTodos(todos.map(todo =>
+                todo.id === id ? res.data : todo
+            ));
+        } catch (error) {
+            console.error('Failed to toggle todo:', error);
+        }
     };
 
-    const toggleStar = (id) => {
-        setTodos(todos.map(todo =>
-            todo.id === id ? { ...todo, starred: !todo.starred } : todo
-        ));
+    const toggleStar = async (id) => {
+        try {
+            const res = await api.patch(`/todos/${id}/star`);
+            setTodos(todos.map(todo =>
+                todo.id === id ? res.data : todo
+            ));
+        } catch (error) {
+            console.error('Failed to star todo:', error);
+        }
     };
 
-    const deleteTodo = (id) => {
-        setTodos(todos.filter(todo => todo.id !== id));
+    const deleteTodo = async (id) => {
+        try {
+            await api.delete(`/todos/${id}`);
+            setTodos(todos.filter(todo => todo.id !== id));
+        } catch (error) {
+            console.error('Failed to delete todo:', error);
+        }
     };
 
     const startEditing = (todo) => {
@@ -168,18 +152,28 @@ const TodoListPage = () => {
         setEditText(todo.text);
     };
 
-    const saveEdit = (id) => {
+    const saveEdit = async (id) => {
         if (editText.trim()) {
-            setTodos(todos.map(todo =>
-                todo.id === id ? { ...todo, text: editText.trim() } : todo
-            ));
+            try {
+                const res = await api.put(`/todos/${id}`, { text: editText.trim() });
+                setTodos(todos.map(todo =>
+                    todo.id === id ? res.data : todo
+                ));
+            } catch (error) {
+                console.error('Failed to edit todo:', error);
+            }
         }
         setEditingTodo(null);
         setEditText('');
     };
 
-    const clearCompleted = () => {
-        setTodos(todos.filter(todo => !todo.completed));
+    const clearCompleted = async () => {
+        try {
+            await api.delete('/todos/completed');
+            setTodos(todos.filter(todo => !todo.completed));
+        } catch (error) {
+            console.error('Failed to clear completed todos:', error);
+        }
     };
 
     const getPriorityColor = (priority) => {
