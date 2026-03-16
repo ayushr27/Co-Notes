@@ -376,7 +376,7 @@
 
         async function loadFeed() {
             try {
-                const response = await apiFetch('/articles');
+                const response = await apiFetch('/articles/feed');
                 articles = response.articles || response || [];
                 renderFeed();
             } catch (error) {
