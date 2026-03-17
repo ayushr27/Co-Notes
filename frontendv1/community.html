@@ -9,8 +9,10 @@
     <style>
         .feed-layout {
             display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 2rem;
+            grid-template-columns: 1fr 320px;
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .category-nav {
@@ -42,18 +44,20 @@
         .article-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.2s;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .article-card:hover {
-            border-color: #8b949e;
-            transform: translateY(-2px);
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(88, 166, 255, 0.15);
         }
 
         .article-meta {
@@ -139,8 +143,11 @@
         .trending-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
+            border-radius: 16px;
+            padding: 2rem;
+            position: sticky;
+            top: 100px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .trending-item {
@@ -229,19 +236,28 @@
             </header>
 
             <div class="page-content">
-                <div class="page-title">
-                    <span style="font-size: 2.5rem; color: #bc8cff;">🌐</span>
-                    <h1>Community Feed</h1>
-                </div>
-                <p class="page-subtitle">Discover ideas, tutorials, and stories from the Co-Notes community.</p>
+                <!-- Top Nav Container -->
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; gap: 2rem;">
+                        <div style="position: relative; flex: 1; max-width: 500px;">
+                            <input type="text" id="feedSearch" placeholder="Search articles, tutorials, or topics..." 
+                                style="width: 100%; background: var(--card-bg); border: 2px solid var(--border-color); color: #fff; padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.2s;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;">🔍</span>
+                        </div>
+                        <div class="category-nav" style="margin-bottom: 0;">
+                            <button class="category-tab active">For You</button>
+                            <button class="category-tab">Coding</button>
+                            <button class="category-tab">Business</button>
+                            <button class="category-tab">Marketing</button>
+                            <button class="category-tab">Design</button>
+                        </div>
+                    </div>
 
-                <div class="category-nav">
-                    <button class="category-tab active">For You</button>
-                    <button class="category-tab">Following</button>
-                    <button class="category-tab">Technology</button>
-                    <button class="category-tab">Productivity</button>
-                    <button class="category-tab">Writing</button>
-                    <button class="category-tab">Design</button>
+                    <div class="page-title">
+                        <span style="font-size: 2.5rem; color: #bc8cff;">🌐</span>
+                        <h1 style="font-size: 2.5rem;">Community Feed</h1>
+                    </div>
+                    <p class="page-subtitle" style="font-size: 1.1rem; margin-bottom: 3rem;">Discover ideas, tutorials, and stories from the Co-Notes community.</p>
                 </div>
 
                 <div class="feed-layout">
@@ -350,33 +366,42 @@
 
                 const card = document.createElement('div');
                 card.className = 'article-card';
-                card.onclick = () => { /* Future: navigate to article detail */ };
+                card.onclick = () => { window.location.href = `article-detail.html?id=${article.id || article._id}`; };
 
                 card.innerHTML = `
                     <div class="article-meta">
                         <div class="author-avatar">${initial}</div>
                         <div class="author-info">
                             <span class="author-name">${authorName}</span>
-                            <span class="post-time">${timeStr} in ${article.category || 'General'}</span>
+                            <span class="post-time">${timeStr} • ${article.category || 'General'}</span>
                         </div>
                     </div>
-                    <h2 class="article-title">${article.title}</h2>
-                    <p class="article-excerpt">${article.subtitle || article.content}</p>
-                    <div class="article-footer">
+                    <div style="flex: 1;">
+                        <h2 class="article-title" style="margin-bottom: 0.75rem;">${article.title}</h2>
+                        <p class="article-excerpt" style="line-height: 1.6; margin-bottom: 2rem;">${article.subtitle || article.content}</p>
+                    </div>
+                    <div class="article-footer" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; margin-top: auto;">
                         <div class="article-stats">
-                            <span class="stat-item">❤️ ${likeCount}</span>
-                            <span class="stat-item">💬 ${commentCount}</span>
+                            <span class="stat-item" style="background: rgba(88,166,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px;">❤️ ${likeCount}</span>
+                            <span class="stat-item" style="background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px;">💬 ${commentCount}</span>
                         </div>
-                        <span class="badge" style="background: none; border: 1px solid var(--border-color);">${article.readTime || '3 min read'}</span>
+                        <span class="badge" style="background: none; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 8px; color: var(--text-muted);">${article.readTime || '3 min'} read</span>
                     </div>
                 `;
                 feedColumn.appendChild(card);
             });
         }
 
-        async function loadFeed() {
+        async function loadFeed(cat = '', search = '') {
             try {
-                const response = await apiFetch('/articles/feed');
+                let url = '/articles/feed';
+                const params = new URLSearchParams();
+                if (cat && cat !== 'For You') params.append('category', cat.toLowerCase());
+                if (search) params.append('search', search);
+                
+                if (params.toString()) url += `?${params.toString()}`;
+
+                const response = await apiFetch(url);
                 articles = response.articles || response || [];
                 renderFeed();
             } catch (error) {
@@ -391,8 +416,17 @@
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 e.target.classList.add('active');
                 activeCategory = e.target.textContent;
-                renderFeed();
+                loadFeed(activeCategory, document.getElementById('feedSearch').value);
             });
+        });
+
+        // Search logic
+        let searchTimeout;
+        document.getElementById('feedSearch').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadFeed(activeCategory, e.target.value);
+            }, 500);
         });
 
         loadFeed();

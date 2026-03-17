@@ -39,6 +39,8 @@ export async function globalSearch(req, res) {
                 visibility: "public",
                 $or: [
                     { title: { $regex: searchTerm, $options: "i" } },
+                    { subtitle: { $regex: searchTerm, $options: "i" } },
+                    { subcategory: { $regex: searchTerm, $options: "i" } },
                     { tags: { $in: [new RegExp(searchTerm, "i")] } }
                 ]
             })

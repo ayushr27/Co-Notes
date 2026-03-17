@@ -13,6 +13,8 @@ export async function getFeed(req, res) {
             ...(search && {
                 $or: [
                     { title: { $regex: search, $options: "i" } },
+                    { subtitle: { $regex: search, $options: "i" } },
+                    { subcategory: { $regex: search, $options: "i" } },
                     { tags: { $in: [new RegExp(search, "i")] } }
                 ]
             })

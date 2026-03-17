@@ -156,7 +156,7 @@
                 </div>
             </header>
 
-            <div class="page-content">
+            <div class="page-content" style="padding-top: 0.5rem;">
                 <div class="search-container">
                     <input type="text" id="globalSearch" class="large-search-input"
                         placeholder="Search across documents, ideas, and collections..." autofocus>
@@ -167,6 +167,7 @@
                         <button class="filter-pill">💡 Ideas</button>
                         <button class="filter-pill">☑️ Tasks</button>
                         <button class="filter-pill">📁 Collections</button>
+                        <button class="filter-pill">🌐 Community</button>
                     </div>
 
                     <div class="search-results" id="searchResults">
@@ -213,7 +214,7 @@
                         response.collections.forEach(c => allResults.push({ type: '📁 Collections', title: c.name || 'Unnamed', path: 'Collections', content: c.description || 'Collection', link: `document.html?collection=${c._id}` }));
                     }
                     if (response.articles) {
-                        response.articles.forEach(a => allResults.push({ type: 'Community', title: a.title || 'Untitled', path: 'Articles', content: 'Published Article', link: '#' }));
+                        response.articles.forEach(a => allResults.push({ type: '🌐 Community', title: a.title || 'Untitled', path: 'Articles', content: 'Published Article', link: `article-detail.html?id=${a.id || a._id}` }));
                     }
                     if (response.ideas) {
                         response.ideas.forEach(i => allResults.push({ type: '💡 Ideas', title: i.title || 'Untitled', path: 'Idea Board', content: i.description || 'Idea', link: 'ideas.html' }));

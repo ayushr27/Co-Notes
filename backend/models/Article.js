@@ -48,9 +48,22 @@ const articleSchema = new mongoose.Schema({
     tags: [{
         type: String
     }],
+    languages: [{
+        type: String
+    }],
+    frameworks: [{
+        type: String
+    }],
+    isSeriesPart: {
+        type: Boolean,
+        default: false
+    },
+    seriesName: {
+        type: String
+    },
     visibility: {
         type: String,
-        enum: ['public', 'private'],
+        enum: ['public', 'private', 'unlisted', 'members'],
         default: 'public'
     },
     published: {
@@ -60,7 +73,7 @@ const articleSchema = new mongoose.Schema({
     publishedAt: {
         type: Date,
     },
-    estimatedReadTime: {
+    readTime: {
         type: Number,
         default: 5
     },

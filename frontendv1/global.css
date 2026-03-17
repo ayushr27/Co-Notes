@@ -346,3 +346,38 @@ button {
     bottom: -50px;
     right: 10%;
 }
+
+/* Hover glow — used on stat cards and interactive cards */
+.hover-glow {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 16px rgba(88, 166, 255, 0.25);
+    border-color: var(--primary-color);
+}
+
+/* Danger button — e.g. logout, delete */
+.btn-danger {
+    background-color: rgba(248, 81, 73, 0.15);
+    color: var(--danger-color);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
+.btn-danger:hover {
+    background-color: rgba(248, 81, 73, 0.25);
+    border-color: var(--danger-color);
+}
+
+/* Loading/spinner inline helper */
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.text-danger {
+    color: var(--danger-color);
+}

@@ -1,4 +1,4 @@
-console.log('--- Initializing server.js ---');
+import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import connectDB from "./db.js";
@@ -14,10 +14,10 @@ import quickNoteRoutes from "./routes/quickNoteRoutes.js";
 import articleRoutes from "./routes/articleRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 
-const app = express();
-
 // Connect to MongoDB
 connectDB();
+
+const app = express();
 
 // Middlewares
 app.use(cors());
@@ -37,6 +37,18 @@ app.use("/api/search", searchRoutes);
 // Health check
 app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Global 404 handler
+app.use((req, res) => {
+    res.status(404).json({ message: `Route ${req.method} ${req.path} not found` });
+});
+
+// Global error handler (must have 4 params for Express to treat it as error middleware)
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+    console.error("Unhandled error:", err);
+    res.status(err.status || 500).json({ message: err.message || "Internal server error" });
 });
 
 app.listen(3000, () => {

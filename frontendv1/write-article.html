@@ -373,7 +373,7 @@
                             article</span>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="allowComments" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -533,19 +533,30 @@
             const readTime = document.getElementById('readTime').textContent;
             const visibilityRadio = document.querySelector('input[name="visibility"]:checked');
 
+            const allowComments = document.getElementById('allowComments').checked;
+
             const payload = {
                 title,
                 subtitle,
                 content,
                 category: cat,
+                subcategory: subcat,
                 tags,
-                readTime
+                readTime,
+                visibility: visibilityRadio ? visibilityRadio.value : 'public',
+                allowComments
             };
 
             try {
-                await apiFetch('/articles', {
+                // 1. Create the article (initially drafted)
+                const article = await apiFetch('/articles', {
                     method: 'POST',
                     body: JSON.stringify(payload)
+                });
+
+                // 2. Mark it as published immediately
+                await apiFetch(`/articles/${article.id}/publish`, {
+                    method: 'PATCH'
                 });
 
                 alert('Article published successfully!');
