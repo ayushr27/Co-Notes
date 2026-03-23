@@ -1428,7 +1428,7 @@
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.35-4.35"></path>
       </svg>
-      <input type="text" id="searchInput" placeholder="Search notesâ€¦ (/)" />
+      <input type="text" id="searchInput" placeholder="Search notes... (/)" />
     </div>
 
     <div class="header-actions">
@@ -1439,10 +1439,10 @@
           </svg>
         </button>
         <div id="sortMenu">
-          <div class="sort-item active" data-sort="newest">â¬‡ Newest first</div>
-          <div class="sort-item" data-sort="oldest">â¬† Oldest first</div>
-          <div class="sort-item" data-sort="updated">ðŸ•’ Last updated</div>
-          <div class="sort-item" data-sort="title">ðŸ”¤ Title Aâ€“Z</div>
+          <div class="sort-item active" data-sort="newest">⬇ Newest first</div>
+          <div class="sort-item" data-sort="oldest">⬆ Oldest first</div>
+          <div class="sort-item" data-sort="updated">🕒 Last updated</div>
+          <div class="sort-item" data-sort="title">🔤 Title A-Z</div>
           <div class="sort-item" data-sort="words">ðŸ“ Word count</div>
         </div>
       </div>
@@ -1630,11 +1630,11 @@
       </div>
 
       <div class="editor-body">
-        <textarea id="editorTitle" placeholder="Note titleâ€¦" rows="1" spellcheck="false"></textarea>
+        <textarea id="editorTitle" placeholder="Note title..." rows="1" spellcheck="false"></textarea>
         <div class="word-count-bar">
           <div class="word-count-fill" id="wordCountFill" style="width:0%"></div>
         </div>
-        <textarea id="editorContent" placeholder="Start writingâ€¦" spellcheck="true"></textarea>
+        <textarea id="editorContent" placeholder="Start writing..." spellcheck="true"></textarea>
       </div>
 
       <div class="editor-meta">
@@ -1659,23 +1659,24 @@
         </div>
 
         <div class="meta-row" style="gap:6px;flex-wrap:wrap">
-          <button class="toggle-btn" id="pinBtn" type="button">ðŸ“Œ Pin</button>
-          <button class="toggle-btn" id="favBtn" type="button">â™¡ Favorite</button>
-          <button class="toggle-btn" id="archiveBtn" type="button">ðŸ“¦ Archive</button>
+          <button class="toggle-btn" id="pinBtn" type="button">📌 Pin</button>
+          <button class="toggle-btn" id="favBtn" type="button">♡ Favorite</button>
+          <button class="toggle-btn" id="archiveBtn" type="button">📦 Archive</button>
+          <button class="btn btn-ghost" id="copyTextBtn" title="Copy text" type="button" style="margin-left:auto; padding: 4px 8px; font-size: 0.8rem;">📋 Copy</button>
         </div>
 
         <div class="meta-row">
           <div class="editor-info">
             <span id="wordCountLabel">0 words</span>
             <span id="charCountLabel">0 chars</span>
-            <span id="createdLabel">â€”</span>
+            <span id="createdLabel">—</span>
           </div>
         </div>
       </div>
 
       <div class="editor-footer">
-        <button class="btn btn-ghost" id="duplicateBtn" title="Duplicate note" type="button">âŽ˜</button>
-        <button class="btn btn-danger" id="deleteEditorBtn" type="button">ðŸ—‘</button>
+        <button class="btn btn-ghost" id="duplicateBtn" title="Duplicate note" type="button">⎘</button>
+        <button class="btn btn-danger" id="deleteEditorBtn" type="button">🗑️</button>
         <button class="btn btn-primary" id="saveBtn" type="button">Save note</button>
       </div>
     </aside>
@@ -1851,20 +1852,20 @@
           <div class="card-top">
             <div class="card-title">${escHtml(note.title || "Untitled")}</div>
             <div class="card-badges">
-              ${note.pinned ? '<div class="badge badge-pin" title="Pinned">ðŸ“Œ</div>' : ""}
-              ${note.favorite ? '<div class="badge badge-fav" title="Favorite">â™¥</div>' : ""}
+              ${note.pinned ? '<div class="badge badge-pin" title="Pinned">📌</div>' : ""}
+              ${note.favorite ? '<div class="badge badge-fav" title="Favorite">♥</div>' : ""}
             </div>
           </div>
           ${note.content ? `<div class="card-body">${escHtml(note.content)}</div>` : ""}
           ${note.tags.length ? `<div class="card-tags">${note.tags.map((t) => `<span class="tag-chip">${escHtml(t)}</span>`).join("")}</div>` : ""}
           <div class="card-footer">
-            <span class="card-date">${formatDate(note.updated)} Â· ${wc}w</span>
+            <span class="card-date">${formatDate(note.updated)} • ${wc}w</span>
             <div class="card-actions">
-              <button class="card-btn" data-action="pin" title="${note.pinned ? "Unpin" : "Pin"}" type="button">ðŸ“Œ</button>
-              <button class="card-btn" data-action="fav" title="${note.favorite ? "Unfavorite" : "Favorite"}" type="button">â™¡</button>
-              <button class="card-btn" data-action="archive" title="${note.archived ? "Unarchive" : "Archive"}" type="button">ðŸ“¦</button>
-              <button class="card-btn" data-action="duplicate" title="Duplicate" type="button">âŽ˜</button>
-              <button class="card-btn danger" data-action="delete" title="Delete" type="button">âœ•</button>
+              <button class="card-btn" data-action="pin" title="${note.pinned ? "Unpin" : "Pin"}" type="button">📌</button>
+              <button class="card-btn" data-action="fav" title="${note.favorite ? "Unfavorite" : "Favorite"}" type="button">♡</button>
+              <button class="card-btn" data-action="archive" title="${note.archived ? "Unarchive" : "Archive"}" type="button">📦</button>
+              <button class="card-btn" data-action="duplicate" title="Duplicate" type="button">⎘</button>
+              <button class="card-btn danger" data-action="delete" title="Delete" type="button">✕</button>
             </div>
           </div>
         </div>
@@ -1905,7 +1906,7 @@
         const pinned = notes.filter((n) => n.pinned);
         const rest = notes.filter((n) => !n.pinned);
 
-        html += `<div class="section-divider">ðŸ“Œ Pinned</div>`;
+        html += `<div class="section-divider">📌 Pinned</div>`;
         pinned.forEach((n) => (html += noteCardHTML(n)));
 
         if (rest.length) {
@@ -2106,9 +2107,9 @@
         s.classList.toggle("active", s.dataset.c === (note.color || "none"));
       });
 
-      updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "ðŸ“Œ Pin", "ðŸ“Œ Pinned", false);
-      updateToggleBtn(document.getElementById("favBtn"), note.favorite, "â™¡ Favorite", "â™¥ Favorited", true);
-      updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "ðŸ“¦ Archive", "ðŸ“¦ Archived", false);
+      updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "📌 Pin", "📌 Pinned", false);
+      updateToggleBtn(document.getElementById("favBtn"), note.favorite, "♡ Favorite", "♥ Favorited", true);
+      updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "📦 Archive", "📦 Archived", false);
 
       updateEditorMeta(note);
       updateAutosave(false);
@@ -2219,6 +2220,16 @@
       scheduleAutosave();
     }
 
+    document.getElementById("copyTextBtn").addEventListener("click", () => {
+      const contentEl = document.getElementById("editorContent");
+      if (!contentEl.value) return showToast("Nothing to copy", "warning");
+      navigator.clipboard.writeText(contentEl.value).then(() => {
+        showToast("Text copied to clipboard", "success");
+      }).catch(err => {
+        showToast("Failed to copy", "error");
+      });
+    });
+
     async function toggleProp(id, prop) {
       const note = state.notes.find((n) => n.id === id);
       if (!note) return;
@@ -2227,9 +2238,9 @@
       note.updated = Date.now();
 
       if (id === state.activeNote) {
-        if (prop === "pinned") updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "ðŸ“Œ Pin", "ðŸ“Œ Pinned", false);
-        if (prop === "favorite") updateToggleBtn(document.getElementById("favBtn"), note.favorite, "â™¡ Favorite", "â™¥ Favorited", true);
-        if (prop === "archived") updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "ðŸ“¦ Archive", "ðŸ“¦ Archived", false);
+        if (prop === "pinned") updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "📌 Pin", "📌 Pinned", false);
+        if (prop === "favorite") updateToggleBtn(document.getElementById("favBtn"), note.favorite, "♡ Favorite", "♥ Favorited", true);
+        if (prop === "archived") updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "📦 Archive", "📦 Archived", false);
       }
 
       renderAll();
@@ -2374,12 +2385,12 @@
     }
 
     function showToast(msg, type = "info") {
-      const icons = { success: "âœ“", error: "âœ•", info: "â„¹", warning: "âš¡" };
+      const icons = { success: "✓", error: "✕", info: "ℹ", warning: "⚡" };
       const container = document.getElementById("toastContainer");
       const toast = document.createElement("div");
 
       toast.className = `toast toast-${type}`;
-      toast.innerHTML = `<span class="toast-icon">${icons[type] || "â€¢"}</span>${escHtml(msg)}`;
+      toast.innerHTML = `<span class="toast-icon">${icons[type] || "•"}</span>${escHtml(msg)}`;
 
       container.appendChild(toast);
 

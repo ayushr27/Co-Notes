@@ -21,7 +21,7 @@ export async function getDocuments(req, res) {
                 .sort({ updatedAt: -1 })
                 .skip(skip)
                 .limit(parseInt(limit))
-                .select("-content -__v"),
+                .select("-__v"),
             Document.countDocuments(query)
         ]);
 
@@ -47,7 +47,7 @@ export async function getDocument(req, res) {
 // POST /api/documents
 export async function createDocument(req, res) {
     try {
-        const { title, content, icon, coverImage, permission, tags } = req.body;
+        const { title, content, icon, coverImage, permission, tags, color, isPinned, isStarred, isArchived } = req.body;
         const doc = await Document.create({
             title: title || "Untitled",
             content: content || "",
@@ -55,6 +55,10 @@ export async function createDocument(req, res) {
             coverImage,
             permission: permission || "private",
             tags: tags || [],
+            color: color || "none",
+            isPinned: isPinned || false,
+            isStarred: isStarred || false,
+            isArchived: isArchived || false,
             userId: req.userId
         });
         return res.status(201).json(doc);
@@ -67,7 +71,7 @@ export async function createDocument(req, res) {
 // PUT /api/documents/:id
 export async function updateDocument(req, res) {
     try {
-        const { title, content, icon, coverImage, permission, tags } = req.body;
+        const { title, content, icon, coverImage, permission, tags, color, isPinned, isStarred, isArchived } = req.body;
 
         const updateData = {};
         if (title !== undefined) updateData.title = title;
@@ -76,6 +80,10 @@ export async function updateDocument(req, res) {
         if (coverImage !== undefined) updateData.coverImage = coverImage;
         if (permission !== undefined) updateData.permission = permission;
         if (tags !== undefined) updateData.tags = tags;
+        if (color !== undefined) updateData.color = color;
+        if (isPinned !== undefined) updateData.isPinned = isPinned;
+        if (isStarred !== undefined) updateData.isStarred = isStarred;
+        if (isArchived !== undefined) updateData.isArchived = isArchived;
 
         const doc = await Document.findOneAndUpdate(
             { _id: req.params.id, userId: req.userId },

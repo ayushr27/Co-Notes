@@ -31,7 +31,23 @@ const documentSchema = new mongoose.Schema({
     },
     tags: [{
         type: String
-    }]
+    }],
+    color: {
+        type: String,
+        default: 'none'
+    },
+    isPinned: {
+        type: Boolean,
+        default: false
+    },
+    isStarred: {
+        type: Boolean,
+        default: false
+    },
+    isArchived: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
     toJSON: {
