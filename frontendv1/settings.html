@@ -280,13 +280,23 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Profile Picture URL</label>
-                                <input type="url" id="setting-avatar" class="form-control" placeholder="https://example.com/avatar.jpg">
+                                <label>Profile Picture</label>
+                                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                                    <button class="btn btn-secondary" type="button" id="upload-avatar-btn">Upload Avatar</button>
+                                    <span id="avatar-upload-status" style="color: var(--text-muted); font-size: 0.9rem;">No file selected</span>
+                                </div>
+                                <input type="file" id="setting-avatar-file" accept="image/*" style="display:none;">
+                                <input type="hidden" id="setting-avatar">
                             </div>
 
                             <div class="form-group">
-                                <label>Cover Image URL</label>
-                                <input type="url" id="setting-cover-image" class="form-control" placeholder="https://example.com/cover.jpg">
+                                <label>Cover Image</label>
+                                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                                    <button class="btn btn-secondary" type="button" id="upload-cover-btn">Upload Cover</button>
+                                    <span id="cover-upload-status" style="color: var(--text-muted); font-size: 0.9rem;">No file selected</span>
+                                </div>
+                                <input type="file" id="setting-cover-file" accept="image/*" style="display:none;">
+                                <input type="hidden" id="setting-cover-image">
                             </div>
 
                             <div class="form-group">
@@ -347,6 +357,8 @@
     <script src="api.js"></script>
     <script>
         checkAuth();
+        let avatarImageUrl = "";
+        let coverImageUrl = "";
 
         async function initSettings() {
             try {
@@ -358,6 +370,10 @@
                 document.getElementById('setting-location').value = user.location || "";
                 document.getElementById('setting-avatar').value = user.avatar || "";
                 document.getElementById('setting-cover-image').value = user.coverImage || "";
+                avatarImageUrl = user.avatar || "";
+                coverImageUrl = user.coverImage || "";
+                document.getElementById('avatar-upload-status').innerText = avatarImageUrl ? 'Avatar uploaded' : 'No file selected';
+                document.getElementById('cover-upload-status').innerText = coverImageUrl ? 'Cover uploaded' : 'No file selected';
 
                 setAvatarPreview(user.avatar, user.name);
                 setCoverPreview(user.coverImage);
@@ -388,6 +404,49 @@
 
         initSettings();
 
+        document.getElementById('upload-avatar-btn').addEventListener('click', () => {
+            document.getElementById('setting-avatar-file').click();
+        });
+
+        document.getElementById('upload-cover-btn').addEventListener('click', () => {
+            document.getElementById('setting-cover-file').click();
+        });
+
+        document.getElementById('setting-avatar-file').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('avatar-upload-status');
+            statusEl.innerText = 'Uploading avatar...';
+            try {
+                avatarImageUrl = await uploadImage(file, 'users/avatars');
+                document.getElementById('setting-avatar').value = avatarImageUrl;
+                const name = document.getElementById('setting-name').value;
+                setAvatarPreview(avatarImageUrl, name);
+                statusEl.innerText = 'Avatar uploaded';
+            } catch (error) {
+                statusEl.innerText = 'Upload failed';
+                alert('Avatar upload failed: ' + error.message);
+            }
+        });
+
+        document.getElementById('setting-cover-file').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusEl = document.getElementById('cover-upload-status');
+            statusEl.innerText = 'Uploading cover...';
+            try {
+                coverImageUrl = await uploadImage(file, 'users/covers');
+                document.getElementById('setting-cover-image').value = coverImageUrl;
+                setCoverPreview(coverImageUrl);
+                statusEl.innerText = 'Cover uploaded';
+            } catch (error) {
+                statusEl.innerText = 'Upload failed';
+                alert('Cover upload failed: ' + error.message);
+            }
+        });
+
         document.getElementById('save-profile-btn').addEventListener('click', async (e) => {
             const btn = e.target;
             const originalText = btn.textContent;
@@ -414,17 +473,6 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
             }
-        });
-
-        document.getElementById('setting-avatar').addEventListener('input', () => {
-            const name = document.getElementById('setting-name').value;
-            const avatar = document.getElementById('setting-avatar').value.trim();
-            setAvatarPreview(avatar, name);
-        });
-
-        document.getElementById('setting-cover-image').addEventListener('input', () => {
-            const coverImage = document.getElementById('setting-cover-image').value.trim();
-            setCoverPreview(coverImage);
         });
 
         // Tab switching logic

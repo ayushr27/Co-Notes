@@ -266,7 +266,7 @@
       position: relative;
     }
 
-    #sidebar {
+    #noteSidebar {
       width: var(--sidebar-w);
       background: var(--bg-elevated);
       border-right: 1px solid var(--border);
@@ -277,11 +277,11 @@
       transition: width var(--transition), transform var(--transition);
     }
 
-    .sidebar-section {
+    .note-panel-section {
       padding: 16px 12px 8px;
     }
 
-    .sidebar-label {
+    .note-panel-label {
       font-size: .7rem;
       font-weight: 600;
       letter-spacing: .08em;
@@ -291,7 +291,7 @@
       margin-bottom: 6px;
     }
 
-    #sidebar .nav-item {
+    #noteSidebar .note-nav-item {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -305,22 +305,22 @@
       user-select: none;
     }
 
-    #sidebar .nav-item:hover {
+    #noteSidebar .note-nav-item:hover {
       background: var(--bg-hover);
       color: var(--text-primary);
     }
 
-    #sidebar .nav-item.active {
+    #noteSidebar .note-nav-item.active {
       background: var(--accent-soft);
       color: var(--accent);
     }
 
-    #sidebar .nav-item svg {
+    #noteSidebar .note-nav-item svg {
       flex-shrink: 0;
       opacity: .8;
     }
 
-    #sidebar .nav-badge {
+    #noteSidebar .note-nav-badge {
       margin-left: auto;
       background: var(--bg-active);
       color: var(--text-muted);
@@ -332,7 +332,7 @@
       text-align: center;
     }
 
-    #sidebar .nav-item.active .nav-badge {
+    #noteSidebar .note-nav-item.active .note-nav-badge {
       background: var(--accent-glow);
       color: var(--accent);
     }
@@ -1341,7 +1341,7 @@
         padding: 1.25rem;
       }
 
-      #sidebar {
+      #noteSidebar {
         position: absolute;
         top: 0;
         left: 0;
@@ -1351,7 +1351,7 @@
         box-shadow: var(--shadow-lg);
       }
 
-      #sidebar.open {
+      #noteSidebar.open {
         transform: translateX(0);
       }
 
@@ -1425,7 +1425,7 @@
         margin-left: auto;
       }
 
-      #sidebar {
+      #noteSidebar {
         width: min(320px, 100%);
       }
 
@@ -1607,20 +1607,20 @@
   </header>
 
   <div id="appBody">
-    <aside id="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Navigation</div>
+    <aside id="noteSidebar">
+      <div class="note-panel-section">
+        <div class="note-panel-label">Navigation</div>
 
-        <div class="nav-item active" data-section="all">
+        <div class="note-nav-item active" data-section="all">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
           </svg>
           All Notes
-          <span class="nav-badge" id="badge-all">0</span>
+          <span class="note-nav-badge" id="badge-all">0</span>
         </div>
 
-        <div class="nav-item" data-section="pinned">
+        <div class="note-nav-item" data-section="pinned">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <line x1="12" y1="17" x2="12" y2="22"></line>
             <path
@@ -1628,32 +1628,32 @@
             </path>
           </svg>
           Pinned
-          <span class="nav-badge" id="badge-pinned">0</span>
+          <span class="note-nav-badge" id="badge-pinned">0</span>
         </div>
 
-        <div class="nav-item" data-section="favorites">
+        <div class="note-nav-item" data-section="favorites">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path
               d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
             </path>
           </svg>
           Favorites
-          <span class="nav-badge" id="badge-favorites">0</span>
+          <span class="note-nav-badge" id="badge-favorites">0</span>
         </div>
 
-        <div class="nav-item" data-section="archived">
+        <div class="note-nav-item" data-section="archived">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <polyline points="21 8 21 21 3 21 3 8"></polyline>
             <rect x="1" y="3" width="22" height="5"></rect>
             <line x1="10" y1="12" x2="14" y2="12"></line>
           </svg>
           Archived
-          <span class="nav-badge" id="badge-archived">0</span>
+          <span class="note-nav-badge" id="badge-archived">0</span>
         </div>
       </div>
 
-      <div class="sidebar-section">
-        <div class="sidebar-label">Tags</div>
+      <div class="note-panel-section">
+        <div class="note-panel-label">Tags</div>
         <div class="tag-list" id="tagList">
           <div class="tag-filter-item" style="color:var(--text-muted);font-size:.8rem;padding-left:6px">No tags yet
           </div>
@@ -1684,8 +1684,8 @@
         </div>
       </div>
 
-      <div class="sidebar-section" style="padding-bottom:16px">
-        <div class="sidebar-label">Shortcuts</div>
+      <div class="note-panel-section" style="padding-bottom:16px">
+        <div class="note-panel-label">Shortcuts</div>
         <div class="shortcut-list">
           <div class="shortcut-row"><span>New note</span><kbd>Ctrl+N</kbd></div>
           <div class="shortcut-row"><span>Search</span><kbd>/</kbd></div>
@@ -2128,7 +2128,7 @@
     }
 
     function setActiveNav(section) {
-      document.querySelectorAll("#sidebar .nav-item").forEach((el) => {
+      document.querySelectorAll("#noteSidebar .note-nav-item").forEach((el) => {
         el.classList.toggle("active", el.dataset.section === section);
       });
     }
@@ -2633,13 +2633,13 @@
         archiveNote(state.activeNote);
       });
 
-      document.querySelectorAll("#sidebar .nav-item").forEach((el) => {
+      document.querySelectorAll("#noteSidebar .note-nav-item").forEach((el) => {
         el.addEventListener("click", () => {
           state.section = el.dataset.section;
           state.tagFilter = null;
           setActiveNav(state.section);
           renderAll();
-          document.getElementById("sidebar").classList.remove("open");
+          document.getElementById("noteSidebar").classList.remove("open");
         });
       });
 
@@ -2734,7 +2734,7 @@
       });
 
       document.getElementById("sidebarToggle").addEventListener("click", () => {
-        document.getElementById("sidebar").classList.toggle("open");
+        document.getElementById("noteSidebar").classList.toggle("open");
       });
 
       document.body.addEventListener("dragover", (e) => {
@@ -2783,8 +2783,8 @@
             return;
           }
 
-          if (document.getElementById("sidebar").classList.contains("open")) {
-            document.getElementById("sidebar").classList.remove("open");
+          if (document.getElementById("noteSidebar").classList.contains("open")) {
+            document.getElementById("noteSidebar").classList.remove("open");
             return;
           }
 

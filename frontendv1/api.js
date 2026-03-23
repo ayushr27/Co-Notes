@@ -14,6 +14,25 @@ function resolveApiAssetUrl(url) {
     return `${getApiOrigin()}/${url}`;
 }
 
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+    });
+}
+
+async function uploadImage(file, folder) {
+    if (!file) throw new Error('No file selected');
+    const dataUrl = await fileToDataUrl(file);
+    const response = await apiFetch('/uploads/image', {
+        method: 'POST',
+        body: JSON.stringify({ file: dataUrl, folder })
+    });
+    return response.url;
+}
+
 /**
  * apiFetch — Wrapper for fetch that:
  *   1. Automatically attaches the JWT Bearer token from localStorage
