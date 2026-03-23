@@ -1,9 +1,10 @@
 import Document from "../models/Document.js";
+import Collection from "../models/Collection.js";
 
 // GET /api/documents
 export async function getDocuments(req, res) {
     try {
-        const { search, page = 1, limit = 20 } = req.query;
+        const { search, page = 1, limit = 20, collectionId } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
         const query = {
@@ -15,6 +16,16 @@ export async function getDocuments(req, res) {
                 ]
             })
         };
+
+        if (collectionId) {
+            const collection = await Collection.findOne({ _id: collectionId, userId: req.userId });
+            if (collection) {
+                const docIds = collection.items.map(item => item.document);
+                query._id = { $in: docIds };
+            } else {
+                return res.json({ documents: [], total: 0, page: parseInt(page), limit: parseInt(limit) });
+            }
+        }
 
         const [documents, total] = await Promise.all([
             Document.find(query)
