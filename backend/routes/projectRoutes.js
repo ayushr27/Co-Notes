@@ -3,8 +3,8 @@ import { authenticateToken } from "../middleware/auth.js";
 import {
     getProjects, getProject, createProject, updateProject, deleteProject,
     inviteCollaborator, getMyInvites, getProjectInvites, respondToInvite,
-    addNote, deleteNote,
-    addProjectCollection, deleteProjectCollection,
+    addNote, deleteNote, updateNote,
+    addProjectCollection, deleteProjectCollection, updateProjectCollection,
     leaveProject
 } from "../controllers/projectController.js";
 
@@ -29,10 +29,12 @@ router.get("/:id/invites", authenticateToken, getProjectInvites);
 
 // Notes
 router.post("/:id/notes", authenticateToken, addNote);
+router.put("/:id/notes/:noteId", authenticateToken, updateNote);
 router.delete("/:id/notes/:noteId", authenticateToken, deleteNote);
 
 // Collections
 router.post("/:id/collections", authenticateToken, addProjectCollection);
+router.put("/:id/collections/:collectionId", authenticateToken, updateProjectCollection);
 router.delete("/:id/collections/:collectionId", authenticateToken, deleteProjectCollection);
 
 // Leave project

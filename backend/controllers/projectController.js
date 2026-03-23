@@ -265,6 +265,34 @@ export async function deleteNote(req, res) {
     }
 }
 
+// PUT /api/projects/:id/notes/:noteId
+export async function updateNote(req, res) {
+    try {
+        const { title, content } = req.body;
+        const project = await Project.findOne({
+            _id: req.params.id,
+            $or: [{ owner: req.userId }, { collaborators: req.userId }]
+        });
+        if (!project) return res.status(404).json({ message: "Project not found" });
+
+        const note = project.notes.id(req.params.noteId);
+        if (!note) return res.status(404).json({ message: "Note not found" });
+
+        if (title !== undefined) note.title = title.trim();
+        if (content !== undefined) note.content = content || '';
+        
+        await project.save();
+        
+        const updated = await Project.findById(project._id)
+            .populate('notes.createdBy', 'name username avatar');
+            
+        return res.json(updated.notes.id(req.params.noteId));
+    } catch (error) {
+        console.error("updateNote error:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 // POST /api/projects/:id/collections — add a collection
 export async function addProjectCollection(req, res) {
     try {
@@ -305,6 +333,34 @@ export async function deleteProjectCollection(req, res) {
         return res.json({ message: "Collection deleted" });
     } catch (error) {
         console.error("deleteProjectCollection error:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+// PUT /api/projects/:id/collections/:collectionId
+export async function updateProjectCollection(req, res) {
+    try {
+        const { name, icon } = req.body;
+        const project = await Project.findOne({
+            _id: req.params.id,
+            $or: [{ owner: req.userId }, { collaborators: req.userId }]
+        });
+        if (!project) return res.status(404).json({ message: "Project not found" });
+
+        const col = project.collections.id(req.params.collectionId);
+        if (!col) return res.status(404).json({ message: "Collection not found" });
+
+        if (name !== undefined) col.name = name.trim();
+        if (icon !== undefined) col.icon = icon;
+        
+        await project.save();
+        
+        const updated = await Project.findById(project._id)
+            .populate('collections.createdBy', 'name username avatar');
+            
+        return res.json(updated.collections.id(req.params.collectionId));
+    } catch (error) {
+        console.error("updateProjectCollection error:", error.message);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
