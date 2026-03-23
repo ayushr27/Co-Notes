@@ -48,7 +48,8 @@ export async function Register(req, res) {
                 id: user.id,
                 name: user.name,
                 username: user.username,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
 
@@ -104,7 +105,8 @@ export async function Login(req, res) {
                 bio: user.bio,
                 avatar: user.avatar,
                 location: user.location,
-                website: user.website
+                website: user.website,
+                role: user.role
             }
         });
 

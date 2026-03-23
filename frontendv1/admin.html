@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command Center - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --admin-bg: #0d1117;
+            --admin-surface: #161b22;
+            --admin-accent: #a371f7;
+            --admin-accent-glow: rgba(163, 113, 247, 0.15);
+            --admin-border: #30363d;
+            --admin-text: #e6edf3;
+            --admin-text-muted: #8b949e;
+        }
+
+        body.admin-mode {
+            background-color: var(--admin-bg);
+            color: var(--admin-text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Command Bar */
+        .admin-header {
+            background: var(--admin-surface);
+            border-bottom: 1px solid var(--admin-border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--admin-text);
+            text-decoration: none;
+        }
+
+        .admin-logo i {
+            color: var(--admin-accent);
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .admin-nav-item {
+            color: var(--admin-text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-nav-item:hover, .admin-nav-item.active {
+            color: var(--admin-text);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-nav-item.active {
+            border-bottom: 2px solid var(--admin-accent);
+            border-radius: 0;
+        }
+
+        /* Layout */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1200px) {
+            .admin-layout { grid-template-columns: 1fr; }
+        }
+
+        /* Cards & Components */
+        .admin-card {
+            background: var(--admin-surface);
+            border: 1px solid var(--admin-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-stat {
+            background: rgba(88, 166, 255, 0.05);
+            border: 1px solid rgba(88, 166, 255, 0.1);
+            padding: 1.25rem;
+            border-radius: 10px;
+        }
+
+        .admin-stat-val {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--admin-text);
+            display: block;
+        }
+
+        .admin-stat-label {
+            font-size: 0.8rem;
+            color: var(--admin-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Tables */
+        .admin-table-container {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: var(--admin-text-muted);
+            border-bottom: 1px solid var(--admin-border);
+        }
+
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--admin-border);
+            font-size: 0.9rem;
+        }
+
+        /* Activity Feed */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--admin-border);
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: rgba(163, 113, 247, 0.1);
+            color: var(--admin-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-content p {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--admin-text-muted);
+        }
+
+        /* Badges */
+        .badge-admin { background: rgba(163, 113, 247, 0.2); color: #a371f7; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; }
+        .badge-user { background: rgba(88, 166, 255, 0.1); color: #58a6ff; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; }
+
+        /* Action Buttons */
+        .btn-admin-sm {
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--admin-border);
+            background: transparent;
+            color: var(--admin-text);
+            transition: all 0.2s;
+        }
+
+        .btn-admin-sm:hover { background: rgba(255, 255, 255, 0.05); }
+        .btn-admin-danger { color: #f85149; border-color: rgba(248, 81, 73, 0.2); }
+        .btn-admin-danger:hover { background: rgba(248, 81, 73, 0.1); }
+
+    </style>
+</head>
+<body class="admin-mode">
+    <header class="admin-header">
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <a href="dashboard.html" class="admin-logo">
+                <i data-lucide="shield"></i> Command Center
+            </a>
+            <nav class="admin-nav">
+                <a href="#" class="admin-nav-item active" onclick="switchTab('overview')"><i data-lucide="layout"></i> Overview</a>
+                <a href="#" class="admin-nav-item" onclick="switchTab('users')"><i data-lucide="users"></i> Users</a>
+                <a href="#" class="admin-nav-item" onclick="switchTab('moderation')"><i data-lucide="alert-circle"></i> Moderation</a>
+            </nav>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div id="adminProfile" style="font-size: 0.85rem; font-weight: 500; color: var(--admin-text-muted);">
+                <!-- Name injected here -->
+            </div>
+            <a href="dashboard.html" class="btn-admin-sm">Exit Admin</a>
+        </div>
+    </header>
+
+    <main id="tab-overview" class="admin-layout">
+        <div class="main-column">
+            <div class="admin-grid" id="metricsGrid">
+                <!-- Metrics Grid -->
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-title">Recent Registrations</div>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentUsersTable">
+                            <!-- Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div class="admin-card">
+                <div class="admin-card-title">Live Activity Feed</div>
+                <div class="activity-list" id="activityFeed">
+                    <!-- Activity Injected -->
+                </div>
+            </div>
+            <div class="admin-card">
+                <div class="admin-card-title">System Status</div>
+                <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Backend API</span>
+                        <span style="color: #3fb950; display: flex; align-items: center; gap: 4px;"><i data-lucide="check-circle-2" style="width: 14px;"></i> Online</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>DB Cluster</span>
+                        <span style="color: #3fb950;">Operational</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <main id="tab-users" class="admin-layout" style="display: none; grid-template-columns: 1fr;">
+        <div class="admin-card">
+            <div class="admin-card-title">Global User Catalog</div>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalUserTable">
+                        <!-- Injected -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <main id="tab-moderation" class="admin-layout" style="display: none; grid-template-columns: 1fr;">
+        <div class="admin-card">
+            <div class="admin-card-title">Public Articles Moderation</div>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Article</th>
+                            <th>Author</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="moderationArticlesTable">
+                        <!-- Injected -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script>
+        checkAuth();
+        let currentUser = getCurrentUser();
+
+        async function initAdmin() {
+            if (!currentUser || currentUser.role !== 'admin') {
+                window.location.replace('dashboard.html');
+                return;
+            }
+
+            document.getElementById('adminProfile').innerText = currentUser.name || currentUser.username;
+            
+            await loadMetrics();
+            await loadActivity();
+            await loadUsers();
+            await loadModeration();
+            lucide.createIcons();
+        }
+
+        async function loadMetrics() {
+            try {
+                const data = await apiFetch('/admin/metrics');
+                const m = data.metrics || {};
+                
+                document.getElementById('metricsGrid').innerHTML = `
+                    <div class="admin-stat">
+                        <span class="admin-stat-label">Total Users</span>
+                        <span class="admin-stat-val">${m.totalUsers || 0}</span>
+                    </div>
+                    <div class="admin-stat">
+                        <span class="admin-stat-label">Projects</span>
+                        <span class="admin-stat-val">${m.totalProjects || 0}</span>
+                    </div>
+                    <div class="admin-stat">
+                        <span class="admin-stat-label">Articles</span>
+                        <span class="admin-stat-val">${m.totalArticles || 0}</span>
+                    </div>
+                `;
+
+                document.getElementById('recentUsersTable').innerHTML = (data.recentUsers || []).map(u => `
+                    <tr>
+                        <td>${u.username}</td>
+                        <td>${u.email}</td>
+                        <td class="admin-text-muted">${new Date(u.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {}
+        }
+
+        async function loadActivity() {
+            try {
+                const activities = await apiFetch('/admin/activity');
+                document.getElementById('activityFeed').innerHTML = activities.map(a => `
+                    <div class="activity-item">
+                        <div class="activity-icon"><i data-lucide="${a.type === 'user' ? 'user-plus' : a.type === 'article' ? 'file-text' : 'folder'}"></i></div>
+                        <div class="activity-content">
+                            <p>${a.text}</p>
+                            <span class="activity-time">${new Date(a.date).toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            } catch (err) {}
+        }
+
+        async function loadUsers() {
+            try {
+                const users = await apiFetch('/admin/users');
+                document.getElementById('globalUserTable').innerHTML = users.map(u => `
+                    <tr>
+                        <td><strong>${u.name || u.username}</strong></td>
+                        <td>${u.email}</td>
+                        <td><span class="badge-${u.role}">${u.role}</span></td>
+                        <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            ${u.id === currentUser.id ? '<span class="admin-text-muted">Self</span>' : `
+                                <button class="btn-admin-sm" onclick="toggleRole('${u.id}', '${u.role}')">${u.role === 'admin' ? 'Demote' : 'Promote'}</button>
+                                <button class="btn-admin-sm btn-admin-danger" onclick="deleteUser('${u.id}')">Delete</button>
+                            `}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {}
+        }
+
+        async function loadModeration() {
+            try {
+                const data = await apiFetch('/admin/moderation');
+                document.getElementById('moderationArticlesTable').innerHTML = (data.articles || []).map(a => `
+                    <tr>
+                        <td><strong>${a.title}</strong></td>
+                        <td>${a.userId?.name || 'Unknown'}</td>
+                        <td>${new Date(a.createdAt).toLocaleDateString()}</td>
+                        <td><button class="btn-admin-sm btn-admin-danger" onclick="deleteContent('article', '${a.id}')">Delete Article</button></td>
+                    </tr>
+                `).join('');
+            } catch (err) {}
+        }
+
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('main').forEach(m => m.style.display = 'none');
+            document.getElementById(`tab-${tabId}`).style.display = (tabId === 'overview' ? 'grid' : 'block');
+            
+            document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        };
+
+        window.toggleRole = async (id, current) => {
+            if (!confirm("Update user role?")) return;
+            const role = current === 'admin' ? 'user' : 'admin';
+            await apiFetch(`/admin/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) });
+            await loadUsers();
+            await loadMetrics();
+        };
+
+        window.deleteUser = async (id) => {
+            if (!confirm("Permanently delete this user?")) return;
+            await apiFetch(`/admin/users/${id}`, { method: 'DELETE' });
+            await loadUsers();
+            await loadMetrics();
+        };
+
+        window.deleteContent = async (type, id) => {
+            if (!confirm(`Permanently delete this ${type}?`)) return;
+            await apiFetch(`/admin/content/${type}/${id}`, { method: 'DELETE' });
+            await loadModeration();
+            await loadMetrics();
+        };
+
+        initAdmin();
+    </script>
+</body>
+</html>

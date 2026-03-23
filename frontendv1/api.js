@@ -98,6 +98,47 @@ function checkAuth() {
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = 'login.html';
+        return;
+    }
+
+    // Inject Admin panel link if user is admin
+    let user = getCurrentUser();
+    
+    // If we have a token but no role in cached user, sync from server to fix stale sessions
+    if (token && user && !user.role) {
+        apiFetch('/auth/me').then(data => {
+            const syncedUser = data.user || data;
+            if (syncedUser.role) {
+                localStorage.setItem('user', JSON.stringify(syncedUser));
+                // Reload or re-run injection if needed
+                window.location.reload(); 
+            }
+        }).catch(() => {});
+    }
+
+    if (user && user.role === 'admin') {
+        const navs = document.querySelectorAll('.sidebar-nav');
+        navs.forEach(nav => {
+            if (!nav.querySelector('a[href="admin.html"]')) {
+                const accountSections = Array.from(nav.querySelectorAll('.nav-section-title'));
+                const accountSec = accountSections.find(s => s.textContent.trim().toLowerCase().includes('account'));
+                
+                if (accountSec && accountSec.parentElement) {
+                    const adminLink = document.createElement('a');
+                    adminLink.href = 'admin.html';
+                    adminLink.className = 'nav-item admin-link-special';
+                    adminLink.style.color = '#a371f7';
+                    adminLink.style.fontWeight = 'bold';
+                    adminLink.innerHTML = `<i data-lucide="shield-check" class="nav-icon" style="color: #a371f7"></i> Admin Command`;
+                    
+                    accountSec.parentElement.appendChild(adminLink);
+                    
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            }
+        });
     }
 }
 
