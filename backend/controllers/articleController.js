@@ -1,10 +1,50 @@
 import Article from "../models/Article.js";
+import User from "../models/User.js";
 import mongoose from "mongoose";
 import { moveToTrash } from "../utils/trashService.js";
 import { createNotification } from "../services/notificationService.js";
 
 function isValidObjectId(id) {
     return mongoose.Types.ObjectId.isValid(id);
+}
+
+// Helper to extract and notify mentioned users
+async function processMentions(req, article) {
+    if (!article.content) return;
+    
+    const regex = /(^|[\s>])@([a-zA-Z0-9_]+)\b/g;
+    const matches = [...article.content.matchAll(regex)];
+    const usernames = [...new Set(matches.map(m => m[2]))];
+    
+    if (usernames.length === 0) return;
+
+    const mentionedUsers = await User.find({ username: { $in: usernames } });
+    const author = await User.findById(req.userId);
+    const authorName = author?.name || author?.username || "Someone";
+
+    let newMentionsAdded = false;
+
+    for (const user of mentionedUsers) {
+        if (user._id.toString() === req.userId) continue;
+        
+        if (article.mentionedUsers && article.mentionedUsers.includes(user._id)) continue;
+        
+        await createNotification(
+            req,
+            user._id,
+            `${authorName} mentioned you in an article: "${article.title}"`,
+            "mention",
+            `/article-detail.html?id=${article._id}`
+        );
+
+        if (!article.mentionedUsers) article.mentionedUsers = [];
+        article.mentionedUsers.push(user._id);
+        newMentionsAdded = true;
+    }
+
+    if (newMentionsAdded) {
+        await article.save();
+    }
 }
 
 // GET /api/articles/feed
@@ -190,6 +230,12 @@ export async function updateArticle(req, res) {
         if (seriesName !== undefined) article.seriesName = seriesName;
 
         await article.save();
+        
+        // Notify newly mentioned users if article is published
+        if (article.published) {
+            await processMentions(req, article);
+        }
+
         return res.json(article);
     } catch (error) {
         console.error("updateArticle error:", error.message);
@@ -239,6 +285,8 @@ export async function togglePublish(req, res) {
                 "article_published",
                 `/article-detail.html?id=${article._id}`
             );
+            
+            await processMentions(req, article);
         }
 
         return res.json({ published: article.published, publishedAt: article.publishedAt });

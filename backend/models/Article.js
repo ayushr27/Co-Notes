@@ -85,6 +85,10 @@ const articleSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
+    mentionedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     comments: [commentSchema],
     allowComments: {
         type: Boolean,
