@@ -185,8 +185,8 @@
                     <input type="text" id="noteInput" class="quick-add-input" placeholder="Jot down a quick note... <i data-lucide="pen-tool" class="nav-icon"></i>"
                         required autocomplete="off">
                     <div class="quick-actions-bar">
-                        <button type="button" class="icon-btn-round" title="Voice Input"
-                            onclick="alert('Mic access requested!')">🎤</button>
+                        <button type="button" class="icon-btn-round" title="Voice Input" id="quickNotesMicBtn"
+                            onclick="startDictation('noteInput', 'quickNotesMicBtn')">🎤</button>
                         <button type="submit" class="btn btn-primary"
                             style="border-radius: 50%; width: 36px; height: 36px; padding: 0;"><i data-lucide="plus" class="nav-icon"></i></button>
                     </div>
@@ -329,6 +329,43 @@
                 e.target.querySelector('button[type="submit"]').disabled = false;
             }
         });
+
+        // Voice Input
+        window.startDictation = (inputId, btnId) => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Speech recognition is not supported in this browser. Try Chrome.");
+                return;
+            }
+
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRec();
+            
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            btn.style.color = '#ef4444'; // turn red indicating listening
+            
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                input.value += (input.value ? ' ' : '') + text;
+                btn.style.color = '';
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                btn.style.color = '';
+                alert('Microphone error: ' + event.error);
+            };
+
+            recognition.onend = () => {
+                btn.style.color = '';
+            };
+        };
 
         // initial load
         fetchNotes();
