@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborate - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        /* ── Invite Banner ── */
+        .invite-banner {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.12));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeSlideIn 0.4s ease;
+        }
+
+        .invite-banner-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .invite-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .invite-card:hover { background: rgba(255,255,255,0.04); }
+
+        .invite-info { display: flex; align-items: center; gap: 1rem; }
+
+        .invite-project-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .invite-details h4 { color: var(--text-heading); font-size: 0.95rem; margin-bottom: 2px; }
+        .invite-details span { color: var(--text-muted); font-size: 0.8rem; }
+
+        .invite-actions { display: flex; gap: 0.5rem; }
+
+        .btn-accept {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-accept:hover { background: rgba(16, 185, 129, 0.25); }
+
+        .btn-reject {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-reject:hover { background: rgba(239, 68, 68, 0.2); }
+
+        /* ── Project Grid ── */
+        .projects-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .project-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .project-icon-wrap {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .project-role-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .role-owner {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+        .role-collab {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .project-card h3 {
+            color: var(--text-heading);
+            font-size: 1.1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .project-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .member-stack {
+            display: flex;
+            align-items: center;
+        }
+
+        .member-avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 2px solid var(--bg-color);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-left: -8px;
+        }
+
+        .member-avatar:first-child { margin-left: 0; }
+
+        .member-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+        }
+
+        .project-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Project Detail View ── */
+        .project-detail {
+            display: none;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        .project-detail.active { display: block; }
+        .project-list.hidden { display: none; }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-icon {
+            width: 64px; height: 64px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+        }
+
+        .detail-info h1 {
+            font-size: 1.75rem;
+            color: var(--text-heading);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .detail-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            border-color: rgba(255,255,255,0.2);
+            color: var(--text-heading);
+        }
+
+        /* ── Tabs ── */
+        .detail-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-tab {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-muted);
+            border: none;
+            background: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .detail-tab:hover { color: var(--text-heading); }
+
+        .detail-tab.active {
+            color: var(--text-heading);
+        }
+
+        .detail-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            border-radius: 2px;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeSlideIn 0.25s ease; }
+
+        /* ── Notes & Collections Items ── */
+        .add-item-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-item-bar input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .add-item-bar input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+        }
+
+        .item-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .item-card:hover {
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.03);
+        }
+
+        .item-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-card h4 {
+            color: var(--text-heading);
+            font-size: 1rem;
+        }
+
+        .item-card .item-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .item-card .item-content {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+        }
+
+        .delete-item-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .item-card:hover .delete-item-btn { opacity: 1; }
+        .delete-item-btn:hover { color: var(--danger-color); }
+
+        /* ── Members Tab ── */
+        .members-section { margin-bottom: 2rem; }
+
+        .members-section h3 {
+            color: var(--text-heading);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .member-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: background 0.2s;
+        }
+
+        .member-row:hover { background: var(--glass-bg); }
+
+        .member-row-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .member-row-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .member-row-name { color: var(--text-heading); font-size: 0.9rem; }
+        .member-row-username { color: var(--text-muted); font-size: 0.8rem; }
+
+        .invite-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .invite-form input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .invite-form input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+        }
+
+        .pending-invite-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 1rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .pending-invite-row .pending-badge {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* ── Create Project Modal ── */
+        .create-modal .modal {
+            max-width: 520px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .icon-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .icon-option {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background: var(--glass-bg);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-option:hover { border-color: rgba(255,255,255,0.15); }
+        .icon-option.selected { border-color: #6366f1; background: rgba(99, 102, 241, 0.12); }
+
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-option {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-option:hover { transform: scale(1.15); }
+        .color-option.selected { border-color: var(--text-heading); box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .empty-state h3 {
+            color: var(--text-heading);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.85rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .toast.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* ── Note Textarea ── */
+        .note-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 0.7rem 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        .note-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .detail-header { flex-direction: column; align-items: flex-start; }
+            .detail-actions { margin-left: 0; margin-top: 1rem; }
+            .project-grid { grid-template-columns: 1fr; }
+            .invite-card { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .invite-actions { width: 100%; }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
+                </a>
+            </div>
+
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
+                    <a href="collaborate.html" class="nav-item active"><i data-lucide="users" class="nav-icon"></i> Collaborate</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn btn-secondary" id="mobile-menu-btn" style="display: none;">☰</button>
+                    <span>Collaborate</span>
+                </div>
+                <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
+                    <a href="search.html" style="color: var(--text-color);"><i data-lucide="search" class="nav-icon"></i> Search</a>
+                    <button class="btn btn-primary" id="new-project-btn"><i data-lucide="plus" class="nav-icon"></i> New Project</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- ── PROJECT LIST VIEW ── -->
+                <div class="project-list" id="projectListView">
+                    <div class="page-title">
+                        <span style="font-size: 2.5rem;"><i data-lucide="users" class="nav-icon"></i></span>
+                        <h1>Collaborate</h1>
+                    </div>
+                    <p class="page-subtitle">Create projects, invite teammates, and work together on notes & collections.</p>
+
+                    <!-- Pending Invites Banner -->
+                    <div id="inviteBanner" style="display:none;"></div>
+
+                    <!-- Project Cards Grid -->
+                    <div id="projectGrid" class="project-grid"></div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <span class="empty-icon">🤝</span>
+                        <h3>No projects yet</h3>
+                        <p>Create your first collaborative project and invite your teammates!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal()"><i data-lucide="plus" class="nav-icon"></i> Create Project</button>
+                    </div>
+                </div>
+
+                <!-- ── PROJECT DETAIL VIEW ── -->
+                <div class="project-detail" id="projectDetailView">
+                    <div class="detail-header" id="detailHeader"></div>
+
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" data-tab="notes" onclick="switchTab('notes', this)">
+                            <i data-lucide="file-text" class="nav-icon" style="width:14px;height:14px;display:inline;margin-right:4px;"></i> Notes
+                        </button>
+                        <button class="detail-tab" data-tab="collections" onclick="switchTab('collections', this)">
+                            <i data-lucide="folder" class="nav-icon" style="width:14px;height:14px;display:inline;margin-right:4px;"></i> Collections
+                        </button>
+                        <button class="detail-tab" data-tab="members" onclick="switchTab('members', this)">
+                            <i data-lucide="users" class="nav-icon" style="width:14px;height:14px;display:inline;margin-right:4px;"></i> Members
+                        </button>
+                    </div>
+
+                    <!-- Notes Tab -->
+                    <div class="tab-panel active" id="tab-notes">
+                        <div class="add-item-bar">
+                            <input type="text" id="noteTitle" placeholder="Note title..." />
+                            <button class="btn btn-primary" onclick="addNote()">Add Note</button>
+                        </div>
+                        <textarea class="note-textarea" id="noteContent" placeholder="Write your note content here..."></textarea>
+                        <div style="height: 1rem;"></div>
+                        <div id="notesList"></div>
+                    </div>
+
+                    <!-- Collections Tab -->
+                    <div class="tab-panel" id="tab-collections">
+                        <div class="add-item-bar">
+                            <input type="text" id="collectionName" placeholder="Collection name..." />
+                            <button class="btn btn-primary" onclick="addCollection()">Add Collection</button>
+                        </div>
+                        <div id="collectionsList"></div>
+                    </div>
+
+                    <!-- Members Tab -->
+                    <div class="tab-panel" id="tab-members">
+                        <div class="members-section">
+                            <h3><i data-lucide="user-plus" class="nav-icon"></i> Invite Collaborator</h3>
+                            <div class="invite-form">
+                                <input type="text" id="inviteUsername" placeholder="Enter username to invite..." />
+                                <button class="btn btn-primary" onclick="sendInvite()">Send Invite</button>
+                            </div>
+                            <div id="pendingInvitesList"></div>
+                        </div>
+                        <div class="members-section">
+                            <h3><i data-lucide="users" class="nav-icon"></i> Team Members</h3>
+                            <div id="membersList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div class="modal-overlay create-modal" id="createModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 style="color: var(--text-heading); display: flex; align-items: center; gap: 0.5rem;">
+                    <i data-lucide="rocket" class="nav-icon"></i> New Project
+                </h2>
+                <button class="btn btn-secondary" onclick="closeCreateModal()" style="padding: 0.3rem 0.6rem;">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" class="form-control" id="projectTitle" placeholder="My Awesome Project" />
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea class="form-control" id="projectDesc" rows="3" placeholder="What's this project about?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Icon</label>
+                <div class="icon-picker" id="iconPicker"></div>
+            </div>
+            <div class="form-group">
+                <label>Color</label>
+                <div class="color-picker" id="colorPicker"></div>
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createProject()">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="api.js"></script>
+    <script>
+        checkAuth();
+
+        // ── State ──
+        let currentProject = null;
+        let selectedIcon = '🚀';
+        let selectedColor = '#6366f1';
+
+        const ICONS = ['🚀', '💡', '📐', '🎨', '📊', '🔬', '📖', '🎯', '⚡', '🌟', '🛠️', '🎓', '💻', '🗺️', '📝', '🧩'];
+        const COLORS = ['#6366f1', '#8b5cf6', '#a855f7', '#ec4899', '#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#6b7280'];
+
+        // ── Mobile sidebar ──
+        const sidebar = document.getElementById('sidebar');
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        if (window.innerWidth <= 768) {
+            mobileBtn.style.display = 'block';
+            sidebar.style.transform = 'translateX(-100%)';
+            sidebar.style.position = 'fixed';
+            mobileBtn.addEventListener('click', () => {
+                sidebar.style.transform = sidebar.style.transform === 'translateX(-100%)' ? 'translateX(0)' : 'translateX(-100%)';
+            });
+        }
+
+        // ── Init ──
+        document.getElementById('new-project-btn').addEventListener('click', openCreateModal);
+        initPage();
+
+        async function initPage() {
+            renderIconPicker();
+            renderColorPicker();
+            await Promise.all([loadProjects(), loadInvites()]);
+        }
+
+        // ── Toast ──
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast ${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── Load Projects ──
+        async function loadProjects() {
+            try {
+                const projects = await apiFetch('/projects');
+                const grid = document.getElementById('projectGrid');
+                const emptyState = document.getElementById('emptyState');
+
+                if (!projects || projects.length === 0) {
+                    grid.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+                const currentUser = getCurrentUser();
+
+                grid.innerHTML = projects.map(p => {
+                    const isOwner = p.owner?.id === currentUser?.id || p.owner?.username === currentUser?.username;
+                    const totalMembers = 1 + (p.collaborators?.length || 0);
+                    const avatars = [p.owner, ...(p.collaborators || [])].filter(Boolean).slice(0, 4);
+
+                    return `
+                        <div class="project-card" onclick="openProject('${p.id}')" style="cursor:pointer;">
+                            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${p.color || '#6366f1'};border-radius:12px 12px 0 0;"></div>
+                            <div class="project-card-header">
+                                <div class="project-icon-wrap" style="background:${p.color || '#6366f1'}20;">${p.icon || '🚀'}</div>
+                                <span class="project-role-badge ${isOwner ? 'role-owner' : 'role-collab'}">${isOwner ? 'Owner' : 'Collaborator'}</span>
+                            </div>
+                            <h3>${escHtml(p.title)}</h3>
+                            <p>${escHtml(p.description || 'No description')}</p>
+                            <div class="project-meta">
+                                <div class="member-stack">
+                                    ${avatars.map(u => `<div class="member-avatar" style="background:${stringToColor(u.username || u.name || 'U')};" title="${escHtml(u.name || u.username)}">${(u.name || u.username || 'U').charAt(0).toUpperCase()}</div>`).join('')}
+                                    <span class="member-count">${totalMembers} member${totalMembers !== 1 ? 's' : ''}</span>
+                                </div>
+                                <div class="project-stats">
+                                    <span>📝 ${p.notes?.length || 0}</span>
+                                    <span>📁 ${p.collections?.length || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                refreshIcons();
+            } catch (err) {
+                console.error('loadProjects error:', err);
+            }
+        }
+
+        // ── Load Invites ──
+        async function loadInvites() {
+            try {
+                const invites = await apiFetch('/projects/invites/mine');
+                const banner = document.getElementById('inviteBanner');
+
+                if (!invites || invites.length === 0) {
+                    banner.style.display = 'none';
+                    return;
+                }
+
+                banner.style.display = 'block';
+                banner.innerHTML = `
+                    <div class="invite-banner">
+                        <div class="invite-banner-title">
+                            <i data-lucide="mail" class="nav-icon"></i>
+                            You have ${invites.length} pending invite${invites.length > 1 ? 's' : ''}
+                        </div>
+                        ${invites.map(inv => `
+                            <div class="invite-card">
+                                <div class="invite-info">
+                                    <div class="invite-project-icon" style="background:${inv.project?.color || '#6366f1'}20;">${inv.project?.icon || '🚀'}</div>
+                                    <div class="invite-details">
+                                        <h4>${escHtml(inv.project?.title || 'Unknown Project')}</h4>
+                                        <span>Invited by <strong>${escHtml(inv.from?.name || inv.from?.username || 'Unknown')}</strong></span>
+                                    </div>
+                                </div>
+                                <div class="invite-actions">
+                                    <button class="btn-accept" onclick="respondInvite('${inv.id}', 'accept')">Accept</button>
+                                    <button class="btn-reject" onclick="respondInvite('${inv.id}', 'reject')">Decline</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                refreshIcons();
+            } catch (err) {
+                console.error('loadInvites error:', err);
+            }
+        }
+
+        async function respondInvite(inviteId, action) {
+            try {
+                await apiFetch(`/projects/invites/${inviteId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ action })
+                });
+                showToast(action === 'accept' ? 'You joined the project!' : 'Invite declined.');
+                await Promise.all([loadProjects(), loadInvites()]);
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Open Project Detail ──
+        async function openProject(id) {
+            try {
+                const project = await apiFetch(`/projects/${id}`);
+                currentProject = project;
+
+                document.getElementById('projectListView').classList.add('hidden');
+                const detail = document.getElementById('projectDetailView');
+                detail.classList.add('active');
+
+                const currentUser = getCurrentUser();
+                const isOwner = project.owner?.id === currentUser?.id || project.owner?.username === currentUser?.username;
+
+                // Render header
+                document.getElementById('detailHeader').innerHTML = `
+                    <div class="detail-icon" style="background:${project.color || '#6366f1'}20;">
+                        ${project.icon || '🚀'}
+                    </div>
+                    <div class="detail-info">
+                        <h1>${escHtml(project.title)}</h1>
+                        <p>${escHtml(project.description || 'No description')}</p>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="back-btn" onclick="closeProject()"><i data-lucide="arrow-left" class="nav-icon" style="width:14px;height:14px;"></i> Back</button>
+                        ${!isOwner ? `<button class="btn btn-danger" onclick="leaveProject('${project.id}')">Leave Project</button>` : ''}
+                        ${isOwner ? `<button class="btn btn-danger" onclick="deleteProject('${project.id}')">Delete</button>` : ''}
+                    </div>
+                `;
+
+                // Reset to notes tab
+                switchTab('notes', document.querySelector('.detail-tab[data-tab="notes"]'));
+                renderNotes();
+                renderCollections();
+                renderMembers();
+                refreshIcons();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        function closeProject() {
+            currentProject = null;
+            document.getElementById('projectDetailView').classList.remove('active');
+            document.getElementById('projectListView').classList.remove('hidden');
+        }
+
+        // ── Tabs ──
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            refreshIcons();
+        }
+
+        // ── Render Notes ──
+        function renderNotes() {
+            const container = document.getElementById('notesList');
+            if (!currentProject?.notes?.length) {
+                container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:2rem;">No notes yet. Add one above!</div>';
+                return;
+            }
+
+            container.innerHTML = currentProject.notes.slice().reverse().map(n => `
+                <div class="item-card">
+                    <div class="item-card-header">
+                        <h4>📝 ${escHtml(n.title)}</h4>
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <span class="item-meta">${escHtml(n.createdBy?.name || n.createdBy?.username || 'Unknown')} · ${timeAgo(n.createdAt)}</span>
+                            <button class="delete-item-btn" onclick="deleteNote('${n.id}')" title="Delete note">🗑️</button>
+                        </div>
+                    </div>
+                    ${n.content ? `<div class="item-content">${escHtml(n.content)}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function addNote() {
+            const title = document.getElementById('noteTitle').value.trim();
+            const content = document.getElementById('noteContent').value.trim();
+            if (!title) return showToast('Note title is required', 'error');
+
+            try {
+                await apiFetch(`/projects/${currentProject.id}/notes`, {
+                    method: 'POST',
+                    body: JSON.stringify({ title, content })
+                });
+                document.getElementById('noteTitle').value = '';
+                document.getElementById('noteContent').value = '';
+                await refreshProject();
+                showToast('Note added!');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteNote(noteId) {
+            if (!confirm('Delete this note?')) return;
+            try {
+                await apiFetch(`/projects/${currentProject.id}/notes/${noteId}`, { method: 'DELETE' });
+                await refreshProject();
+                showToast('Note deleted');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Render Collections ──
+        function renderCollections() {
+            const container = document.getElementById('collectionsList');
+            if (!currentProject?.collections?.length) {
+                container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:2rem;">No collections yet. Add one above!</div>';
+                return;
+            }
+
+            container.innerHTML = currentProject.collections.slice().reverse().map(c => `
+                <div class="item-card">
+                    <div class="item-card-header">
+                        <h4>${c.icon || '📁'} ${escHtml(c.name)}</h4>
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <span class="item-meta">${escHtml(c.createdBy?.name || c.createdBy?.username || 'Unknown')} · ${timeAgo(c.createdAt)}</span>
+                            <button class="delete-item-btn" onclick="deleteCollection('${c.id}')" title="Delete collection">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addCollection() {
+            const name = document.getElementById('collectionName').value.trim();
+            if (!name) return showToast('Collection name is required', 'error');
+
+            try {
+                await apiFetch(`/projects/${currentProject.id}/collections`, {
+                    method: 'POST',
+                    body: JSON.stringify({ name })
+                });
+                document.getElementById('collectionName').value = '';
+                await refreshProject();
+                showToast('Collection added!');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteCollection(collId) {
+            if (!confirm('Delete this collection?')) return;
+            try {
+                await apiFetch(`/projects/${currentProject.id}/collections/${collId}`, { method: 'DELETE' });
+                await refreshProject();
+                showToast('Collection deleted');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Render Members ──
+        async function renderMembers() {
+            const membersContainer = document.getElementById('membersList');
+            const allMembers = [
+                { ...currentProject.owner, role: 'Owner' },
+                ...(currentProject.collaborators || []).map(c => ({ ...c, role: 'Collaborator' }))
+            ];
+
+            membersContainer.innerHTML = allMembers.map(m => `
+                <div class="member-row">
+                    <div class="member-row-info">
+                        <div class="member-row-avatar" style="background:${stringToColor(m.username || m.name || 'U')};">
+                            ${(m.name || m.username || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div class="member-row-name">${escHtml(m.name || m.username || 'Unknown')}</div>
+                            <div class="member-row-username">@${escHtml(m.username || 'unknown')}</div>
+                        </div>
+                    </div>
+                    <span class="project-role-badge ${m.role === 'Owner' ? 'role-owner' : 'role-collab'}">${m.role}</span>
+                </div>
+            `).join('');
+
+            // Load pending invites for this project
+            try {
+                const invites = await apiFetch(`/projects/${currentProject.id}/invites`);
+                const pending = invites.filter(i => i.status === 'pending');
+                const container = document.getElementById('pendingInvitesList');
+
+                if (pending.length) {
+                    container.innerHTML = `
+                        <div style="margin-top: 0.75rem;">
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">Pending Invites</div>
+                            ${pending.map(inv => `
+                                <div class="pending-invite-row">
+                                    <span style="color: var(--text-color);">@${escHtml(inv.to?.username || 'unknown')}</span>
+                                    <span class="pending-badge">Pending</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '';
+                }
+            } catch (err) {
+                console.error('loadProjectInvites error:', err);
+            }
+        }
+
+        async function sendInvite() {
+            const username = document.getElementById('inviteUsername').value.trim();
+            if (!username) return showToast('Enter a username', 'error');
+
+            try {
+                await apiFetch(`/projects/${currentProject.id}/invite`, {
+                    method: 'POST',
+                    body: JSON.stringify({ username })
+                });
+                document.getElementById('inviteUsername').value = '';
+                showToast(`Invite sent to @${username}!`);
+                await renderMembers();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Create / Delete / Leave ──
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+            document.getElementById('projectTitle').value = '';
+            document.getElementById('projectDesc').value = '';
+        }
+
+        async function createProject() {
+            const title = document.getElementById('projectTitle').value.trim();
+            const description = document.getElementById('projectDesc').value.trim();
+            if (!title) return showToast('Project title is required', 'error');
+
+            try {
+                await apiFetch('/projects', {
+                    method: 'POST',
+                    body: JSON.stringify({ title, description, icon: selectedIcon, color: selectedColor })
+                });
+                closeCreateModal();
+                showToast('Project created!');
+                await loadProjects();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteProject(id) {
+            if (!confirm('Delete this project? This cannot be undone.')) return;
+            try {
+                await apiFetch(`/projects/${id}`, { method: 'DELETE' });
+                closeProject();
+                showToast('Project deleted');
+                await loadProjects();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function leaveProject(id) {
+            if (!confirm('Are you sure you want to leave this project?')) return;
+            try {
+                await apiFetch(`/projects/${id}/leave`, { method: 'POST' });
+                closeProject();
+                showToast('You left the project');
+                await loadProjects();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function refreshProject() {
+            if (!currentProject) return;
+            currentProject = await apiFetch(`/projects/${currentProject.id}`);
+            renderNotes();
+            renderCollections();
+            renderMembers();
+        }
+
+        // ── Icon & Color Pickers ──
+        function renderIconPicker() {
+            document.getElementById('iconPicker').innerHTML = ICONS.map(icon =>
+                `<button class="icon-option ${icon === selectedIcon ? 'selected' : ''}" onclick="selectIcon('${icon}', this)">${icon}</button>`
+            ).join('');
+        }
+
+        function selectIcon(icon, btn) {
+            selectedIcon = icon;
+            document.querySelectorAll('.icon-option').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function renderColorPicker() {
+            document.getElementById('colorPicker').innerHTML = COLORS.map(color =>
+                `<div class="color-option ${color === selectedColor ? 'selected' : ''}" style="background:${color};" onclick="selectColor('${color}', this)"></div>`
+            ).join('');
+        }
+
+        function selectColor(color, el) {
+            selectedColor = color;
+            document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        // ── Utilities ──
+        function escHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str || '';
+            return d.innerHTML;
+        }
+
+        function timeAgo(dateStr) {
+            const seconds = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            return new Date(dateStr).toLocaleDateString();
+        }
+
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            const h = Math.abs(hash) % 360;
+            return `hsl(${h}, 55%, 45%)`;
+        }
+
+        function refreshIcons() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    </script>
+    <script>
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+    </script>
+</body>
+
+</html>

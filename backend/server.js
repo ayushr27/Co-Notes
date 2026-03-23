@@ -18,6 +18,7 @@ import quickNoteRoutes from "./routes/quickNoteRoutes.js";
 import articleRoutes from "./routes/articleRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 
 // Middleware imports
 import { authenticateToken } from "./middleware/auth.js";
@@ -80,6 +81,7 @@ app.use("/api/quick-notes", quickNoteRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/projects", projectRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
