@@ -83,3 +83,10 @@ function getCurrentUser() {
         return null;
     }
 }
+
+// Auto-apply saved theme
+(function applyTheme() {
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+    }
+})();

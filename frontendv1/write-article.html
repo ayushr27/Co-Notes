@@ -30,7 +30,7 @@
         .cover-upload {
             width: 100%;
             height: 200px;
-            background-color: rgba(13, 17, 23, 0.5);
+            background-color: var(--glass-panel);
             border: 2px dashed var(--border-color);
             border-radius: 12px;
             display: flex;
@@ -56,7 +56,7 @@
             font-weight: 800;
             background: none;
             border: none;
-            color: #fff;
+            color: var(--text-heading);
             outline: none;
             margin-bottom: 0.5rem;
         }
@@ -252,11 +252,12 @@
 
         <div class="write-layout">
             <main class="write-main">
-                <div class="cover-upload" id="coverUpload" onclick="setCoverImage()">
+                <div class="cover-upload" id="coverUpload" onclick="document.getElementById('coverFileInput').click()">
                     <div style="text-align: center; color: var(--text-muted);" id="coverPlaceholder">
                         <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>
                         Add cover image
                     </div>
+                    <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverSelection(event)">
                 </div>
 
                 <input type="text" id="aTitle" class="article-title-input" placeholder="Article Title...">
@@ -327,10 +328,10 @@
             <div class="modal-body">
 
                 <div class="preview-card">
-                    <h3 id="modalTitlePreview" style="margin-bottom: 0.5rem; color: #fff;">Untitled</h3>
+                    <h3 id="modalTitlePreview" style="margin-bottom: 0.5rem; color: var(--text-heading);">Untitled</h3>
                     <p id="modalSubtitlePreview" style="color: var(--text-muted); margin-bottom: 1rem;"></p>
                     <div style="display: flex; gap: 1rem; font-size: 0.9rem;">
-                        <span class="tag-chip" style="background: rgba(255,255,255,0.1); color: #fff;"
+                        <span class="tag-chip" style="background: rgba(255,255,255,0.1); color: var(--text-heading);"
                             id="modalCatPreview">Category</span>
                         <span style="color: var(--text-muted);" id="modalTimePreview">1 min read</span>
                     </div>
@@ -342,7 +343,7 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="public" checked>
                         <div>
-                            <strong style="display: block; color: #fff; margin-bottom: 0.25rem;">🌐 Public</strong>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">🌐 Public</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Anyone can find and read</span>
                         </div>
                     </label>
@@ -350,7 +351,7 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="unlisted">
                         <div>
-                            <strong style="display: block; color: #fff; margin-bottom: 0.25rem;">🔗 Unlisted</strong>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">🔗 Unlisted</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Only people with the link</span>
                         </div>
                     </label>
@@ -358,7 +359,7 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="members">
                         <div>
-                            <strong style="display: block; color: #fff; margin-bottom: 0.25rem;">👥 Members
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">👥 Members
                                 Only</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Registered Co-Notes users
                                 only</span>
@@ -368,7 +369,7 @@
 
                 <div class="toggle-row">
                     <div>
-                        <strong style="display: block; color: #fff;">Allow comments</strong>
+                        <strong style="display: block; color: var(--text-heading);">Allow comments</strong>
                         <span style="color: var(--text-muted); font-size: 0.9rem;">Let readers discuss your
                             article</span>
                     </div>
@@ -391,23 +392,41 @@
     <script>
         checkAuth();
 
-        // Cover Image Mock
-        let hasCover = false;
-        function setCoverImage() {
-            const upload = document.getElementById('coverUpload');
-            const placeholder = document.getElementById('coverPlaceholder');
+        // Cover Image Upload
+        let uploadedCoverUrl = null;
+        
+        async function handleCoverSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-            if (!hasCover) {
-                // Set mock image
-                upload.style.backgroundImage = "url('https://images.unsplash.com/photo-1499750310159-5b5f87e8e195?w=1200&q=80')";
-                upload.style.borderStyle = 'solid';
+            const uploadEl = document.getElementById('coverUpload');
+            const placeholder = document.getElementById('coverPlaceholder');
+            
+            placeholder.innerText = 'Uploading...';
+
+            const formData = new FormData();
+            formData.append('cover', file);
+
+            try {
+                // Not using apiFetch here to avoid JSON headers
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:3000/api/articles/upload-cover', {
+                    method: 'POST',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Failed to upload image');
+                
+                const data = await response.json();
+                uploadedCoverUrl = 'http://localhost:3000' + data.url;
+                
+                uploadEl.style.backgroundImage = `url('${uploadedCoverUrl}')`;
+                uploadEl.style.borderStyle = 'solid';
                 placeholder.style.display = 'none';
-                hasCover = true;
-            } else {
-                upload.style.backgroundImage = 'none';
-                upload.style.borderStyle = 'dashed';
-                placeholder.style.display = 'block';
-                hasCover = false;
+            } catch (error) {
+                alert('Upload error: ' + error.message);
+                placeholder.innerHTML = '<span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>Add cover image';
             }
         }
 
@@ -539,6 +558,7 @@
                 title,
                 subtitle,
                 content,
+                coverImage: uploadedCoverUrl,
                 category: cat,
                 subcategory: subcat,
                 tags,

@@ -19,7 +19,7 @@
             border-radius: 12px;
             padding: 1.5rem 1.5rem 1.5rem 3.5rem;
             font-size: 1.25rem;
-            color: #fff;
+            color: var(--text-heading);
             transition: all 0.2s;
             outline: none;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%238b949e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
@@ -81,7 +81,7 @@
         }
 
         .result-title {
-            color: #fff;
+            color: var(--text-heading);
             font-size: 1.25rem;
             font-weight: 600;
         }
@@ -99,7 +99,7 @@
 
         .highlight {
             background-color: rgba(227, 179, 65, 0.3);
-            color: #fff;
+            color: var(--text-heading);
             padding: 0 0.2rem;
             border-radius: 2px;
         }
@@ -229,7 +229,7 @@
                         searchResults.innerHTML = `
                             <div style="text-align: center; margin-top: 3rem;">
                                 <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
-                                <h3 style="color: #fff;">No results found for "${query}"</h3>
+                                <h3 style="color: var(--text-heading);">No results found for "${query}"</h3>
                                 <p style="color: var(--text-muted);">Try searching for something else or check your spelling.</p>
                             </div>
                         `;

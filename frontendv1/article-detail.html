@@ -36,7 +36,7 @@
         .article-title-large {
             font-size: 3rem;
             font-weight: 800;
-            color: #fff;
+            color: var(--text-heading);
             line-height: 1.2;
             margin-bottom: 1.5rem;
         }
@@ -67,14 +67,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            color: var(--text-heading);
             font-size: 1.5rem;
             font-weight: bold;
         }
 
         .author-details h3 {
             font-size: 1.1rem;
-            color: #fff;
+            color: var(--text-heading);
             margin-bottom: 0.25rem;
         }
 
@@ -139,7 +139,7 @@
 
         .comments-title {
             font-size: 1.5rem;
-            color: #fff;
+            color: var(--text-heading);
             margin-bottom: 2rem;
         }
 
@@ -156,7 +156,7 @@
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #fff;
+            color: var(--text-heading);
             padding: 1rem;
             font-family: inherit;
             resize: vertical;
@@ -196,7 +196,7 @@
 
         .comment-author {
             font-weight: 600;
-            color: #fff;
+            color: var(--text-heading);
             font-size: 0.95rem;
         }
 
@@ -284,7 +284,7 @@
                             <p id="article-date-read"></p>
                         </div>
                         <div style="flex: 1; text-align: right;">
-                            <button class="btn btn-secondary btn-sm">Follow</button>
+                            <button class="btn btn-secondary btn-sm" id="follow-btn">Follow</button>
                         </div>
                     </div>
 
@@ -304,7 +304,7 @@
                             <span>💬</span>
                             <span id="comment-count-top">0</span> Comments
                         </button>
-                        <button class="action-btn">
+                        <button class="action-btn" id="share-btn">
                             <span>🔗</span> Share
                         </button>
                     </div>
@@ -353,7 +353,11 @@
                 document.title = `${article.title} - Co-Notes`;
                 document.getElementById('article-title').innerText = article.title;
                 document.getElementById('article-subtitle').innerText = article.subtitle || "";
-                document.getElementById('article-body').innerHTML = article.content.replace(/\n/g, '<br>'); // Simple line breaks for now
+                
+                // Fix Notes Body Display Issue: Safely render text while preserving line breaks
+                const bodyEl = document.getElementById('article-body');
+                bodyEl.textContent = article.content;
+                bodyEl.style.whiteSpace = 'pre-wrap';
 
                 const date = new Date(article.publishedAt || article.createdAt);
                 document.getElementById('article-date-read').innerText =
@@ -365,6 +369,17 @@
                     authorAvatar.innerHTML = `<img src="${article.author.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
                 } else {
                     authorAvatar.innerText = article.author.name.charAt(0).toUpperCase();
+                }
+
+                // Check Follow status if possible
+                const currentUser = getCurrentUser();
+                const followBtn = document.getElementById('follow-btn');
+                if (currentUser && currentUser._id === article.author._id) {
+                    followBtn.style.display = 'none'; // Cannot follow oneself
+                } else {
+                    // Try to fetch profile to see current follow status, or just leave it for toggle
+                    // (To fully optimize, user object could just track following locally, but for simplicity: )
+                    followBtn.dataset.authorId = article.author._id || article.author.id;
                 }
 
                 if (article.coverImage) {
@@ -442,6 +457,35 @@
             } catch (error) {
                 console.error("Like error:", error);
             }
+        });
+
+        document.getElementById('follow-btn').addEventListener('click', async (e) => {
+            const btn = e.target;
+            const authorId = btn.dataset.authorId;
+            if (!authorId) return;
+            
+            try {
+                const result = await apiFetch(`/users/${authorId}/follow`, { method: 'POST' });
+                if (result.following) {
+                    btn.innerText = 'Unfollow';
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-secondary');
+                } else {
+                    btn.innerText = 'Follow';
+                    btn.classList.add('btn-secondary');
+                    btn.classList.remove('btn-primary');
+                }
+            } catch (error) {
+                console.error("Follow error:", error);
+            }
+        });
+
+        document.getElementById('share-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy link:', err);
+            });
         });
 
         document.getElementById('post-comment-btn').addEventListener('click', async () => {

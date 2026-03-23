@@ -22,7 +22,7 @@
         .settings-nav {
             padding: 1.5rem 0;
             border-right: 1px solid var(--border-color);
-            background-color: rgba(13, 17, 23, 0.5);
+            background-color: var(--glass-panel);
         }
 
         .settings-nav-item {
@@ -107,7 +107,7 @@
             justify-content: center;
             font-size: 2rem;
             font-weight: bold;
-            color: #fff;
+            color: var(--text-heading);
         }
 
         .theme-options {
@@ -383,15 +383,12 @@
             options.forEach(opt => opt.classList.remove('active'));
             btn.classList.add('active');
 
-            // In a real app we would apply classes to body or :root here
             if (theme === 'light') {
-                document.body.style.filter = 'invert(0.9) hue-rotate(180deg)';
-                document.querySelector('.app-background-orbs').style.filter = 'invert(0.9) hue-rotate(180deg)';
-                document.querySelectorAll('img, .avatar-large, .stat-icon').forEach(el => el.style.filter = 'invert(1) hue-rotate(180deg)');
+                document.body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
             } else {
-                document.body.style.filter = 'none';
-                document.querySelector('.app-background-orbs').style.filter = 'none';
-                document.querySelectorAll('img, .avatar-large, .stat-icon').forEach(el => el.style.filter = 'none');
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('theme', 'dark');
             }
         }
     </script>

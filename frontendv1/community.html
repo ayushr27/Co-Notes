@@ -37,7 +37,7 @@
         .category-tab.active,
         .category-tab:hover {
             background-color: var(--primary-color);
-            color: #fff;
+            color: var(--text-heading);
             border-color: var(--primary-color);
         }
 
@@ -87,7 +87,7 @@
 
         .author-name {
             font-weight: 600;
-            color: #fff;
+            color: var(--text-heading);
             font-size: 0.9rem;
         }
 
@@ -98,7 +98,7 @@
 
         .article-title {
             font-size: 1.5rem;
-            color: #fff;
+            color: var(--text-heading);
             margin-bottom: 0.5rem;
         }
 
@@ -167,7 +167,7 @@
 
         .trending-title {
             font-weight: 600;
-            color: #fff;
+            color: var(--text-heading);
             margin-bottom: 0.25rem;
             display: block;
             text-decoration: none;
@@ -241,7 +241,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; gap: 2rem;">
                         <div style="position: relative; flex: 1; max-width: 500px;">
                             <input type="text" id="feedSearch" placeholder="Search articles, tutorials, or topics..." 
-                                style="width: 100%; background: var(--card-bg); border: 2px solid var(--border-color); color: #fff; padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.2s;">
+                                style="width: 100%; background: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-heading); padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.2s;">
                             <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;">🔍</span>
                         </div>
                         <div class="category-nav" style="margin-bottom: 0;">
@@ -269,7 +269,7 @@
                     <!-- Trending Sidebar -->
                     <div class="trending-sidebar">
                         <div class="trending-card">
-                            <h3 style="margin-bottom: 2rem; color: #fff;">📈 Trending Now</h3>
+                            <h3 style="margin-bottom: 2rem; color: var(--text-heading);">📈 Trending Now</h3>
 
                             <div class="trending-item">
                                 <span class="trending-tag">#development</span>
@@ -294,7 +294,7 @@
 
                             <hr style="border: none; border-top: 1px solid var(--border-color); margin: 2rem 0;">
 
-                            <h3 style="margin-bottom: 1.5rem; color: #fff;">Suggested Authors</h3>
+                            <h3 style="margin-bottom: 1.5rem; color: var(--text-heading);">Suggested Authors</h3>
 
                             <div
                                 style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
@@ -380,10 +380,10 @@
                         <h2 class="article-title" style="margin-bottom: 0.75rem;">${article.title}</h2>
                         <p class="article-excerpt" style="line-height: 1.6; margin-bottom: 2rem;">${article.subtitle || article.content}</p>
                     </div>
-                    <div class="article-footer" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; margin-top: auto;">
+                    <div class="article-footer" style="border-top: 1px solid var(--glass-bg); padding-top: 1.5rem; margin-top: auto;">
                         <div class="article-stats">
                             <span class="stat-item" style="background: rgba(88,166,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px;">❤️ ${likeCount}</span>
-                            <span class="stat-item" style="background: rgba(255,255,255,0.05); padding: 0.4rem 0.8rem; border-radius: 8px;">💬 ${commentCount}</span>
+                            <span class="stat-item" style="background: var(--glass-bg); padding: 0.4rem 0.8rem; border-radius: 8px;">💬 ${commentCount}</span>
                         </div>
                         <span class="badge" style="background: none; border: 1px solid var(--border-color); padding: 0.4rem 0.8rem; border-radius: 8px; color: var(--text-muted);">${article.readTime || '3 min'} read</span>
                     </div>

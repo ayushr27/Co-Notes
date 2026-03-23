@@ -101,3 +101,37 @@ export async function getDashboardStats(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+// POST /api/users/:id/follow
+export async function toggleFollow(req, res) {
+    try {
+        const targetUser = await User.findById(req.params.id);
+        const currentUser = await User.findById(req.userId);
+        
+        if (!targetUser || !currentUser) return res.status(404).json({ message: "User not found" });
+        if (targetUser._id.toString() === currentUser._id.toString()) {
+            return res.status(400).json({ message: "Cannot follow yourself" });
+        }
+
+        const isFollowing = currentUser.following.findIndex(id => id.toString() === targetUser._id.toString()) > -1;
+
+        if (isFollowing) {
+            // Unfollow
+            currentUser.following = currentUser.following.filter(id => id.toString() !== targetUser._id.toString());
+            targetUser.followers = targetUser.followers.filter(id => id.toString() !== currentUser._id.toString());
+            await currentUser.save();
+            await targetUser.save();
+            return res.json({ following: false });
+        } else {
+            // Follow
+            currentUser.following.push(targetUser._id);
+            targetUser.followers.push(currentUser._id);
+            await currentUser.save();
+            await targetUser.save();
+            return res.json({ following: true });
+        }
+    } catch (error) {
+        console.error("toggleFollow error:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}

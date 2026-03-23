@@ -207,7 +207,7 @@ export async function toggleLike(req, res) {
         const article = await Article.findById(req.params.id);
         if (!article) return res.status(404).json({ message: "Article not found" });
 
-        const likeIndex = article.likes.indexOf(req.userId);
+        const likeIndex = article.likes.findIndex(id => id.toString() === req.userId);
         if (likeIndex > -1) {
             article.likes.splice(likeIndex, 1);
             await article.save();
