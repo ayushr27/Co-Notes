@@ -119,6 +119,7 @@
             color: var(--text-muted);
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -127,35 +128,35 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <span>📝</span> Co-Notes
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
                 </a>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
-                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quick Links</div>
-                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
-                    <a href="quick-notes.html" class="nav-item active">⚡ Quick Notes</a>
-                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item active"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Community</div>
-                    <a href="community.html" class="nav-item">🌐 Feed</a>
-                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="profile.html" class="nav-item">👤 Profile</a>
-                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
-                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
                 </div>
             </div>
         </aside>
@@ -170,19 +171,19 @@
 
             <div class="page-content">
                 <div class="page-title">
-                    <span style="font-size: 2.5rem; color: #f1e05a;">⚡</span>
+                    <span style="font-size: 2.5rem; color: #f1e05a;"><i data-lucide="zap" class="nav-icon"></i></span>
                     <h1>Quick Notes</h1>
                 </div>
                 <p class="page-subtitle">Capture thoughts instantly, organize later</p>
 
                 <form class="quick-add-form" id="addNoteForm">
-                    <input type="text" id="noteInput" class="quick-add-input" placeholder="Jot down a quick note... ✍️"
+                    <input type="text" id="noteInput" class="quick-add-input" placeholder="Jot down a quick note... <i data-lucide="pen-tool" class="nav-icon"></i>"
                         required autocomplete="off">
                     <div class="quick-actions-bar">
                         <button type="button" class="icon-btn-round" title="Voice Input"
                             onclick="alert('Mic access requested!')">🎤</button>
                         <button type="submit" class="btn btn-primary"
-                            style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">➕</button>
+                            style="border-radius: 50%; width: 36px; height: 36px; padding: 0;"><i data-lucide="plus" class="nav-icon"></i></button>
                     </div>
                 </form>
 
@@ -190,7 +191,7 @@
                     <h2 class="section-label">📌 Pinned</h2>
                     <div class="notes-grid" id="pinnedGrid"></div>
 
-                    <h2 class="section-label">🕒 Recent</h2>
+                    <h2 class="section-label"><i data-lucide="clock" class="nav-icon"></i> Recent</h2>
                     <div class="notes-grid" id="recentGrid"></div>
                 </div>
 
@@ -227,10 +228,10 @@
 
                 div.innerHTML = `
                     <div class="note-header">
-                        <span>🕒 ${formatRelativeTime(note.createdAt)}</span>
+                        <span><i data-lucide="clock" class="nav-icon"></i> ${formatRelativeTime(note.createdAt)}</span>
                         <div class="note-actions">
                             <button class="icon-btn-round" onclick="togglePin('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;">${note.isPinned ? '📌' : '📍'}</button>
-                            <button class="icon-btn-round" onclick="deleteNote('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;">🗑️</button>
+                            <button class="icon-btn-round" onclick="deleteNote('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;"><i data-lucide="trash-2" class="nav-icon"></i></button>
                         </div>
                     </div>
                     <div class="note-content">${note.content}</div>
@@ -326,6 +327,9 @@
 
         // initial load
         fetchNotes();
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

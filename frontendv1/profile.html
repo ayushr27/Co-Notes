@@ -130,6 +130,7 @@
             background-color: rgba(63, 185, 80, 1);
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -138,35 +139,35 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <span>📝</span> Co-Notes
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
                 </a>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
-                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quick Links</div>
-                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
-                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
-                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Community</div>
-                    <a href="community.html" class="nav-item">🌐 Feed</a>
-                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="profile.html" class="nav-item active">👤 Profile</a>
-                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
-                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                    <a href="profile.html" class="nav-item active"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
                 </div>
             </div>
         </aside>
@@ -226,7 +227,7 @@
 
                 <div class="articles-section" style="margin-top: 3rem;">
                     <h3 style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                        <span>✍️</span> My Published Articles
+                        <span><i data-lucide="pen-tool" class="nav-icon"></i></span> My Published Articles
                     </h3>
                     <div id="user-articles-list" style="display: flex; flex-direction: column; gap: 1rem;">
                         <p style="color: var(--text-muted);">Loading articles...</p>
@@ -297,8 +298,8 @@
                                 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">${article.subtitle || 'No subtitle'}</p>
                                 <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem;">
                                     <span>❤️ ${article.likes || 0}</span>
-                                    <span>💬 ${article.comments || 0}</span>
-                                    <span>📅 ${new Date(article.publishedAt || article.createdAt).toLocaleDateString()}</span>
+                                    <span><i data-lucide="message-square" class="nav-icon"></i> ${article.comments || 0}</span>
+                                    <span><i data-lucide="calendar" class="nav-icon"></i> ${new Date(article.publishedAt || article.createdAt).toLocaleDateString()}</span>
                                 </div>
                             </div>
                             <span class="badge" style="background: rgba(88, 166, 255, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">${article.category || 'General'}</span>
@@ -328,6 +329,9 @@
             cell.title = `${level} contributions on this day`;
             grid.appendChild(cell);
         }
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

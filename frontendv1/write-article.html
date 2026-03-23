@@ -233,6 +233,7 @@
             transform: translateX(20px);
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -241,12 +242,12 @@
             <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
                 <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'"
                     style="padding: 0.25rem 0.5rem;">← Back</button>
-                <span style="color: var(--text-muted); font-size: 0.9rem;">🕒 Draft • Auto-saved</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem;"><i data-lucide="clock" class="nav-icon"></i> Draft • Auto-saved</span>
             </div>
             <div class="header-right" style="display: flex; gap: 1rem;">
                 <button class="btn btn-secondary" onclick="alert('Preview coming soon!')">👁️ Preview</button>
                 <button class="btn btn-secondary" onclick="alert('Draft saved!')">💾 Save Draft</button>
-                <button class="btn btn-primary" onclick="openPublishModal()">🚀 Publish</button>
+                <button class="btn btn-primary" onclick="openPublishModal()"><i data-lucide="rocket" class="nav-icon"></i> Publish</button>
             </div>
         </header>
 
@@ -270,12 +271,12 @@
 
             <aside class="write-sidebar">
                 <div class="sidebar-section">
-                    <h3 class="section-title">📁 Category *</h3>
+                    <h3 class="section-title"><i data-lucide="folder" class="nav-icon"></i> Category *</h3>
                     <select class="form-select" id="catSelect" onchange="updateSubcats()">
                         <option value="">Select a category</option>
                         <option value="coding">💻 Coding & Development</option>
                         <option value="business">💼 Business & Entrepreneurship</option>
-                        <option value="marketing">📈 Marketing & Growth</option>
+                        <option value="marketing"><i data-lucide="trending-up" class="nav-icon"></i> Marketing & Growth</option>
                         <option value="design">🎨 Design & UX</option>
                     </select>
 
@@ -322,7 +323,7 @@
     <div class="modal-overlay" id="publishModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>✨ Ready to Publish?</h2>
+                <h2><i data-lucide="sparkles" class="nav-icon"></i> Ready to Publish?</h2>
                 <button class="btn" style="padding: 0;" onclick="closePublishModal()">✕</button>
             </div>
             <div class="modal-body">
@@ -343,7 +344,7 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="public" checked>
                         <div>
-                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">🌐 Public</strong>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;"><i data-lucide="globe" class="nav-icon"></i> Public</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Anyone can find and read</span>
                         </div>
                     </label>
@@ -351,7 +352,7 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="unlisted">
                         <div>
-                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">🔗 Unlisted</strong>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;"><i data-lucide="link" class="nav-icon"></i> Unlisted</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Only people with the link</span>
                         </div>
                     </label>
@@ -394,6 +395,7 @@
 
         // Cover Image Upload
         let uploadedCoverUrl = null;
+        let coverUploadPromise = null;
         
         async function handleCoverSelection(event) {
             const file = event.target.files[0];
@@ -414,13 +416,9 @@
             const formData = new FormData();
             formData.append('cover', file);
 
-            try {
+            coverUploadPromise = (async () => {
                 // Not using apiFetch here to avoid JSON headers overriding multipart
                 const token = localStorage.getItem('token');
-                
-                // Use API_BASE_URL from api.js to dynamically figure out the host
-                const hostObj = new URL(API_BASE_URL);
-                const hostUrl = hostObj.protocol + '//' + hostObj.host;
 
                 const response = await fetch(`${API_BASE_URL}/articles/upload-cover`, {
                     method: 'POST',
@@ -431,15 +429,22 @@
                 if (!response.ok) throw new Error('Failed to upload image');
                 
                 const data = await response.json();
-                // Append the relative URL to the host
-                uploadedCoverUrl = hostUrl + data.url;
+                uploadedCoverUrl = resolveApiAssetUrl(data.url);
+                return uploadedCoverUrl;
                 
+            })();
+
+            try {
+                await coverUploadPromise;
             } catch (error) {
                 alert('Upload error: ' + error.message);
                 uploadEl.style.backgroundImage = 'none';
                 uploadEl.style.borderStyle = 'dashed';
                 placeholder.style.display = 'block';
                 placeholder.innerHTML = '<span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>Add cover image';
+                uploadedCoverUrl = null;
+            } finally {
+                coverUploadPromise = null;
             }
         }
 
@@ -567,20 +572,24 @@
 
             const allowComments = document.getElementById('allowComments').checked;
 
-            const payload = {
-                title,
-                subtitle,
-                content,
-                coverImage: uploadedCoverUrl,
-                category: cat,
-                subcategory: subcat,
-                tags,
-                readTime,
-                visibility: visibilityRadio ? visibilityRadio.value : 'public',
-                allowComments
-            };
-
             try {
+                if (coverUploadPromise) {
+                    await coverUploadPromise;
+                }
+
+                const payload = {
+                    title,
+                    subtitle,
+                    content,
+                    coverImage: uploadedCoverUrl,
+                    category: cat,
+                    subcategory: subcat,
+                    tags,
+                    readTime,
+                    visibility: visibilityRadio ? visibilityRadio.value : 'public',
+                    allowComments
+                };
+
                 // 1. Create the article (initially drafted)
                 const article = await apiFetch('/articles', {
                     method: 'POST',
@@ -601,6 +610,9 @@
                 btn.style.opacity = '1';
             }
         };
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

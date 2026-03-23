@@ -161,6 +161,7 @@
             outline: none;
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -169,35 +170,35 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <span>📝</span> Co-Notes
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
                 </a>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
-                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quick Links</div>
-                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
-                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
-                    <a href="todos.html" class="nav-item active">☑️ To-Do List</a>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item active"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Community</div>
-                    <a href="community.html" class="nav-item">🌐 Feed</a>
-                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="profile.html" class="nav-item">👤 Profile</a>
-                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
-                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
                 </div>
             </div>
         </aside>
@@ -214,7 +215,7 @@
                 <div class="todo-header-card">
                     <div>
                         <div class="page-title">
-                            <span style="font-size: 2.5rem; color: #58a6ff;">☑️</span>
+                            <span style="font-size: 2.5rem; color: #58a6ff;"><i data-lucide="check-square" class="nav-icon"></i></span>
                             <h1>To-Do List</h1>
                         </div>
                         <p class="page-subtitle" id="taskCountText">4 tasks remaining • 1 completed</p>
@@ -305,7 +306,7 @@
                         </div>
                     </div>
                     <div class="todo-actions">
-                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteTodo('${id}')">🗑️</button>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteTodo('${id}')"><i data-lucide="trash-2" class="nav-icon"></i></button>
                     </div>
                 `;
                 list.appendChild(div);
@@ -389,6 +390,9 @@
 
         // Initial fetch
         fetchTodos();
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

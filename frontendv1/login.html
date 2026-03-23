@@ -218,15 +218,70 @@
             margin-left: .5em;
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="auth-page">
+<body class="auth-page" style="min-height: 100vh; display: flex; flex-direction: column;">
     <!-- Glowing background effects -->
     <div class="auth-orb orb-blue"></div>
     <div class="auth-orb orb-purple"></div>
 
-    <div class="premium-auth-card">
+    <nav class="landing-nav" id="nav" style="background: rgba(13,17,23,0.8); backdrop-filter: blur(10px); z-index: 1000; position: sticky; top: 0; width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 0.5rem; color: #fff; text-decoration: none; font-weight: 600; font-size: 1.25rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-color)"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+            Co-Notes
+        </a>
+        <div class="nav-links" style="display: flex; gap: 2rem;">
+            <a href="index.html#features" style="color: var(--text-muted); text-decoration: none; font-size: 0.95rem;">Features</a>
+        </div>
+        <div class="nav-actions">
+            <a href="signup.html" class="btn btn-primary" style="background: var(--text-primary); color: var(--bg-color); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.95rem;">Get Started Free</a>
+        </div>
+    </nav>
+
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 4rem 2rem; position: relative; z-index: 10;">
+        <div style="display: flex; gap: 6rem; max-width: 1200px; width: 100%; align-items: center; justify-content: center; flex-wrap: wrap;">
+            
+            <!-- How it Works Section -->
+            <div style="flex: 1; min-width: 350px; max-width: 500px;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-heading);">How it <span style="background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">works</span></h2>
+                <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2.5rem;">Three simple steps to build your ultimate knowledge base.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-primary);">
+                            <i data-lucide="user-plus"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-heading);">1. Create an Account</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">Sign up in seconds and get instant access to your personal workspace.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-primary);">
+                            <i data-lucide="edit-3"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-heading);">2. Write & Organize</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">Use our powerful block editor to capture ideas, create collections, and organize your thoughts.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                        <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-primary);">
+                            <i data-lucide="share-2"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-heading);">3. Share & Collaborate</h3>
+                            <p style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;">Publish notes to the community feed or keep them private. The choice is yours.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="premium-auth-card" style="margin: 0; align-self: center;">
         <div class="auth-header">
-            <a href="index.html" class="auth-logo">📝</a>
+            <a href="index.html" class="auth-logo"><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></a>
             <h1 class="auth-title">Welcome back</h1>
             <p class="auth-subtitle">Login to continue to your workspace</p>
         </div>
@@ -270,6 +325,9 @@
         <div style="text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted);">
             Don't have an account? <a href="signup.html" style="color: var(--text-heading); text-decoration: none; font-weight: 500;">Sign up</a>
         </div>
+    </div>
+
+    </div>
     </div>
 
     <script src="api.js"></script>
@@ -318,5 +376,8 @@
         });
     </script>
     <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
+    </script>
 </body>
 </html>

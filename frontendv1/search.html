@@ -104,6 +104,7 @@
             border-radius: 2px;
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -112,35 +113,35 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <span>📝</span> Co-Notes
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
                 </a>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
-                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quick Links</div>
-                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
-                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
-                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Community</div>
-                    <a href="community.html" class="nav-item">🌐 Feed</a>
-                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="profile.html" class="nav-item">👤 Profile</a>
-                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
-                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
                 </div>
             </div>
         </aside>
@@ -164,10 +165,10 @@
                     <div class="filters-row">
                         <button class="filter-pill active">All Results</button>
                         <button class="filter-pill">📄 Documents</button>
-                        <button class="filter-pill">💡 Ideas</button>
-                        <button class="filter-pill">☑️ Tasks</button>
-                        <button class="filter-pill">📁 Collections</button>
-                        <button class="filter-pill">🌐 Community</button>
+                        <button class="filter-pill"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</button>
+                        <button class="filter-pill"><i data-lucide="check-square" class="nav-icon"></i> Tasks</button>
+                        <button class="filter-pill"><i data-lucide="folder" class="nav-icon"></i> Collections</button>
+                        <button class="filter-pill"><i data-lucide="globe" class="nav-icon"></i> Community</button>
                     </div>
 
                     <div class="search-results" id="searchResults">
@@ -211,13 +212,13 @@
                         response.documents.forEach(d => allResults.push({ type: '📄 Documents', title: d.title || 'Untitled', path: 'Workspace', content: 'Document', link: `document.html?id=${d._id}` }));
                     }
                     if (response.collections) {
-                        response.collections.forEach(c => allResults.push({ type: '📁 Collections', title: c.name || 'Unnamed', path: 'Collections', content: c.description || 'Collection', link: `document.html?collection=${c._id}` }));
+                        response.collections.forEach(c => allResults.push({ type: '<i data-lucide="folder" class="nav-icon"></i> Collections', title: c.name || 'Unnamed', path: 'Collections', content: c.description || 'Collection', link: `document.html?collection=${c._id}` }));
                     }
                     if (response.articles) {
-                        response.articles.forEach(a => allResults.push({ type: '🌐 Community', title: a.title || 'Untitled', path: 'Articles', content: 'Published Article', link: `article-detail.html?id=${a.id || a._id}` }));
+                        response.articles.forEach(a => allResults.push({ type: '<i data-lucide="globe" class="nav-icon"></i> Community', title: a.title || 'Untitled', path: 'Articles', content: 'Published Article', link: `article-detail.html?id=${a.id || a._id}` }));
                     }
                     if (response.ideas) {
-                        response.ideas.forEach(i => allResults.push({ type: '💡 Ideas', title: i.title || 'Untitled', path: 'Idea Board', content: i.description || 'Idea', link: 'ideas.html' }));
+                        response.ideas.forEach(i => allResults.push({ type: '<i data-lucide="lightbulb" class="nav-icon"></i> Ideas', title: i.title || 'Untitled', path: 'Idea Board', content: i.description || 'Idea', link: 'ideas.html' }));
                     }
 
                     // Apply filter
@@ -228,7 +229,7 @@
                     if (allResults.length === 0) {
                         searchResults.innerHTML = `
                             <div style="text-align: center; margin-top: 3rem;">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                                <div style="font-size: 3rem; margin-bottom: 1rem;"><i data-lucide="search" class="nav-icon"></i></div>
                                 <h3 style="color: var(--text-heading);">No results found for "${query}"</h3>
                                 <p style="color: var(--text-muted);">Try searching for something else or check your spelling.</p>
                             </div>
@@ -272,6 +273,9 @@
                 searchInput.dispatchEvent(new Event('input'));
             });
         });
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

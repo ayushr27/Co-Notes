@@ -113,6 +113,7 @@
             }
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -121,35 +122,35 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <span>📝</span> Co-Notes
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
                 </a>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
-                    <a href="dashboard.html" class="nav-item">🏠 Dashboard</a>
-                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quick Links</div>
-                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
-                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
-                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Community</div>
-                    <a href="community.html" class="nav-item active">🌐 Feed</a>
-                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                    <a href="community.html" class="nav-item active"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="profile.html" class="nav-item">👤 Profile</a>
-                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
-                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
                 </div>
             </div>
         </aside>
@@ -161,7 +162,7 @@
                     <span>Community Feed</span>
                 </div>
                 <div class="header-right">
-                    <a href="write-article.html" class="btn btn-primary">✍️ Write & Publish</a>
+                    <a href="write-article.html" class="btn btn-primary"><i data-lucide="pen-tool" class="nav-icon"></i> Write & Publish</a>
                 </div>
             </header>
 
@@ -172,7 +173,7 @@
                         <div style="position: relative; flex: 1; max-width: 500px;">
                             <input type="text" id="feedSearch" placeholder="Search articles, tutorials, or topics..." 
                                 style="width: 100%; background: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-heading); padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.2s;">
-                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;">🔍</span>
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;"><i data-lucide="search" class="nav-icon"></i></span>
                         </div>
                         <div class="category-nav" style="margin-bottom: 0; padding-bottom: 0;">
                             <button class="category-tab active">For You</button>
@@ -185,7 +186,7 @@
                     </div>
 
                     <div class="page-title">
-                        <span style="font-size: 2.5rem; color: #bc8cff;">🌐</span>
+                        <span style="font-size: 2.5rem; color: #bc8cff;"><i data-lucide="globe" class="nav-icon"></i></span>
                         <h1 style="font-size: 2.5rem;">Community Feed</h1>
                     </div>
                     <p class="page-subtitle" style="font-size: 1.1rem; margin-bottom: 3rem;">Discover ideas, tutorials, and stories from the Co-Notes community.</p>
@@ -240,6 +241,7 @@
                 const timeStr = formatRelativeTime(article.createdAt);
                 const likeCount = typeof article.likes === 'number' ? article.likes : (article.likes || []).length;
                 const commentCount = typeof article.comments === 'number' ? article.comments : (article.comments || []).length;
+                const coverImageUrl = resolveApiAssetUrl(article.coverImage);
 
                 const card = document.createElement('div');
                 card.className = 'article-card';
@@ -255,13 +257,13 @@
                         <h2 class="article-title" style="font-size: 1.1rem; margin-bottom: 0.4rem; line-height: 1.35; font-weight: 500;">${article.title}</h2>
                         <p class="article-excerpt" style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.8rem; color: var(--text-color);">${article.subtitle || article.content}</p>
                         
-                        ${article.coverImage ? `<div style="margin-bottom: 1rem; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);"><img src="${article.coverImage}" style="width: 100%; max-height: 400px; object-fit: cover; display: block;"></div>` : ''}
+                        ${coverImageUrl ? `<div style="margin-bottom: 1rem; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);"><img src="${coverImageUrl}" alt="${article.title}" style="width: 100%; max-height: 400px; object-fit: cover; display: block;"></div>` : ''}
                         
                         <div style="display: flex; justify-content: space-between; max-width: 400px; color: var(--text-muted); font-size: 0.85rem;">
-                            <span class="stat-item">💬 ${commentCount}</span>
+                            <span class="stat-item"><i data-lucide="message-square" class="nav-icon"></i> ${commentCount}</span>
                             <span class="stat-item">🔁 0</span>
                             <span class="stat-item">❤️ ${likeCount}</span>
-                            <span class="stat-item">📊 ${article.readTime || '3'}m</span>
+                            <span class="stat-item"><i data-lucide="bar-chart-2" class="nav-icon"></i> ${article.readTime || '3'}m</span>
                             <span class="stat-item">📤</span>
                         </div>
                     </div>
@@ -308,6 +310,9 @@
         });
 
         loadFeed();
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

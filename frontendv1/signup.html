@@ -212,6 +212,7 @@
             margin-left: .5em;
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="auth-page">
     <!-- Glowing background effects -->
@@ -220,7 +221,7 @@
 
     <div class="premium-auth-card">
         <div class="auth-header">
-            <a href="index.html" class="auth-logo">📝</a>
+            <a href="index.html" class="auth-logo"><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></a>
             <h1 class="auth-title">Create an account</h1>
             <p class="auth-subtitle">Join Co-Notes to start writing</p>
         </div>
@@ -325,5 +326,8 @@
         });
     </script>
     <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
+    </script>
 </body>
 </html>

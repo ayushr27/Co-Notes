@@ -3,6 +3,17 @@
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
+function getApiOrigin() {
+    return new URL(API_BASE_URL).origin;
+}
+
+function resolveApiAssetUrl(url) {
+    if (!url) return '';
+    if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
+    if (url.startsWith('/')) return `${getApiOrigin()}${url}`;
+    return `${getApiOrigin()}/${url}`;
+}
+
 /**
  * apiFetch — Wrapper for fetch that:
  *   1. Automatically attaches the JWT Bearer token from localStorage

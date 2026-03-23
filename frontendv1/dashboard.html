@@ -131,6 +131,7 @@
             }
         }
     </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -139,35 +140,35 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
-                    <span>📝</span> Co-Notes
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
                 </a>
             </div>
 
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
-                    <a href="dashboard.html" class="nav-item active">🏠 Dashboard</a>
-                    <a href="collections.html" class="nav-item">📁 Collections</a>
+                    <a href="dashboard.html" class="nav-item active"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quick Links</div>
-                    <a href="ideas.html" class="nav-item">💡 Ideas</a>
-                    <a href="quick-notes.html" class="nav-item">⚡ Quick Notes</a>
-                    <a href="todos.html" class="nav-item">☑️ To-Do List</a>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Community</div>
-                    <a href="community.html" class="nav-item">🌐 Feed</a>
-                    <a href="write-article.html" class="nav-item">✍️ Write Article</a>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
-                    <a href="profile.html" class="nav-item">👤 Profile</a>
-                    <a href="notifications.html" class="nav-item">🔔 Notifications</a>
-                    <a href="settings.html" class="nav-item">⚙️ Settings</a>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
                 </div>
             </div>
         </aside>
@@ -180,14 +181,14 @@
                     <span>My Workspace</span>
                 </div>
                 <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
-                    <a href="search.html" style="color: var(--text-color);">🔍 Search</a>
-                    <a href="document.html" class="btn btn-primary">➕ New Page</a>
+                    <a href="search.html" style="color: var(--text-color);"><i data-lucide="search" class="nav-icon"></i> Search</a>
+                    <a href="document.html" class="btn btn-primary"><i data-lucide="plus" class="nav-icon"></i> New Page</a>
                 </div>
             </header>
 
             <div class="page-content">
                 <div class="page-title">
-                    <span id="greeting-icon">☀️</span>
+                    <span id="greeting-icon"><i data-lucide="sun" class="nav-icon"></i></span>
                     <h1 id="greeting-text">Good morning, friend</h1>
                 </div>
                 <p class="page-subtitle">Ready to capture your thoughts and ideas today?</p>
@@ -201,14 +202,14 @@
                         </div>
                     </div>
                     <div class="stat-card hover-glow">
-                        <div class="stat-icon">💡</div>
+                        <div class="stat-icon"><i data-lucide="lightbulb" class="nav-icon"></i></div>
                         <div class="stat-info">
                             <span class="stat-value">23</span>
                             <span class="stat-label">Ideas Captured</span>
                         </div>
                     </div>
                     <div class="stat-card hover-glow">
-                        <div class="stat-icon">☑️</div>
+                        <div class="stat-icon"><i data-lucide="check-square" class="nav-icon"></i></div>
                         <div class="stat-info">
                             <span class="stat-value">89</span>
                             <span class="stat-label">Tasks Done</span>
@@ -219,30 +220,30 @@
                 <div class="dashboard-grid">
                     <div>
                         <div class="card" style="margin-bottom: 2rem;">
-                            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">⚡ Quick
+                            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="zap" class="nav-icon"></i> Quick
                                 Actions</h2>
                             <div class="quick-actions">
                                 <a class="action-tile" href="document.html">
-                                    <span class="action-icon">➕</span>
+                                    <span class="action-icon"><i data-lucide="plus" class="nav-icon"></i></span>
                                     New Note
                                 </a>
                                 <a class="action-tile" href="ideas.html">
-                                    <span class="action-icon">💡</span>
+                                    <span class="action-icon"><i data-lucide="lightbulb" class="nav-icon"></i></span>
                                     Capture Idea
                                 </a>
                                 <a class="action-tile" href="todos.html">
-                                    <span class="action-icon">☑️</span>
+                                    <span class="action-icon"><i data-lucide="check-square" class="nav-icon"></i></span>
                                     Add Task
                                 </a>
                                 <a class="action-tile" href="community.html">
-                                    <span class="action-icon">🌐</span>
+                                    <span class="action-icon"><i data-lucide="globe" class="nav-icon"></i></span>
                                     Explore
                                 </a>
                             </div>
                         </div>
 
                         <div class="card recent-docs">
-                            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">🕒
+                            <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="clock" class="nav-icon"></i>
                                 Recent Documents</h2>
                             <div id="recent-docs-container">
                                 <div style="color: var(--text-muted); padding: 1rem 0;">Loading...</div>
@@ -252,7 +253,7 @@
 
                     <div>
                         <div class="card streak-card">
-                            <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">📈 Your
+                            <h2 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="trending-up" class="nav-icon"></i> Your
                                 Progress</h2>
 
                             <div class="streak-grid">
@@ -283,7 +284,7 @@
                             </div>
 
                             <a href="document.html" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">
-                                ✨ Keep Writing!
+                                <i data-lucide="sparkles" class="nav-icon"></i> Keep Writing!
                             </a>
                         </div>
                     </div>
@@ -322,9 +323,9 @@
                 // Dynamic Greeting
                 const hour = new Date().getHours();
                 let greeting = 'Good evening';
-                let icon = '🌙';
-                if (hour < 12) { greeting = 'Good morning'; icon = '☀️'; }
-                else if (hour < 18) { greeting = 'Good afternoon'; icon = '🌤️'; }
+                let icon = '<i data-lucide="moon" class="nav-icon"></i>';
+                if (hour < 12) { greeting = 'Good morning'; icon = '<i data-lucide="sun" class="nav-icon"></i>'; }
+                else if (hour < 18) { greeting = 'Good afternoon'; icon = '<i data-lucide="cloud-sun" class="nav-icon"></i>'; }
 
                 document.getElementById('greeting-text').innerHTML = `${greeting}, ${user.name.split(' ')[0]}!`;
                 document.getElementById('greeting-icon').innerHTML = icon;
@@ -372,6 +373,9 @@
         }
 
         initDashboard();
+    </script>
+    <script>
+        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 
