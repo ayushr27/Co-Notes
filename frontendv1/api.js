@@ -87,6 +87,51 @@ function logout() {
     window.location.href = 'index.html';
 }
 
+function normalizeSidebarAccountSection() {
+    const accountHrefs = ['profile.html', 'notifications.html', 'settings.html', 'trash.html', 'admin.html'];
+    const navs = document.querySelectorAll('.sidebar-nav');
+
+    navs.forEach(nav => {
+        const accountLinks = accountHrefs
+            .map(href => nav.querySelector(`a[href="${href}"]`))
+            .filter(Boolean);
+
+        if (!accountLinks.length) return;
+
+        let accountSection = null;
+
+        accountLinks.forEach(link => {
+            const section = link.closest('.nav-section');
+            const title = section?.querySelector('.nav-section-title');
+            if (!accountSection && title && title.textContent.trim().toLowerCase().includes('account')) {
+                accountSection = section;
+            }
+        });
+
+        if (!accountSection) {
+            accountSection = accountLinks[0].closest('.nav-section');
+        }
+
+        if (!accountSection) return;
+
+        let accountTitle = accountSection.querySelector('.nav-section-title');
+        if (!accountTitle) {
+            accountTitle = document.createElement('div');
+            accountTitle.className = 'nav-section-title';
+            accountTitle.textContent = 'Account';
+            accountSection.insertBefore(accountTitle, accountSection.firstChild);
+        } else {
+            accountTitle.textContent = 'Account';
+        }
+
+        accountLinks.forEach(link => {
+            if (link.parentElement !== accountSection) {
+                accountSection.appendChild(link);
+            }
+        });
+    });
+}
+
 /**
  * checkAuth — Call at the top of every protected page.
  * Redirects to login.html if no token is stored.
@@ -97,6 +142,8 @@ function checkAuth() {
         window.location.href = 'login.html';
         return;
     }
+
+    normalizeSidebarAccountSection();
 
     // Inject Admin panel link if user is admin
     let user = getCurrentUser();
