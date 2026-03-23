@@ -110,6 +110,31 @@
             white-space: pre-wrap;
         }
 
+        .note-card.editing {
+            outline: 2px solid rgba(88, 166, 255, 0.35);
+        }
+
+        .note-edit-textarea {
+            width: 100%;
+            min-height: 110px;
+            background: rgba(0, 0, 0, 0.18);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-heading);
+            padding: 0.85rem;
+            resize: vertical;
+            font: inherit;
+            outline: none;
+            margin-bottom: 0.9rem;
+        }
+
+        .note-edit-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
         .section-label {
             font-size: 1.25rem;
             margin: 2rem 0 1rem;
@@ -155,13 +180,15 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="my-articles.html" class="nav-item"><i data-lucide="newspaper" class="nav-icon"></i> My Articles</a>
+<a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
                     <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
                     <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
                     <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                    <a href="trash.html" class="nav-item"><i data-lucide="trash-2" class="nav-icon"></i> Trash</a>
                 </div>
             </div>
         </aside>
@@ -209,6 +236,7 @@
         checkAuth();
 
         let notes = [];
+        let editingNoteId = null;
         const pinnedGrid = document.getElementById('pinnedGrid');
         const recentGrid = document.getElementById('recentGrid');
 
@@ -227,20 +255,36 @@
             recentGrid.innerHTML = '';
 
             notes.forEach(note => {
+                const noteId = note._id || note.id;
+                const isEditing = editingNoteId === noteId;
                 const div = document.createElement('div');
-                div.className = 'note-card';
+                div.className = `note-card ${isEditing ? 'editing' : ''}`;
                 div.style.setProperty('--note-color', note.color || '#1f2428');
 
-                div.innerHTML = `
-                    <div class="note-header">
-                        <span><i data-lucide="clock" class="nav-icon"></i> ${formatRelativeTime(note.createdAt)}</span>
-                        <div class="note-actions">
-                            <button class="icon-btn-round" onclick="togglePin('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;">${note.isPinned ? '📌' : '📍'}</button>
-                            <button class="icon-btn-round" onclick="deleteNote('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;"><i data-lucide="trash-2" class="nav-icon"></i></button>
+                if (isEditing) {
+                    div.innerHTML = `
+                        <div class="note-header">
+                            <span><i data-lucide="clock" class="nav-icon"></i> Editing note</span>
                         </div>
-                    </div>
-                    <div class="note-content">${note.content}</div>
-                `;
+                        <textarea class="note-edit-textarea" id="noteEditInput-${noteId}">${note.content || ''}</textarea>
+                        <div class="note-edit-actions">
+                            <button class="btn btn-secondary" onclick="cancelEditNote()">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveNoteEdit('${noteId}', this)">Save Changes</button>
+                        </div>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <div class="note-header">
+                            <span><i data-lucide="clock" class="nav-icon"></i> ${formatRelativeTime(note.createdAt)}</span>
+                            <div class="note-actions">
+                                <button class="icon-btn-round" onclick="startEditNote('${noteId}')" style="width:24px; height:24px; font-size:10px;" title="Edit note"><i data-lucide="pencil" class="nav-icon"></i></button>
+                                <button class="icon-btn-round" onclick="togglePin('${noteId}')" style="width:24px; height:24px; font-size:10px;">${note.isPinned ? '📌' : '📍'}</button>
+                                <button class="icon-btn-round" onclick="deleteNote('${noteId}')" style="width:24px; height:24px; font-size:10px;"><i data-lucide="trash-2" class="nav-icon"></i></button>
+                            </div>
+                        </div>
+                        <div class="note-content">${note.content}</div>
+                    `;
+                }
 
                 if (note.isPinned) {
                     pinnedGrid.appendChild(div);
@@ -255,6 +299,8 @@
 
             if (recentGrid.children.length === 0) recentGrid.previousElementSibling.style.display = 'none';
             else recentGrid.previousElementSibling.style.display = 'flex';
+
+            if(typeof lucide !== 'undefined') { lucide.createIcons(); }
         }
 
         async function fetchNotes() {
@@ -298,6 +344,44 @@
                 drawNotes();
             } catch (error) {
                 alert("Failed to delete note");
+            }
+        };
+
+        window.startEditNote = (id) => {
+            editingNoteId = id;
+            drawNotes();
+        };
+
+        window.cancelEditNote = () => {
+            editingNoteId = null;
+            drawNotes();
+        };
+
+        window.saveNoteEdit = async (id, button) => {
+            const input = document.getElementById(`noteEditInput-${id}`);
+            const content = input ? input.value.trim() : '';
+            if (!content) {
+                alert('Note content cannot be empty.');
+                return;
+            }
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Saving...';
+
+            try {
+                const updatedNote = await apiFetch(`/quick-notes/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ content })
+                });
+
+                notes = notes.map(note => ((note._id || note.id) === id ? { ...note, ...updatedNote } : note));
+                editingNoteId = null;
+                drawNotes();
+            } catch (error) {
+                alert('Failed to update note: ' + error.message);
+                button.disabled = false;
+                button.textContent = originalText;
             }
         };
 

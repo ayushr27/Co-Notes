@@ -14,7 +14,6 @@
             margin-bottom: 3rem;
             position: relative;
             padding-top: 100px;
-            /* Space for cover photo */
         }
 
         .cover-photo {
@@ -44,6 +43,7 @@
             font-size: 3rem;
             font-weight: bold;
             color: var(--text-heading);
+            overflow: hidden;
         }
 
         .profile-info {
@@ -52,6 +52,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            gap: 1rem;
         }
 
         .profile-name {
@@ -92,20 +93,60 @@
             color: var(--text-muted);
         }
 
-        /* Activity Grid (like GitHub) */
         .activity-section {
             margin-top: 3rem;
+            padding: 2.5rem;
+            background: linear-gradient(180deg, rgba(23, 23, 23, 0.8) 0%, rgba(13, 13, 13, 0.9) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--success-color), transparent);
+            opacity: 0.3;
+        }
+
+        .activity-wrapper {
+            display: flex;
+            gap: 15px;
+            margin-top: 1.5rem;
+        }
+
+        .day-labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding-top: 28px;
+            color: var(--text-muted);
+            font-size: 11px;
+            height: 125px;
+            font-weight: 500;
+        }
+
+        .activity-container {
+            flex: 1;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
         }
 
         .activity-grid {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            max-width: 800px;
-            padding: 1rem;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(53, 13px);
+            grid-template-rows: repeat(7, 13px);
+            grid-auto-flow: column;
+            gap: 5px;
+            width: max-content;
         }
 
         .activity-cell {
@@ -113,23 +154,76 @@
             height: 12px;
             border-radius: 2px;
             background-color: var(--border-color);
-            /* empty */
+            width: 13px;
+            height: 13px;
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
-        .activity-cell[data-level="1"] {
-            background-color: rgba(63, 185, 80, 0.4);
+        .activity-cell[data-level="1"] { background-color: #0e4429; }
+        .activity-cell[data-level="2"] { background-color: #006d32; }
+        .activity-cell[data-level="3"] { background-color: #26a641; }
+        .activity-cell[data-level="4"] { background-color: #39d353; box-shadow: 0 0 12px rgba(57, 211, 83, 0.4); }
+
+        .activity-cell:hover {
+            transform: scale(1.5);
+            z-index: 10;
+            box-shadow: 0 0 20px var(--success-color);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .activity-cell[data-level="2"] {
-            background-color: rgba(63, 185, 80, 0.6);
+        .month-labels {
+            display: grid;
+            grid-template-columns: repeat(53, 13px);
+            gap: 5px;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            font-size: 11px;
+            width: max-content;
+            font-weight: 500;
         }
 
-        .activity-cell[data-level="3"] {
-            background-color: rgba(63, 185, 80, 0.8);
+        .activity-footer {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 1.5rem;
         }
 
-        .activity-cell[data-level="4"] {
-            background-color: rgba(63, 185, 80, 1);
+        .activity-legend {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 760px) {
+            .profile-header,
+            .profile-info,
+            .profile-stats {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-stats {
+                gap: 1rem;
+            }
+            .activity-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -137,7 +231,6 @@
 
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
@@ -168,25 +261,26 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="my-articles.html" class="nav-item"><i data-lucide="newspaper" class="nav-icon"></i> My Articles</a>
+<a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
                     <a href="profile.html" class="nav-item active"><i data-lucide="user" class="nav-icon"></i> Profile</a>
                     <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
                     <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                    <a href="trash.html" class="nav-item"><i data-lucide="trash-2" class="nav-icon"></i> Trash</a>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <header class="header">
                 <div class="header-left">
                     <span>Profile View</span>
                 </div>
                 <div class="header-right">
-                    <a href="settings.html" class="btn btn-secondary">Edit Profile</a>
+                    <a href="settings.html" class="btn btn-secondary" id="profile-action-btn">Edit Profile</a>
                 </div>
             </header>
 
@@ -202,8 +296,8 @@
                         </div>
                         <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
                             <span style="color: var(--text-muted); font-size: 0.9rem;" id="user-location"></span>
-                            <button class="btn btn-primary" onclick="alert('Profile share link copied!')">Share
-                                Profile</button>
+                            <button class="btn btn-secondary" id="profile-follow-btn" style="display: none;">Follow</button>
+                            <button class="btn btn-primary" id="share-profile-btn">Share Profile</button>
                         </div>
                     </div>
                 </div>
@@ -224,20 +318,42 @@
                 </div>
 
                 <div class="activity-section">
-                    <h3 style="color: var(--text-heading); margin-bottom: 1rem;">Writing Activity</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">0 contributions in the last year</p>
-
-                    <div class="activity-grid" id="activityGrid">
-                        <!-- JS generated grid -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                        <div>
+                            <h3 style="color: var(--text-heading); margin-bottom: 0.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                                <i data-lucide="flame" style="width: 22px; color: #ff7b72;"></i> Contribution Streak
+                            </h3>
+                            <p id="activity-count" style="color: var(--text-muted); font-size: 0.95rem;">0 contributions in the last year</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span id="current-streak" style="display: block; font-size: 1.5rem; font-weight: 800; color: var(--text-heading);">0</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Day Streak</span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="articles-section" style="margin-top: 3rem;">
-                    <h3 style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                        <span><i data-lucide="pen-tool" class="nav-icon"></i></span> My Published Articles
-                    </h3>
-                    <div id="user-articles-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <p style="color: var(--text-muted);">Loading articles...</p>
+                    <div class="activity-wrapper">
+                        <div class="day-labels">
+                            <span>Mon</span>
+                            <span>Wed</span>
+                            <span>Fri</span>
+                        </div>
+                        <div class="activity-container">
+                            <div class="month-labels" id="monthLabels"></div>
+                            <div class="activity-grid" id="activityGrid"></div>
+                        </div>
+                    </div>
+
+                    <div class="activity-footer">
+                        <a href="#" style="color: var(--success-color); font-weight: 500;">Learn how we count contributions</a>
+                        <div class="activity-legend">
+                            <span>Less</span>
+                            <div class="legend-cell" style="background: rgba(255,255,255,0.05)"></div>
+                            <div class="legend-cell" style="background: #0e4429"></div>
+                            <div class="legend-cell" style="background: #006d32"></div>
+                            <div class="legend-cell" style="background: #26a641"></div>
+                            <div class="legend-cell" style="background: #39d353"></div>
+                            <span>More</span>
+                        </div>
                     </div>
                 </div>
 
@@ -249,103 +365,250 @@
     <script>
         checkAuth();
 
+        const profileParams = new URLSearchParams(window.location.search);
+        const requestedUsername = profileParams.get('username');
+        const statLabels = document.querySelectorAll('.stat-label');
+        let currentViewer = null;
+        let displayedUser = null;
+        let viewingOwnProfile = true;
+
+        function getUserId(user) {
+            return user?.id || user?._id || null;
+        }
+
+        function getUserUsername(user) {
+            return user?.username || '';
+        }
+
+        function renderProfileBasics(user) {
+            displayedUser = user;
+            document.getElementById('user-name').innerText = user.name || user.username || 'Unnamed user';
+
+            const coverEl = document.querySelector('.cover-photo');
+            const coverUrl = resolveApiAssetUrl(user.coverImage);
+            if (coverUrl) {
+                coverEl.style.backgroundImage = `url('${coverUrl}')`;
+                coverEl.style.borderStyle = 'solid';
+            } else {
+                coverEl.style.backgroundImage = '';
+                coverEl.style.borderStyle = 'dashed';
+            }
+
+            const avatarEl = document.querySelector('.profile-avatar');
+            if (user.avatar) {
+                avatarEl.innerHTML = `<img src="${resolveApiAssetUrl(user.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                avatarEl.innerText = (user.name || user.username || 'U').charAt(0).toUpperCase();
+            }
+
+            document.getElementById('user-bio').innerText = user.bio || "No bio added yet.";
+            document.getElementById('user-location').innerText = user.location ? `Location: ${user.location}` : "";
+        }
+
+        function renderOwnStats(stats) {
+            document.getElementById('stat-documents').innerText = stats.documents;
+            statLabels[0].innerText = 'Notes Written';
+            document.getElementById('stat-collections').innerText = stats.collections;
+            statLabels[1].innerText = 'Collections';
+            document.getElementById('stat-articles').innerText = stats.articles;
+            statLabels[2].innerText = 'Articles Published';
+        }
+
+        function renderOtherStats(user) {
+            document.getElementById('stat-documents').innerText = (user.followers || []).length;
+            statLabels[0].innerText = 'Followers';
+            document.getElementById('stat-collections').innerText = user._count?.collections || 0;
+            statLabels[1].innerText = 'Collections';
+            document.getElementById('stat-articles').innerText = user._count?.articles || 0;
+            statLabels[2].innerText = 'Articles Published';
+        }
+
+        function renderProfileControls() {
+            const actionBtn = document.getElementById('profile-action-btn');
+            const followBtn = document.getElementById('profile-follow-btn');
+
+            if (viewingOwnProfile) {
+                actionBtn.href = 'settings.html';
+                actionBtn.innerText = 'Edit Profile';
+                actionBtn.onclick = null;
+                followBtn.style.display = 'none';
+                followBtn.onclick = null;
+                return;
+            }
+
+            const displayedId = getUserId(displayedUser);
+            const following = currentViewer?.following || [];
+            const isFollowing = displayedId ? following.some(id => id?.toString() === displayedId.toString()) : false;
+
+            actionBtn.href = '#';
+            actionBtn.innerText = isFollowing ? 'Unfollow' : 'Follow';
+            followBtn.style.display = 'inline-flex';
+            followBtn.innerText = isFollowing ? 'Unfollow' : 'Follow';
+
+            const handleFollowToggle = async (event) => {
+                event.preventDefault();
+                if (!displayedId) return;
+
+                try {
+                    const result = await apiFetch(`/users/${displayedId}/follow`, { method: 'POST' });
+                    const list = Array.isArray(currentViewer?.following) ? [...currentViewer.following] : [];
+                    currentViewer.following = result.following
+                        ? (list.some(id => id?.toString() === displayedId.toString()) ? list : [...list, displayedId])
+                        : list.filter(id => id?.toString() !== displayedId.toString());
+                    renderProfileControls();
+                } catch (error) {
+                    alert(`Failed to update follow status: ${error.message}`);
+                }
+            };
+            actionBtn.onclick = handleFollowToggle;
+            followBtn.onclick = handleFollowToggle;
+        }
+
+        async function loadUserActivity() {
+            try {
+                const data = await apiFetch('/users/me/activity');
+                renderActivityGraph(data.activities, data.total);
+            } catch (err) {
+                console.error("Failed to load activity:", err);
+                renderActivityGraph({}, 0);
+            }
+        }
+
+        function renderActivityGraph(activities, total) {
+            const grid = document.getElementById('activityGrid');
+            const monthLabels = document.getElementById('monthLabels');
+            grid.innerHTML = '';
+            monthLabels.innerHTML = '';
+
+            const activityMap = activities && typeof activities === 'object' ? activities : {};
+            const fallbackTotal = Object.values(activityMap).reduce((sum, count) => sum + (Number(count) || 0), 0);
+            const safeTotal = Number.isFinite(Number(total)) ? Number(total) : fallbackTotal;
+
+            const formatDateKey = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            document.getElementById('activity-count').innerText = `${safeTotal} contribution${safeTotal === 1 ? '' : 's'} in the last year`;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(today.getFullYear() - 1);
+            oneYearAgo.setHours(0, 0, 0, 0);
+            
+            // Adjust to start on Sunday
+            const startDate = new Date(oneYearAgo);
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let currentMonth = -1;
+
+            const maxCells = 53 * 7;
+            let dayCount = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            if (dayCount > maxCells) {
+                const overflow = dayCount - maxCells;
+                startDate.setDate(startDate.getDate() + overflow);
+                dayCount = maxCells;
+            }
+
+            // Calculate streak
+            let streak = 0;
+            let checkDate = new Date(today);
+            
+            const todayKey = formatDateKey(today);
+            if (!activityMap[todayKey]) {
+                // If no activity today, check yesterday to see if streak is still alive
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+
+            while (checkDate >= oneYearAgo) {
+                const dKey = formatDateKey(checkDate);
+                if (activityMap[dKey]) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            document.getElementById('current-streak').innerText = streak;
+
+            for (let i = 0; i < dayCount; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(currentDate.getDate() + i);
+                const dKey = formatDateKey(currentDate);
+                const count = Number(activityMap[dKey] || 0);
+
+                // Month labels
+                if (currentDate.getDay() === 0) {
+                    const monthIdx = currentDate.getMonth();
+                    const label = document.createElement('div');
+                    label.style.gridColumn = `span 1`;
+                    if (monthIdx !== currentMonth) {
+                        label.innerText = months[monthIdx];
+                        currentMonth = monthIdx;
+                    }
+                    monthLabels.appendChild(label);
+                }
+
+                const cell = document.createElement('div');
+                cell.className = 'activity-cell';
+                
+                let level = 0;
+                if (count > 0) level = 1;
+                if (count >= 3) level = 2;
+                if (count >= 6) level = 3;
+                if (count >= 10) level = 4;
+
+                cell.setAttribute('data-level', level);
+                cell.title = `${count} contribution${count === 1 ? '' : 's'} on ${currentDate.toDateString()}`;
+                grid.appendChild(cell);
+            }
+            if(typeof lucide !== 'undefined') { lucide.createIcons(); }
+        }
+
+        document.getElementById('share-profile-btn').addEventListener('click', async () => {
+            const username = getUserUsername(displayedUser || currentViewer);
+            const suffix = username ? `?username=${encodeURIComponent(username)}` : '';
+            const link = new URL(`profile.html${suffix}`, window.location.href).href;
+            try {
+                await navigator.clipboard.writeText(link);
+                alert('Profile share link copied!');
+            } catch {
+                alert(link);
+            }
+        });
+
         async function initProfile() {
             try {
-                const user = await apiFetch('/users/me');
-                document.getElementById('user-name').innerText = user.name;
+                currentViewer = await apiFetch('/users/me');
+                viewingOwnProfile = !requestedUsername || requestedUsername === getUserUsername(currentViewer);
 
-                const coverEl = document.querySelector('.cover-photo');
-                const coverUrl = resolveApiAssetUrl(user.coverImage);
-                if (coverUrl) {
-                    coverEl.style.backgroundImage = `url('${coverUrl}')`;
-                    coverEl.style.borderStyle = 'solid';
-                }
-
-                // Avatar Letter
-                const avatarEl = document.querySelector('.profile-avatar');
-                if (user.avatar) {
-                    avatarEl.innerHTML = `<img src="${resolveApiAssetUrl(user.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                if (viewingOwnProfile) {
+                    renderProfileBasics(currentViewer);
+                    renderOwnStats(await apiFetch('/users/me/stats'));
+                    await loadUserActivity();
                 } else {
-                    avatarEl.innerText = user.name.charAt(0).toUpperCase();
+                    const user = await apiFetch(`/users/${requestedUsername}`);
+                    renderProfileBasics(user);
+                    renderOtherStats(user);
+                    renderActivityGraph({}, 0);
                 }
 
-                document.getElementById('user-bio').innerText = user.bio || "No bio added yet.";
-                document.getElementById('user-location').innerText = user.location ? `📍 ${user.location}` : "";
-
-                const stats = await apiFetch('/users/me/stats');
-                document.getElementById('stat-documents').innerText = stats.documents;
-                document.getElementById('stat-collections').innerText = stats.collections;
-                document.getElementById('stat-articles').innerText = stats.articles;
-
-                loadUserArticles();
+                renderProfileControls();
+                if (typeof lucide !== 'undefined') { lucide.createIcons(); }
             } catch (error) {
                 console.error("Profile error:", error);
             }
         }
 
-        async function loadUserArticles() {
-            try {
-                const response = await apiFetch('/articles/my');
-                const articles = response.published || [];
-                const container = document.getElementById('user-articles-list');
-                container.innerHTML = '';
-
-                if (articles.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-muted);">You haven\'t published any articles yet.</p>';
-                    return;
-                }
-
-                articles.forEach(article => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.style.cursor = 'pointer';
-                    card.style.transition = 'all 0.2s';
-                    card.onclick = () => { window.location.href = `article-detail.html?id=${article._id}`; };
-                    
-                    card.onmouseover = () => { card.style.borderColor = 'var(--primary-color)'; };
-                    card.onmouseout = () => { card.style.borderColor = 'var(--border-color)'; };
-
-                    card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div>
-                                <h4 style="color: var(--text-heading); margin-bottom: 0.5rem; font-size: 1.1rem;">${article.title}</h4>
-                                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">${article.subtitle || 'No subtitle'}</p>
-                                <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem;">
-                                    <span>❤️ ${article.likes || 0}</span>
-                                    <span><i data-lucide="message-square" class="nav-icon"></i> ${article.comments || 0}</span>
-                                    <span><i data-lucide="calendar" class="nav-icon"></i> ${new Date(article.publishedAt || article.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                            <span class="badge" style="background: rgba(88, 166, 255, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">${article.category || 'General'}</span>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            } catch (error) {
-                console.error("Failed to load user articles:", error);
-                document.getElementById('user-articles-list').innerHTML = '<p style="color: var(--danger-color);">Error loading articles.</p>';
-            }
-        }
-
         initProfile();
-
-        // Generate a random GitHub-style contribution graph
-        const grid = document.getElementById('activityGrid');
-        // Let's make roughly 52 weeks * 7 days = 364 boxes
-        for (let i = 0; i < 364; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'activity-cell';
-
-            // Set activity level to 0
-            let level = 0;
-
-            cell.setAttribute('data-level', level);
-            cell.title = `${level} contributions on this day`;
-            grid.appendChild(cell);
-        }
     </script>
     <script>
-        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

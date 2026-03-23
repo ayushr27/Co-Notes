@@ -1,4 +1,51 @@
 import Article from "../models/Article.js";
+import User from "../models/User.js";
+import mongoose from "mongoose";
+import { moveToTrash } from "../utils/trashService.js";
+import { createNotification } from "../services/notificationService.js";
+
+function isValidObjectId(id) {
+    return mongoose.Types.ObjectId.isValid(id);
+}
+
+// Helper to extract and notify mentioned users
+async function processMentions(req, article) {
+    if (!article.content) return;
+    
+    const regex = /(^|[\s>])@([a-zA-Z0-9_]+)\b/g;
+    const matches = [...article.content.matchAll(regex)];
+    const usernames = [...new Set(matches.map(m => m[2]))];
+    
+    if (usernames.length === 0) return;
+
+    const mentionedUsers = await User.find({ username: { $in: usernames } });
+    const author = await User.findById(req.userId);
+    const authorName = author?.name || author?.username || "Someone";
+
+    let newMentionsAdded = false;
+
+    for (const user of mentionedUsers) {
+        if (user._id.toString() === req.userId) continue;
+        
+        if (article.mentionedUsers && article.mentionedUsers.includes(user._id)) continue;
+        
+        await createNotification(
+            req,
+            user._id,
+            `${authorName} mentioned you in an article: "${article.title}"`,
+            "mention",
+            `/article-detail.html?id=${article._id}`
+        );
+
+        if (!article.mentionedUsers) article.mentionedUsers = [];
+        article.mentionedUsers.push(user._id);
+        newMentionsAdded = true;
+    }
+
+    if (newMentionsAdded) {
+        await article.save();
+    }
+}
 
 // GET /api/articles/feed
 export async function getFeed(req, res) {
@@ -78,6 +125,10 @@ export async function getMyArticles(req, res) {
 // GET /api/articles/:id
 export async function getArticle(req, res) {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: "Invalid article ID" });
+        }
+
         const article = await Article.findById(req.params.id)
             .populate('userId', 'id name username avatar bio');
 
@@ -133,6 +184,14 @@ export async function createArticle(req, res) {
             userId: req.userId
         });
 
+        await createNotification(
+            req,
+            req.userId,
+            `Your article "${article.title}" was created as a draft.`,
+            "article_created",
+            `/article-detail.html?id=${article._id}`
+        );
+
         return res.status(201).json(article);
     } catch (error) {
         console.error("createArticle error:", error.message);
@@ -171,6 +230,12 @@ export async function updateArticle(req, res) {
         if (seriesName !== undefined) article.seriesName = seriesName;
 
         await article.save();
+        
+        // Notify newly mentioned users if article is published
+        if (article.published) {
+            await processMentions(req, article);
+        }
+
         return res.json(article);
     } catch (error) {
         console.error("updateArticle error:", error.message);
@@ -183,6 +248,14 @@ export async function deleteArticle(req, res) {
     try {
         const article = await Article.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!article) return res.status(404).json({ message: "Article not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "article",
+            item: article,
+            displayName: article.title,
+            icon: "📰"
+        });
 
         return res.json({ message: "Article deleted" });
     } catch (error) {
@@ -203,6 +276,19 @@ export async function togglePublish(req, res) {
         }
 
         await article.save();
+
+        if (article.published) {
+            await createNotification(
+                req,
+                req.userId,
+                `Your article "${article.title}" has been published successfully!`,
+                "article_published",
+                `/article-detail.html?id=${article._id}`
+            );
+            
+            await processMentions(req, article);
+        }
+
         return res.json({ published: article.published, publishedAt: article.publishedAt });
     } catch (error) {
         console.error("togglePublish error:", error.message);
@@ -235,6 +321,10 @@ export async function toggleLike(req, res) {
 // GET /api/articles/:id/comments
 export async function getComments(req, res) {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: "Invalid article ID" });
+        }
+
         const article = await Article.findById(req.params.id)
             .populate('comments.user', 'id name username avatar');
 
@@ -253,6 +343,9 @@ export async function addComment(req, res) {
     try {
         const { content } = req.body;
         if (!content?.trim()) return res.status(400).json({ message: "Comment content is required" });
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: "Invalid article ID" });
+        }
 
         const article = await Article.findById(req.params.id);
         if (!article) return res.status(404).json({ message: "Article not found" });

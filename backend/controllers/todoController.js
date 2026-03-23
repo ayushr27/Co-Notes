@@ -1,4 +1,6 @@
 import Todo from "../models/Todo.js";
+import { moveToTrash } from "../utils/trashService.js";
+import { createNotification } from "../services/notificationService.js";
 
 // GET /api/todos
 export async function getTodos(req, res) {
@@ -42,6 +44,14 @@ export async function createTodo(req, res) {
             userId: req.userId
         });
 
+        await createNotification(
+            req,
+            req.userId,
+            `Task added: "${todo.text}"`,
+            "todo_created",
+            "/todos.html"
+        );
+
         return res.status(201).json(todo);
     } catch (error) {
         console.error("createTodo error:", error.message);
@@ -81,6 +91,14 @@ export async function deleteTodo(req, res) {
         const todo = await Todo.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!todo) return res.status(404).json({ message: "Todo not found" });
 
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "todo",
+            item: todo,
+            displayName: todo.text,
+            icon: "✅"
+        });
+
         return res.json({ message: "Todo deleted" });
     } catch (error) {
         console.error("deleteTodo error:", error.message);
@@ -96,6 +114,16 @@ export async function toggleComplete(req, res) {
 
         todo.completed = !todo.completed;
         await todo.save();
+
+        if (todo.completed) {
+            await createNotification(
+                req,
+                req.userId,
+                `Task completed! "${todo.text}"`,
+                "todo_completed",
+                "/todos.html"
+            );
+        }
 
         return res.json({ completed: todo.completed });
     } catch (error) {
@@ -123,6 +151,15 @@ export async function toggleStar(req, res) {
 // DELETE /api/todos/completed
 export async function clearCompleted(req, res) {
     try {
+        const completedTodos = await Todo.find({ userId: req.userId, completed: true });
+        await Promise.all(completedTodos.map(todo => moveToTrash({
+            userId: req.userId,
+            itemType: "todo",
+            item: todo,
+            displayName: todo.text,
+            icon: "✅"
+        })));
+
         const result = await Todo.deleteMany({ userId: req.userId, completed: true });
         return res.json({ message: `${result.deletedCount} completed todos cleared` });
     } catch (error) {

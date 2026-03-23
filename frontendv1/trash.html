@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trash - Co-Notes</title>
+    <link rel="stylesheet" href="global.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .trash-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .trash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .trash-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .trash-card h3 {
+            color: var(--text-heading);
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .trash-meta {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .trash-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
+                </a>
+            </div>
+
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Home</div>
+                    <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+                    <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Links</div>
+                    <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
+                    <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
+                    <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Community</div>
+                    <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
+                    <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="my-articles.html" class="nav-item"><i data-lucide="newspaper" class="nav-icon"></i> My Articles</a>
+                    <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
+</div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
+                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
+                    <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                    <a href="trash.html" class="nav-item active"><i data-lucide="trash-2" class="nav-icon"></i> Trash</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div class="header-left"><span>Trash</span></div>
+                <div class="header-right">
+                    <button class="btn btn-danger" id="clear-trash-btn"><i data-lucide="trash"></i> Empty Trash</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="page-title">
+                    <span style="font-size: 2.2rem;"><i data-lucide="trash-2" class="nav-icon"></i></span>
+                    <h1>Trash</h1>
+                </div>
+                <p class="page-subtitle">Restore deleted items or remove them permanently.</p>
+
+                <div id="trash-list" class="trash-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        checkAuth();
+
+        function formatWhen(iso) {
+            const d = new Date(iso);
+            return d.toLocaleString();
+        }
+
+        async function loadTrash() {
+            const container = document.getElementById('trash-list');
+            container.innerHTML = '<p class="text-muted">Loading...</p>';
+
+            try {
+                const items = await apiFetch('/trash');
+                if (!Array.isArray(items) || items.length === 0) {
+                    container.innerHTML = '<div class="empty-state">Trash is empty.</div>';
+                    return;
+                }
+
+                container.innerHTML = items.map(item => `
+                    <div class="trash-card">
+                        <h3>${item.icon || '🗑️'} ${item.displayName || 'Untitled'}</h3>
+                        <div class="trash-meta">${item.itemType} • Deleted ${formatWhen(item.deletedAt)}</div>
+                        <div class="trash-actions">
+                            <button class="btn btn-primary" onclick="restoreItem('${item.id}')">Restore</button>
+                            <button class="btn btn-secondary" onclick="deleteForever('${item.id}')">Delete Permanently</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `<p style="color: var(--danger-color)">${error.message}</p>`;
+            }
+        }
+
+        async function restoreItem(id) {
+            try {
+                await apiFetch(`/trash/${id}/restore`, { method: 'POST' });
+                loadTrash();
+            } catch (error) {
+                alert('Restore failed: ' + error.message);
+            }
+        }
+
+        async function deleteForever(id) {
+            if (!confirm('Delete permanently?')) return;
+            try {
+                await apiFetch(`/trash/${id}`, { method: 'DELETE' });
+                loadTrash();
+            } catch (error) {
+                alert('Delete failed: ' + error.message);
+            }
+        }
+
+        document.getElementById('clear-trash-btn').addEventListener('click', async () => {
+            if (!confirm('Empty trash permanently?')) return;
+            try {
+                await apiFetch('/trash', { method: 'DELETE' });
+                loadTrash();
+            } catch (error) {
+                alert('Failed to clear trash: ' + error.message);
+            }
+        });
+
+        loadTrash();
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+    </script>
+</body>
+
+</html>

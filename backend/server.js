@@ -5,6 +5,8 @@ import connectDB from "./db.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { uploadImageToCloudinary } from "./cloudinary.js";
+import http from "http";
+import { Server } from "socket.io";
 
 // Route imports
 import authRoutes from "./routes/authRoutes.js";
@@ -15,9 +17,12 @@ import ideaRoutes from "./routes/ideaRoutes.js";
 import todoRoutes from "./routes/todoRoutes.js";
 import quickNoteRoutes from "./routes/quickNoteRoutes.js";
 import articleRoutes from "./routes/articleRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
+import trashRoutes from "./routes/trashRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Middleware imports
 import { authenticateToken } from "./middleware/auth.js";
@@ -26,6 +31,26 @@ import { authenticateToken } from "./middleware/auth.js";
 connectDB();
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE"]
+    }
+});
+app.set("io", io);
+
+io.on("connection", (socket) => {
+    console.log("User connected via socket:", socket.id);
+    socket.on("join", (userId) => {
+        socket.join(userId);
+        console.log(`User socket joined room: ${userId}`);
+    });
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -59,9 +84,12 @@ app.use("/api/ideas", ideaRoutes);
 app.use("/api/todos", todoRoutes);
 app.use("/api/quick-notes", quickNoteRoutes);
 app.use("/api/articles", articleRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/trash", trashRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -80,6 +108,6 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message: err.message || "Internal server error" });
 });
 
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log("Server running on http://localhost:3000");
 });

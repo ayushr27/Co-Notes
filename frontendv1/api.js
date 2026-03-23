@@ -1,6 +1,3 @@
-// frontendv1/api.js
-// Shared utility for making authenticated API requests to the backend
-
 const API_BASE_URL = 'http://localhost:3000/api';
 
 function getApiOrigin() {
@@ -90,6 +87,51 @@ function logout() {
     window.location.href = 'index.html';
 }
 
+function normalizeSidebarAccountSection() {
+    const accountHrefs = ['profile.html', 'notifications.html', 'settings.html', 'trash.html', 'admin.html'];
+    const navs = document.querySelectorAll('.sidebar-nav');
+
+    navs.forEach(nav => {
+        const accountLinks = accountHrefs
+            .map(href => nav.querySelector(`a[href="${href}"]`))
+            .filter(Boolean);
+
+        if (!accountLinks.length) return;
+
+        let accountSection = null;
+
+        accountLinks.forEach(link => {
+            const section = link.closest('.nav-section');
+            const title = section?.querySelector('.nav-section-title');
+            if (!accountSection && title && title.textContent.trim().toLowerCase().includes('account')) {
+                accountSection = section;
+            }
+        });
+
+        if (!accountSection) {
+            accountSection = accountLinks[0].closest('.nav-section');
+        }
+
+        if (!accountSection) return;
+
+        let accountTitle = accountSection.querySelector('.nav-section-title');
+        if (!accountTitle) {
+            accountTitle = document.createElement('div');
+            accountTitle.className = 'nav-section-title';
+            accountTitle.textContent = 'Account';
+            accountSection.insertBefore(accountTitle, accountSection.firstChild);
+        } else {
+            accountTitle.textContent = 'Account';
+        }
+
+        accountLinks.forEach(link => {
+            if (link.parentElement !== accountSection) {
+                accountSection.appendChild(link);
+            }
+        });
+    });
+}
+
 /**
  * checkAuth — Call at the top of every protected page.
  * Redirects to login.html if no token is stored.
@@ -98,6 +140,49 @@ function checkAuth() {
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = 'login.html';
+        return;
+    }
+
+    normalizeSidebarAccountSection();
+
+    // Inject Admin panel link if user is admin
+    let user = getCurrentUser();
+    
+    // If we have a token but no role in cached user, sync from server to fix stale sessions
+    if (token && user && !user.role) {
+        apiFetch('/auth/me').then(data => {
+            const syncedUser = data.user || data;
+            if (syncedUser.role) {
+                localStorage.setItem('user', JSON.stringify(syncedUser));
+                // Reload or re-run injection if needed
+                window.location.reload(); 
+            }
+        }).catch(() => {});
+    }
+
+    if (user && user.role === 'admin') {
+        const navs = document.querySelectorAll('.sidebar-nav');
+        navs.forEach(nav => {
+            if (!nav.querySelector('a[href="admin.html"]')) {
+                const accountSections = Array.from(nav.querySelectorAll('.nav-section-title'));
+                const accountSec = accountSections.find(s => s.textContent.trim().toLowerCase().includes('account'));
+                
+                if (accountSec && accountSec.parentElement) {
+                    const adminLink = document.createElement('a');
+                    adminLink.href = 'admin.html';
+                    adminLink.className = 'nav-item admin-link-special';
+                    adminLink.style.color = '#a371f7';
+                    adminLink.style.fontWeight = 'bold';
+                    adminLink.innerHTML = `<i data-lucide="shield-check" class="nav-icon" style="color: #a371f7"></i> Admin Command`;
+                    
+                    accountSec.parentElement.appendChild(adminLink);
+                    
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            }
+        });
     }
 }
 

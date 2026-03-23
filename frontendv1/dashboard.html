@@ -167,13 +167,15 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="my-articles.html" class="nav-item"><i data-lucide="newspaper" class="nav-icon"></i> My Articles</a>
+<a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
                     <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
                     <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
                     <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                    <a href="trash.html" class="nav-item"><i data-lucide="trash-2" class="nav-icon"></i> Trash</a>
                 </div>
             </div>
         </aside>
@@ -187,6 +189,21 @@
                 </div>
                 <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
                     <a href="search.html" style="color: var(--text-color);"><i data-lucide="search" class="nav-icon"></i> Search</a>
+                    <div style="position: relative;" id="notification-container">
+                        <button class="btn" id="notif-bell-btn" style="background: transparent; border: none; padding: 0.5rem; cursor: pointer; color: var(--text-color); position: relative;">
+                            <i data-lucide="bell" class="nav-icon"></i>
+                            <span id="notif-badge" style="display: none; position: absolute; top: 6px; right: 8px; background: #e02424; width: 8px; height: 8px; border-radius: 50%;"></span>
+                        </button>
+                        <div id="notif-dropdown" style="display: none; position: absolute; right: 0; top: 100%; width: 320px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100; max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+                            <div style="padding: 1rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(10px);">
+                                <strong>Notifications</strong>
+                                <a href="notifications.html" style="font-size: 0.8rem; color: var(--primary-color); text-decoration: none;">View All</a>
+                            </div>
+                            <div id="notif-dropdown-list">
+                                <div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
                     <a href="document.html" class="btn btn-primary"><i data-lucide="plus" class="nav-icon"></i> New Page</a>
                 </div>
             </header>
@@ -299,6 +316,7 @@
     </div>
 
     <script src="api.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
         checkAuth();
 
@@ -377,7 +395,93 @@
             }
         }
 
+        async function initNotifications() {
+            try {
+                const user = getCurrentUser();
+                if (!user) return; // not logged in
+
+                // 1. Fetch initial notifications
+                const notifsData = await apiFetch('/notifications?limit=5');
+                updateNotificationDropdown(notifsData.notifications);
+                updateNotificationBadge(notifsData.unreadCount);
+
+                // 2. Connect to Socket.io
+                const socket = io(getApiOrigin());
+                socket.on("connect", () => {
+                    socket.emit("join", user.id);
+                });
+
+                socket.on("new_notification", (notification) => {
+                    // Update dropdown and badge
+                    fetchLatestNotifications();
+                    // Optionally show a toast here
+                });
+
+                // Dropdown logic
+                const bellBtn = document.getElementById('notif-bell-btn');
+                const dropdown = document.getElementById('notif-dropdown');
+                
+                bellBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                    if (dropdown.style.display === 'block') {
+                        // Mark as read when opened? Optional.
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!document.getElementById('notification-container').contains(e.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+            } catch (err) {
+                console.error("Notification initialization error:", err);
+            }
+        }
+
+        async function fetchLatestNotifications() {
+            try {
+                const notifsData = await apiFetch('/notifications?limit=5');
+                updateNotificationDropdown(notifsData.notifications);
+                updateNotificationBadge(notifsData.unreadCount);
+            } catch (err) {
+                console.error("Failed to fetch latest notifications:", err);
+            }
+        }
+
+        function updateNotificationBadge(unreadCount) {
+            const badge = document.getElementById('notif-badge');
+            if (unreadCount > 0) {
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateNotificationDropdown(notifications) {
+            const list = document.getElementById('notif-dropdown-list');
+            if (!notifications || notifications.length === 0) {
+                list.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No new notifications</div>';
+                return;
+            }
+
+            list.innerHTML = notifications.map(n => `
+                <a href="${n.link || '#'}" style="text-decoration: none; color: inherit; display: block; padding: 1rem; border-bottom: 1px solid var(--border-color); background: ${n.isRead ? 'transparent' : 'rgba(88, 166, 255, 0.05)'};">
+                    <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">${escHtml(n.message)}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">${new Date(n.createdAt).toLocaleString()}</div>
+                </a>
+            `).join('');
+        }
+
+        function escHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str || '';
+            return d.innerHTML;
+        }
+
         initDashboard();
+        initNotifications();
     </script>
     <script>
         if(typeof lucide !== 'undefined') { lucide.createIcons(); }

@@ -1,4 +1,5 @@
 import Collection from "../models/Collection.js";
+import { moveToTrash } from "../utils/trashService.js";
 
 // GET /api/collections
 export async function getCollections(req, res) {
@@ -105,6 +106,14 @@ export async function deleteCollection(req, res) {
     try {
         const collection = await Collection.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!collection) return res.status(404).json({ message: "Collection not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "collection",
+            item: collection,
+            displayName: collection.name,
+            icon: collection.icon || "📁"
+        });
 
         return res.json({ message: "Collection deleted" });
     } catch (error) {

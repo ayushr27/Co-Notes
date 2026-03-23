@@ -1,5 +1,7 @@
 import Document from "../models/Document.js";
 import Collection from "../models/Collection.js";
+import { moveToTrash } from "../utils/trashService.js";
+import { createNotification } from "../services/notificationService.js";
 
 // GET /api/documents
 export async function getDocuments(req, res) {
@@ -72,6 +74,15 @@ export async function createDocument(req, res) {
             isArchived: isArchived || false,
             userId: req.userId
         });
+
+        await createNotification(
+            req,
+            req.userId,
+            `New document "${doc.title}" created.`,
+            "document_created",
+            `/document.html?id=${doc._id}`
+        );
+
         return res.status(201).json(doc);
     } catch (error) {
         console.error("createDocument error:", error.message);
@@ -116,6 +127,14 @@ export async function deleteDocument(req, res) {
     try {
         const doc = await Document.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!doc) return res.status(404).json({ message: "Document not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "document",
+            item: doc,
+            displayName: doc.title,
+            icon: doc.icon || "📄"
+        });
 
         return res.json({ message: "Document deleted" });
     } catch (error) {
