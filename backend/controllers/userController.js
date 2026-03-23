@@ -6,6 +6,37 @@ import Article from "../models/Article.js";
 import QuickNote from "../models/QuickNote.js";
 import Collection from "../models/Collection.js";
 
+function formatDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+function calculateCurrentStreak(activityMap, earliestDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const earliest = new Date(earliestDate);
+    earliest.setHours(0, 0, 0, 0);
+
+    let streak = 0;
+    const checkDate = new Date(today);
+
+    if (!activityMap[formatDateKey(checkDate)]) {
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    while (checkDate >= earliest) {
+        const key = formatDateKey(checkDate);
+        if (!activityMap[key]) break;
+        streak += 1;
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    return streak;
+}
+
 // GET /api/users/me
 export async function getMe(req, res) {
     try {
@@ -70,6 +101,12 @@ export async function getProfile(req, res) {
 // GET /api/users/me/stats
 export async function getDashboardStats(req, res) {
     try {
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const oneYearAgo = new Date(now);
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        oneYearAgo.setHours(0, 0, 0, 0);
+
         const [
             documentCount,
             ideaCount,
@@ -77,7 +114,15 @@ export async function getDashboardStats(req, res) {
             pendingTodos,
             articleCount,
             quickNoteCount,
-            collectionCount
+            collectionCount,
+            monthDocumentCount,
+            monthCollectionCount,
+            monthArticleCount,
+            docsActivity,
+            ideasActivity,
+            todosActivity,
+            articlesActivity,
+            quickNotesActivity
         ] = await Promise.all([
             Document.countDocuments({ userId: req.userId }),
             Idea.countDocuments({ userId: req.userId }),
@@ -85,8 +130,25 @@ export async function getDashboardStats(req, res) {
             Todo.countDocuments({ userId: req.userId, completed: false }),
             Article.countDocuments({ userId: req.userId, published: true }),
             QuickNote.countDocuments({ userId: req.userId }),
-            Collection.countDocuments({ userId: req.userId })
+            Collection.countDocuments({ userId: req.userId }),
+            Document.countDocuments({ userId: req.userId, createdAt: { $gte: monthStart } }),
+            Collection.countDocuments({ userId: req.userId, createdAt: { $gte: monthStart } }),
+            Article.countDocuments({ userId: req.userId, published: true, createdAt: { $gte: monthStart } }),
+            Document.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            Idea.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            Todo.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            Article.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            QuickNote.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt")
         ]);
+
+        const activityMap = {};
+        [...docsActivity, ...ideasActivity, ...todosActivity, ...articlesActivity, ...quickNotesActivity].forEach(item => {
+            const key = formatDateKey(new Date(item.createdAt));
+            activityMap[key] = (activityMap[key] || 0) + 1;
+        });
+
+        const activeDays = Object.keys(activityMap).length;
+        const currentStreak = calculateCurrentStreak(activityMap, oneYearAgo);
 
         return res.json({
             documents: documentCount,
@@ -95,7 +157,12 @@ export async function getDashboardStats(req, res) {
             todosPending: pendingTodos,
             articles: articleCount,
             quickNotes: quickNoteCount,
-            collections: collectionCount
+            collections: collectionCount,
+            monthlyDocuments: monthDocumentCount,
+            monthlyCollections: monthCollectionCount,
+            monthlyArticles: monthArticleCount,
+            currentStreak,
+            activeDays
         });
     } catch (error) {
         console.error("getDashboardStats error:", error.message);
