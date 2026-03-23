@@ -162,34 +162,17 @@
             cursor: pointer;
         }
 
-        .activity-cell[data-level="1"] { background-color: rgba(63, 185, 80, 0.4); }
-        .activity-cell[data-level="2"] { background-color: rgba(63, 185, 80, 0.6); }
-        .activity-cell[data-level="3"] { background-color: rgba(63, 185, 80, 0.8); }
-        .activity-cell[data-level="4"] { background-color: rgba(63, 185, 80, 1); }
+        .activity-cell[data-level="1"] { background-color: #0e4429; }
+        .activity-cell[data-level="2"] { background-color: #006d32; }
+        .activity-cell[data-level="3"] { background-color: #26a641; }
+        .activity-cell[data-level="4"] { background-color: #39d353; box-shadow: 0 0 12px rgba(57, 211, 83, 0.4); }
 
-        @media (max-width: 760px) {
-            .profile-header,
-            .profile-info,
-            .profile-stats {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .profile-stats {
-                gap: 1rem;
-            }
         .activity-cell:hover {
             transform: scale(1.5);
             z-index: 10;
             box-shadow: 0 0 20px var(--success-color);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-
-        /* Color Levels - High Contrast Vibrant Greens */
-        .activity-cell[data-level="1"] { background-color: #0e4429; }
-        .activity-cell[data-level="2"] { background-color: #006d32; }
-        .activity-cell[data-level="3"] { background-color: #26a641; }
-        .activity-cell[data-level="4"] { background-color: #39d353; box-shadow: 0 0 12px rgba(57, 211, 83, 0.4); }
 
         .month-labels {
             display: grid;
@@ -223,6 +206,24 @@
             width: 12px;
             height: 12px;
             border-radius: 2px;
+        }
+
+        @media (max-width: 760px) {
+            .profile-header,
+            .profile-info,
+            .profile-stats {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-stats {
+                gap: 1rem;
+            }
+            .activity-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -316,10 +317,6 @@
                 </div>
 
                 <div class="activity-section">
-                    <h3 style="color: var(--text-heading); margin-bottom: 1rem;">Writing Activity</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1rem;">0 contributions in the last year</p>
-
-                    <div class="activity-grid" id="activityGrid"></div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
                         <div>
                             <h3 style="color: var(--text-heading); margin-bottom: 0.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
@@ -501,22 +498,6 @@
             });
         }
 
-        function renderArticleCards(items, containerId, options = {}) {
-            const { emptyMessage, isDraft = false } = options;
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-                const stats = await apiFetch('/users/me/stats');
-                document.getElementById('stat-documents').innerText = stats.documents;
-                document.getElementById('stat-collections').innerText = stats.collections;
-                document.getElementById('stat-articles').innerText = stats.articles;
-
-                loadUserArticles();
-                loadUserActivity();
-            } catch (error) {
-                console.error("Profile error:", error);
-            }
-        }
-
         async function loadUserActivity() {
             try {
                 const data = await apiFetch('/users/me/activity');
@@ -612,13 +593,10 @@
             if(typeof lucide !== 'undefined') { lucide.createIcons(); }
         }
 
-        async function loadUserArticles() {
-/* (rest stays the same) */
-            try {
-                const response = await apiFetch('/articles/my');
-                const articles = response.published || [];
-                const container = document.getElementById('user-articles-list');
-                container.innerHTML = '';
+        function renderArticleCards(items, containerId, options = {}) {
+            const { emptyMessage, isDraft = false } = options;
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
 
             if (!items.length) {
                 container.innerHTML = `<p style="color: var(--text-muted);">${emptyMessage}</p>`;
@@ -709,11 +687,13 @@
                 if (viewingOwnProfile) {
                     renderProfileBasics(currentViewer);
                     renderOwnStats(await apiFetch('/users/me/stats'));
+                    await loadUserActivity();
                     await loadUserArticles();
                 } else {
                     const user = await apiFetch(`/users/${requestedUsername}`);
                     renderProfileBasics(user);
                     renderOtherStats(user);
+                    renderActivityGraph({}, 0);
                     await loadUserArticles(requestedUsername);
                 }
 
@@ -725,16 +705,6 @@
             }
         }
 
-        initProfile();
-
-        const grid = document.getElementById('activityGrid');
-        for (let i = 0; i < 364; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'activity-cell';
-            cell.setAttribute('data-level', 0);
-            cell.title = '0 contributions on this day';
-            grid.appendChild(cell);
-        }
         initProfile();
     </script>
     <script>
