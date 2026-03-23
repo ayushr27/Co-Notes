@@ -25,8 +25,7 @@ export async function getFeed(req, res) {
                 .sort({ publishedAt: -1 })
                 .skip(skip)
                 .limit(parseInt(limit))
-                .populate('userId', 'id name username avatar')
-                .select('-content'), // don't send full content for feed
+                .populate('userId', 'id name username avatar'),
             Article.countDocuments(query)
         ]);
 

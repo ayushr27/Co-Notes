@@ -361,8 +361,8 @@
                 const authorName = article.author ? (article.author.name || article.author.username || 'Anonymous') : 'Anonymous';
                 const initial = authorName.charAt(0).toUpperCase();
                 const timeStr = formatRelativeTime(article.createdAt);
-                const likeCount = (article.likes || []).length;
-                const commentCount = (article.comments || []).length;
+                const likeCount = typeof article.likes === 'number' ? article.likes : (article.likes || []).length;
+                const commentCount = typeof article.comments === 'number' ? article.comments : (article.comments || []).length;
 
                 const card = document.createElement('div');
                 card.className = 'article-card';
