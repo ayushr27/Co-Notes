@@ -1,5 +1,6 @@
 import Article from "../models/Article.js";
 import mongoose from "mongoose";
+import { createNotification } from "../services/notificationService.js";
 
 function isValidObjectId(id) {
     return mongoose.Types.ObjectId.isValid(id);
@@ -142,6 +143,14 @@ export async function createArticle(req, res) {
             userId: req.userId
         });
 
+        await createNotification(
+            req,
+            req.userId,
+            `Your article "${article.title}" was created as a draft.`,
+            "article_created",
+            `/article-detail.html?id=${article._id}`
+        );
+
         return res.status(201).json(article);
     } catch (error) {
         console.error("createArticle error:", error.message);
@@ -212,6 +221,17 @@ export async function togglePublish(req, res) {
         }
 
         await article.save();
+
+        if (article.published) {
+            await createNotification(
+                req,
+                req.userId,
+                `Your article "${article.title}" has been published successfully!`,
+                "article_published",
+                `/article-detail.html?id=${article._id}`
+            );
+        }
+
         return res.json({ published: article.published, publishedAt: article.publishedAt });
     } catch (error) {
         console.error("togglePublish error:", error.message);

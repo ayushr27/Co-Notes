@@ -1,4 +1,5 @@
 import Todo from "../models/Todo.js";
+import { createNotification } from "../services/notificationService.js";
 
 // GET /api/todos
 export async function getTodos(req, res) {
@@ -41,6 +42,14 @@ export async function createTodo(req, res) {
             category: category || "personal",
             userId: req.userId
         });
+
+        await createNotification(
+            req,
+            req.userId,
+            `Task added: "${todo.text}"`,
+            "todo_created",
+            "/todos.html"
+        );
 
         return res.status(201).json(todo);
     } catch (error) {
@@ -96,6 +105,16 @@ export async function toggleComplete(req, res) {
 
         todo.completed = !todo.completed;
         await todo.save();
+
+        if (todo.completed) {
+            await createNotification(
+                req,
+                req.userId,
+                `Task completed! "${todo.text}"`,
+                "todo_completed",
+                "/todos.html"
+            );
+        }
 
         return res.json({ completed: todo.completed });
     } catch (error) {

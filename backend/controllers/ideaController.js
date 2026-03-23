@@ -1,4 +1,5 @@
 import Idea from "../models/Idea.js";
+import { createNotification } from "../services/notificationService.js";
 
 // GET /api/ideas
 export async function getIdeas(req, res) {
@@ -37,6 +38,14 @@ export async function createIdea(req, res) {
             color: color || "#667eea",
             userId: req.userId
         });
+
+        await createNotification(
+            req,
+            req.userId,
+            `Idea saved: "${idea.title}"`,
+            "idea_created",
+            "/ideas.html"
+        );
 
         return res.status(201).json(idea);
     } catch (error) {
