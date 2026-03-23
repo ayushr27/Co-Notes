@@ -1,21 +1,15 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
-import "dotenv/config";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const { Pool } = pg;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-
-const prisma = new PrismaClient({ adapter });
-const global = globalThis;
-
-if(process.env.NODE_ENV !== 'production'){
-    if(!global.prisma){
-        const devPool = new Pool({ connectionString: process.env.DATABASE_URL });
-        const devAdapter = new PrismaPg(devPool);
-        global.prisma = new PrismaClient({ adapter: devAdapter });
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/Co-Notes');
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+        process.exit(1);
     }
-}
+};
 
-export default global.prisma || prisma;
+export default connectDB;

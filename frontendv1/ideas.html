@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,7 +65,7 @@
 
         .tag.active {
             background-color: var(--primary-color);
-            color: #fff;
+            color: var(--text-heading);
         }
 
         .tag-input {
@@ -93,7 +94,7 @@
 
         .idea-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             border-color: #8b949e;
         }
 
@@ -111,7 +112,7 @@
         .idea-card-title {
             font-size: 1.25rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-heading);
             margin-bottom: 0.5rem;
         }
 
@@ -129,6 +130,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -138,7 +140,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -184,16 +186,19 @@
                 <p class="page-subtitle">Plant your seeds of inspiration. Grow them later.</p>
 
                 <form class="idea-form" id="ideaForm">
-                    <input type="text" id="iTitle" class="idea-input" placeholder="What's your brilliant idea? 🌟" required autocomplete="off">
+                    <input type="text" id="iTitle" class="idea-input" placeholder="What's your brilliant idea? 🌟"
+                        required autocomplete="off">
                     <textarea id="iDesc" class="idea-desc" placeholder="Add some details..."></textarea>
-                    
+
                     <div class="idea-actions">
                         <div class="idea-tags" id="formTags">
                             <!-- Selected tags -->
-                            <input type="text" id="iTagInput" class="tag-input" placeholder="+ Add tag" autocomplete="off">
+                            <input type="text" id="iTagInput" class="tag-input" placeholder="+ Add tag"
+                                autocomplete="off">
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button type="button" class="btn btn-secondary" title="Use Voice" onclick="alert('Mic access requested!')">🎤</button>
+                            <button type="button" class="btn btn-secondary" title="Use Voice"
+                                onclick="alert('Mic access requested!')">🎤</button>
                             <button type="submit" class="btn btn-primary">Save Idea</button>
                         </div>
                     </div>
@@ -213,24 +218,22 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        let ideas = [
-            { id: 1, title: 'AI-Powered Search', desc: 'Implement semantic search so users can find notes based on context rather than just exact keyword matches.', tags: ['product', 'ai'], starred: true },
-            { id: 2, text: 'Gamify Note-taking', desc: 'Add achievements and streaks to encourage daily writing habits. Maybe a cute mascot that grows?', tags: ['product', 'engagement'], starred: false },
-            { id: 3, text: 'Dark Mode Redesign', desc: 'The current dark mode is a bit too gray. Let\'s try a deep blue-black theme inspired by space.', tags: ['design'], starred: true },
-            { id: 4, text: 'Weekly Newsletter Template', desc: 'Create a template for users to easily summarize their week\'s notes into a shareable newsletter format.', tags: ['marketing'], starred: false }
-        ];
+        checkAuth();
+
+        let ideas = [];
 
         let activeFilter = 'all';
         let currentFormTags = [];
 
         const tagInput = document.getElementById('iTagInput');
-        
+
         tagInput.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter' || e.key === ',') {
+            if (e.key === 'Enter' || e.key === ',') {
                 e.preventDefault();
                 const val = tagInput.value.trim().toLowerCase();
-                if(val && !currentFormTags.includes(val)) {
+                if (val && !currentFormTags.includes(val)) {
                     currentFormTags.push(val);
                     renderFormTags();
                 }
@@ -242,7 +245,7 @@
             const container = document.getElementById('formTags');
             // Keep input, remove others
             Array.from(container.children).forEach(c => {
-                if(c.id !== 'iTagInput') c.remove();
+                if (c.id !== 'iTagInput') c.remove();
             });
 
             currentFormTags.forEach(tag => {
@@ -261,80 +264,148 @@
 
         function renderIdeas() {
             grid.innerHTML = '';
-            
+
             const filtered = ideas.filter(i => {
-                if(activeFilter === 'all') return true;
-                return i.tags.includes(activeFilter);
+                if (activeFilter === 'all') return true;
+                return (i.tags || []).includes(activeFilter);
             });
 
             // sort by starred
-            const sorted = [...filtered].sort((a,b) => {
-                if(a.starred !== b.starred) return a.starred ? -1 : 1;
-                return b.id - a.id;
+            const sorted = [...filtered].sort((a, b) => {
+                const aStar = a.isStarred || a.starred;
+                const bStar = b.isStarred || b.starred;
+                if (aStar !== bStar) return aStar ? -1 : 1;
+                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
             });
 
             sorted.forEach(idea => {
                 const title = idea.title || idea.text;
+                const desc = idea.description || idea.desc || '';
+                const isStarred = idea.isStarred || idea.starred;
+                const id = idea._id || idea.id;
+                const tags = idea.tags || [];
+
                 const div = document.createElement('div');
-                div.className = `idea-card ${idea.starred ? 'starred' : ''}`;
-                
+                div.className = `idea-card ${isStarred ? 'starred' : ''}`;
+
                 div.innerHTML = `
                     <div class="idea-card-header">
                         <h3 class="idea-card-title">${title}</h3>
-                        <button class="btn btn-secondary" style="padding: 0.25rem; font-size: 0.8rem;" onclick="toggleStar(${idea.id})">
-                            ${idea.starred ? '⭐' : '☆'}
+                        <button class="btn btn-secondary" style="padding: 0.25rem; font-size: 0.8rem;" onclick="toggleStar('${id}')">
+                            ${isStarred ? '⭐' : '☆'}
                         </button>
                     </div>
-                    <p class="idea-card-desc">${idea.desc}</p>
+                    <p class="idea-card-desc">${desc}</p>
                     <div class="idea-card-footer">
                         <div class="idea-tags">
-                            ${idea.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                            ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
                         </div>
-                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteIdea(${idea.id})">🗑️</button>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteIdea('${id}')">🗑️</button>
                     </div>
                 `;
                 grid.appendChild(div);
             });
         }
 
-        window.toggleStar = (id) => {
-            ideas = ideas.map(i => i.id === id ? {...i, starred: !i.starred} : i);
-            renderIdeas();
-        };
+        async function fetchIdeas() {
+            try {
+                const response = await apiFetch('/ideas');
+                ideas = response.ideas || response || [];
 
-        window.deleteIdea = (id) => {
-            ideas = ideas.filter(i => i.id !== id);
-            renderIdeas();
-        };
+                // Extract unique tags for filtering
+                const allTags = new Set(['all']);
+                ideas.forEach(i => (i.tags || []).forEach(t => allTags.add(t)));
 
-        document.getElementById('ideaForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            ideas.push({
-                id: Date.now(),
-                title: document.getElementById('iTitle').value,
-                desc: document.getElementById('iDesc').value,
-                tags: [...currentFormTags],
-                starred: false
-            });
-            
-            document.getElementById('iTitle').value = '';
-            document.getElementById('iDesc').value = '';
-            currentFormTags = [];
-            renderFormTags();
-            renderIdeas();
-        });
+                const filterContainer = document.getElementById('filterTags');
+                filterContainer.innerHTML = Array.from(allTags).map(t =>
+                    `<span class="tag ${t === activeFilter ? 'active' : ''}" data-tag="${t}">${t}</span>`
+                ).join('');
 
-        // Filters
-        document.querySelectorAll('#filterTags .tag').forEach(t => {
-            t.addEventListener('click', (e) => {
-                document.querySelectorAll('#filterTags .tag').forEach(el => el.classList.remove('active'));
-                e.target.classList.add('active');
-                activeFilter = e.target.getAttribute('data-tag');
+                // Re-bind click events to new filter tags
+                document.querySelectorAll('#filterTags .tag').forEach(t => {
+                    t.addEventListener('click', (e) => {
+                        document.querySelectorAll('#filterTags .tag').forEach(el => el.classList.remove('active'));
+                        e.target.classList.add('active');
+                        activeFilter = e.target.getAttribute('data-tag');
+                        renderIdeas();
+                    });
+                });
+
                 renderIdeas();
-            });
+            } catch (error) {
+                console.error('Failed to fetch ideas:', error);
+            }
+        }
+
+        window.toggleStar = async (id) => {
+            const idea = ideas.find(i => (i._id || i.id) === id);
+            if (!idea) return;
+
+            const newStar = !(idea.isStarred || idea.starred);
+            idea.isStarred = newStar;
+            idea.starred = newStar;
+            renderIdeas();
+
+            try {
+                await apiFetch(`/ideas/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isStarred: newStar })
+                });
+            } catch (error) {
+                // revert
+                idea.isStarred = !newStar;
+                idea.starred = !newStar;
+                renderIdeas();
+                alert('Failed to update star');
+            }
+        };
+
+        window.deleteIdea = async (id) => {
+            if (!confirm("Delete this idea?")) return;
+            try {
+                await apiFetch(`/ideas/${id}`, { method: 'DELETE' });
+                ideas = ideas.filter(i => (i._id || i.id) !== id);
+                renderIdeas();
+            } catch (error) {
+                alert('Failed to delete idea');
+            }
+        };
+
+        document.getElementById('ideaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const payload = {
+                title: document.getElementById('iTitle').value,
+                description: document.getElementById('iDesc').value,
+                tags: [...currentFormTags],
+            };
+
+            try {
+                const response = await apiFetch('/ideas', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const newIdea = response.idea || response;
+                ideas.unshift(newIdea);
+
+                document.getElementById('iTitle').value = '';
+                document.getElementById('iDesc').value = '';
+                currentFormTags = [];
+                renderFormTags();
+                renderIdeas();
+            } catch (error) {
+                alert('Failed to save idea: ' + error.message);
+            } finally {
+                btn.disabled = false;
+            }
         });
 
-        renderIdeas();
+        // Initial fetch
+        fetchIdeas();
     </script>
 </body>
+
 </html>

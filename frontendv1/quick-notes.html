@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -38,7 +39,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: rgba(255,255,255,0.05);
+            background-color: var(--glass-bg);
             color: var(--text-muted);
             border: 1px solid transparent;
             cursor: pointer;
@@ -46,8 +47,8 @@
         }
 
         .icon-btn-round:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-heading);
         }
 
         .notes-grid {
@@ -56,11 +57,15 @@
         }
 
         @media (max-width: 1024px) {
-            .notes-grid { column-count: 2; }
+            .notes-grid {
+                column-count: 2;
+            }
         }
 
         @media (max-width: 640px) {
-            .notes-grid { column-count: 1; }
+            .notes-grid {
+                column-count: 1;
+            }
         }
 
         .note-card {
@@ -71,12 +76,12 @@
             break-inside: avoid;
             position: relative;
             transition: transform 0.2s, box-shadow 0.2s;
-            color: #fff;
+            color: var(--text-heading);
         }
 
         .note-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
 
         .note-header {
@@ -115,6 +120,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -124,7 +130,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -170,10 +176,13 @@
                 <p class="page-subtitle">Capture thoughts instantly, organize later</p>
 
                 <form class="quick-add-form" id="addNoteForm">
-                    <input type="text" id="noteInput" class="quick-add-input" placeholder="Jot down a quick note... ✍️" required autocomplete="off">
+                    <input type="text" id="noteInput" class="quick-add-input" placeholder="Jot down a quick note... ✍️"
+                        required autocomplete="off">
                     <div class="quick-actions-bar">
-                        <button type="button" class="icon-btn-round" title="Voice Input" onclick="alert('Mic access requested!')">🎤</button>
-                        <button type="submit" class="btn btn-primary" style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">➕</button>
+                        <button type="button" class="icon-btn-round" title="Voice Input"
+                            onclick="alert('Mic access requested!')">🎤</button>
+                        <button type="submit" class="btn btn-primary"
+                            style="border-radius: 50%; width: 36px; height: 36px; padding: 0;">➕</button>
                     </div>
                 </form>
 
@@ -189,81 +198,135 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        let notes = [
-            { id: 1, content: 'Remember to review the quarterly report before Friday meeting 📊', pinned: true, color: '#1f2428', time: '1h ago' },
-            { id: 2, content: 'Call Mom at 5 PM - her birthday next week! 🎂', pinned: true, color: '#321c38', time: '2h ago' },
-            { id: 3, content: 'Grocery list:\n- milk\n- eggs\n- bread\n- coffee\n- avocados', pinned: false, color: '#133020', time: '1d ago' },
-            { id: 4, content: 'New podcast recommendations:\nThe Daily\nHow I Built This\nMasters of Scale', pinned: false, color: '#1a2e45', time: '2d ago' }
-        ];
+        checkAuth();
 
+        let notes = [];
         const pinnedGrid = document.getElementById('pinnedGrid');
         const recentGrid = document.getElementById('recentGrid');
-        
-        function renderNotes() {
+
+        function formatRelativeTime(dateStr) {
+            const diff = Date.now() - new Date(dateStr).getTime();
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return 'Just now';
+            if (min < 60) return `${min}m ago`;
+            const hrs = Math.floor(min / 60);
+            if (hrs < 24) return `${hrs}h ago`;
+            return `${Math.floor(hrs / 24)}d ago`;
+        }
+
+        function drawNotes() {
             pinnedGrid.innerHTML = '';
             recentGrid.innerHTML = '';
 
             notes.forEach(note => {
                 const div = document.createElement('div');
                 div.className = 'note-card';
-                div.style.setProperty('--note-color', note.color);
-                
+                div.style.setProperty('--note-color', note.color || '#1f2428');
+
                 div.innerHTML = `
                     <div class="note-header">
-                        <span>🕒 ${note.time}</span>
+                        <span>🕒 ${formatRelativeTime(note.createdAt)}</span>
                         <div class="note-actions">
-                            <button class="icon-btn-round" onclick="togglePin(${note.id})" style="width:24px; height:24px; font-size:10px;">${note.pinned ? '📌' : '📍'}</button>
-                            <button class="icon-btn-round" onclick="deleteNote(${note.id})" style="width:24px; height:24px; font-size:10px;">🗑️</button>
+                            <button class="icon-btn-round" onclick="togglePin('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;">${note.isPinned ? '📌' : '📍'}</button>
+                            <button class="icon-btn-round" onclick="deleteNote('${note._id || note.id}')" style="width:24px; height:24px; font-size:10px;">🗑️</button>
                         </div>
                     </div>
                     <div class="note-content">${note.content}</div>
                 `;
 
-                if(note.pinned) {
+                if (note.isPinned) {
                     pinnedGrid.appendChild(div);
                 } else {
                     recentGrid.appendChild(div);
                 }
             });
-            
+
             // hide sections if empty
-            if(pinnedGrid.children.length === 0) pinnedGrid.previousElementSibling.style.display = 'none';
+            if (pinnedGrid.children.length === 0) pinnedGrid.previousElementSibling.style.display = 'none';
             else pinnedGrid.previousElementSibling.style.display = 'flex';
-            
-            if(recentGrid.children.length === 0) recentGrid.previousElementSibling.style.display = 'none';
+
+            if (recentGrid.children.length === 0) recentGrid.previousElementSibling.style.display = 'none';
             else recentGrid.previousElementSibling.style.display = 'flex';
         }
 
-        window.togglePin = (id) => {
-            notes = notes.map(n => n.id === id ? {...n, pinned: !n.pinned} : n);
-            renderNotes();
+        async function fetchNotes() {
+            try {
+                const response = await apiFetch('/quick-notes');
+                notes = response.data || response.quickNotes || response || [];
+                drawNotes();
+            } catch (error) {
+                console.error("Failed to fetch quick notes", error);
+            }
+        }
+
+        window.togglePin = async (id) => {
+            const note = notes.find(n => (n._id || n.id) === id);
+            if (!note) return;
+
+            const newPinStatus = !note.isPinned;
+            // Update UI optimistically
+            note.isPinned = newPinStatus;
+            drawNotes();
+
+            try {
+                await apiFetch(`/quick-notes/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isPinned: newPinStatus })
+                });
+            } catch (error) {
+                // Revert on failure
+                note.isPinned = !newPinStatus;
+                drawNotes();
+                alert("Failed to pin note");
+            }
         };
 
-        window.deleteNote = (id) => {
-            notes = notes.filter(n => n.id !== id);
-            renderNotes();
+        window.deleteNote = async (id) => {
+            if (!confirm("Delete this quick note?")) return;
+
+            try {
+                await apiFetch(`/quick-notes/${id}`, { method: 'DELETE' });
+                notes = notes.filter(n => (n._id || n.id) !== id);
+                drawNotes();
+            } catch (error) {
+                alert("Failed to delete note");
+            }
         };
 
-        document.getElementById('addNoteForm').addEventListener('submit', (e) => {
+        document.getElementById('addNoteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('noteInput');
-            
+            const content = input.value.trim();
+            if (!content) return;
+
             const randomColors = ['#1f2428', '#321c38', '#133020', '#1a2e45', '#3d2024', '#383212'];
-            
-            notes.unshift({
-                id: Date.now(),
-                content: input.value,
-                pinned: false,
-                color: randomColors[Math.floor(Math.random() * randomColors.length)],
-                time: 'Just now'
-            });
-            
-            input.value = '';
-            renderNotes();
+            const color = randomColors[Math.floor(Math.random() * randomColors.length)];
+
+            try {
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+
+                const response = await apiFetch('/quick-notes', {
+                    method: 'POST',
+                    body: JSON.stringify({ content, color })
+                });
+
+                const newNote = response.quickNote || response;
+                notes.unshift(newNote);
+                input.value = '';
+                drawNotes();
+            } catch (error) {
+                alert("Failed to add note: " + error.message);
+            } finally {
+                e.target.querySelector('button[type="submit"]').disabled = false;
+            }
         });
 
-        renderNotes();
+        // initial load
+        fetchNotes();
     </script>
 </body>
+
 </html>

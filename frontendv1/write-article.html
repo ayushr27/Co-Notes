@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,7 @@
         .cover-upload {
             width: 100%;
             height: 200px;
-            background-color: rgba(13, 17, 23, 0.5);
+            background-color: var(--glass-panel);
             border: 2px dashed var(--border-color);
             border-radius: 12px;
             display: flex;
@@ -55,7 +56,7 @@
             font-weight: 800;
             background: none;
             border: none;
-            color: #fff;
+            color: var(--text-heading);
             outline: none;
             margin-bottom: 0.5rem;
         }
@@ -77,7 +78,7 @@
             line-height: 1.6;
             outline: none;
         }
-        
+
         .article-editor[data-placeholder]:empty:before {
             content: attr(data-placeholder);
             color: var(--text-muted);
@@ -194,7 +195,7 @@
             height: 24px;
         }
 
-        .switch input { 
+        .switch input {
             opacity: 0;
             width: 0;
             height: 0;
@@ -224,20 +225,22 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider {
+        input:checked+.slider {
             background-color: var(--success-color);
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(20px);
         }
     </style>
 </head>
+
 <body>
     <div class="app-container" style="flex-direction: column;">
         <header class="header">
             <div class="header-left" style="display: flex; align-items: center; gap: 1rem;">
-                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'" style="padding: 0.25rem 0.5rem;">← Back</button>
+                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'"
+                    style="padding: 0.25rem 0.5rem;">← Back</button>
                 <span style="color: var(--text-muted); font-size: 0.9rem;">🕒 Draft • Auto-saved</span>
             </div>
             <div class="header-right" style="display: flex; gap: 1rem;">
@@ -249,17 +252,20 @@
 
         <div class="write-layout">
             <main class="write-main">
-                <div class="cover-upload" id="coverUpload" onclick="setCoverImage()">
+                <label class="cover-upload" id="coverUpload" for="coverFileInput">
                     <div style="text-align: center; color: var(--text-muted);" id="coverPlaceholder">
                         <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>
                         Add cover image
                     </div>
-                </div>
+                    <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverSelection(event)">
+                </label>
 
                 <input type="text" id="aTitle" class="article-title-input" placeholder="Article Title...">
-                <input type="text" id="aSubtitle" class="article-subtitle-input" placeholder="Add a subtitle (optional)...">
-                
-                <div class="article-editor" id="aContent" contenteditable="true" data-placeholder="Write your article... Share your knowledge with the community!"></div>
+                <input type="text" id="aSubtitle" class="article-subtitle-input"
+                    placeholder="Add a subtitle (optional)...">
+
+                <div class="article-editor" id="aContent" contenteditable="true"
+                    data-placeholder="Write your article... Share your knowledge with the community!"></div>
             </main>
 
             <aside class="write-sidebar">
@@ -294,7 +300,8 @@
                         <!-- Dynamic tags -->
                     </div>
                     <input type="text" id="tagInput" class="tag-input" placeholder="Add tag (press Enter)">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Add up to 5 tags to help readers find your article.</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Add up to 5 tags to help
+                        readers find your article.</p>
                 </div>
 
                 <div class="sidebar-section" style="border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
@@ -319,23 +326,24 @@
                 <button class="btn" style="padding: 0;" onclick="closePublishModal()">✕</button>
             </div>
             <div class="modal-body">
-                
+
                 <div class="preview-card">
-                    <h3 id="modalTitlePreview" style="margin-bottom: 0.5rem; color: #fff;">Untitled</h3>
+                    <h3 id="modalTitlePreview" style="margin-bottom: 0.5rem; color: var(--text-heading);">Untitled</h3>
                     <p id="modalSubtitlePreview" style="color: var(--text-muted); margin-bottom: 1rem;"></p>
                     <div style="display: flex; gap: 1rem; font-size: 0.9rem;">
-                        <span class="tag-chip" style="background: rgba(255,255,255,0.1); color: #fff;" id="modalCatPreview">Category</span>
+                        <span class="tag-chip" style="background: rgba(255,255,255,0.1); color: var(--text-heading);"
+                            id="modalCatPreview">Category</span>
                         <span style="color: var(--text-muted);" id="modalTimePreview">1 min read</span>
                     </div>
                 </div>
 
                 <div>
                     <h4 style="margin-bottom: 1rem;">Visibility</h4>
-                    
+
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="public" checked>
                         <div>
-                            <strong style="display: block; color: #fff; margin-bottom: 0.25rem;">🌐 Public</strong>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">🌐 Public</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Anyone can find and read</span>
                         </div>
                     </label>
@@ -343,7 +351,7 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="unlisted">
                         <div>
-                            <strong style="display: block; color: #fff; margin-bottom: 0.25rem;">🔗 Unlisted</strong>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">🔗 Unlisted</strong>
                             <span style="color: var(--text-muted); font-size: 0.9rem;">Only people with the link</span>
                         </div>
                     </label>
@@ -351,25 +359,28 @@
                     <label class="radio-option">
                         <input type="radio" name="visibility" value="members">
                         <div>
-                            <strong style="display: block; color: #fff; margin-bottom: 0.25rem;">👥 Members Only</strong>
-                            <span style="color: var(--text-muted); font-size: 0.9rem;">Registered Co-Notes users only</span>
+                            <strong style="display: block; color: var(--text-heading); margin-bottom: 0.25rem;">👥 Members
+                                Only</strong>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;">Registered Co-Notes users
+                                only</span>
                         </div>
                     </label>
                 </div>
 
                 <div class="toggle-row">
                     <div>
-                        <strong style="display: block; color: #fff;">Allow comments</strong>
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">Let readers discuss your article</span>
+                        <strong style="display: block; color: var(--text-heading);">Allow comments</strong>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Let readers discuss your
+                            article</span>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="allowComments" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
 
             </div>
-            
+
             <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
                 <button class="btn btn-secondary" onclick="closePublishModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="confirmPublish()">Publish Now</button>
@@ -377,24 +388,58 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
-        // Cover Image Mock
-        let hasCover = false;
-        function setCoverImage() {
-            const upload = document.getElementById('coverUpload');
+        checkAuth();
+
+        // Cover Image Upload
+        let uploadedCoverUrl = null;
+        
+        async function handleCoverSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const uploadEl = document.getElementById('coverUpload');
             const placeholder = document.getElementById('coverPlaceholder');
             
-            if(!hasCover) {
-                // Set mock image
-                upload.style.backgroundImage = "url('https://images.unsplash.com/photo-1499750310159-5b5f87e8e195?w=1200&q=80')";
-                upload.style.borderStyle = 'solid';
+            // Show preview directly from local file reader instantly
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadEl.style.backgroundImage = `url('${e.target.result}')`;
+                uploadEl.style.borderStyle = 'solid';
                 placeholder.style.display = 'none';
-                hasCover = true;
-            } else {
-                upload.style.backgroundImage = 'none';
-                upload.style.borderStyle = 'dashed';
+            };
+            reader.readAsDataURL(file);
+
+            const formData = new FormData();
+            formData.append('cover', file);
+
+            try {
+                // Not using apiFetch here to avoid JSON headers overriding multipart
+                const token = localStorage.getItem('token');
+                
+                // Use API_BASE_URL from api.js to dynamically figure out the host
+                const hostObj = new URL(API_BASE_URL);
+                const hostUrl = hostObj.protocol + '//' + hostObj.host;
+
+                const response = await fetch(`${API_BASE_URL}/articles/upload-cover`, {
+                    method: 'POST',
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Failed to upload image');
+                
+                const data = await response.json();
+                // Append the relative URL to the host
+                uploadedCoverUrl = hostUrl + data.url;
+                
+            } catch (error) {
+                alert('Upload error: ' + error.message);
+                uploadEl.style.backgroundImage = 'none';
+                uploadEl.style.borderStyle = 'dashed';
                 placeholder.style.display = 'block';
-                hasCover = false;
+                placeholder.innerHTML = '<span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>Add cover image';
             }
         }
 
@@ -410,10 +455,10 @@
             const cat = document.getElementById('catSelect').value;
             const subcatSelect = document.getElementById('subcatSelect');
             const codingOptions = document.getElementById('codingOptions');
-            
+
             subcatSelect.innerHTML = '<option value="">Select subcategory</option>';
-            
-            if(cat && subcats[cat]) {
+
+            if (cat && subcats[cat]) {
                 subcatSelect.style.display = 'block';
                 subcats[cat].forEach(sub => {
                     const opt = document.createElement('option');
@@ -426,7 +471,7 @@
             }
 
             // Show coding tools if category is coding
-            if(cat === 'coding') {
+            if (cat === 'coding') {
                 codingOptions.style.display = 'block';
             } else {
                 codingOptions.style.display = 'none';
@@ -439,10 +484,10 @@
         const tagContainer = document.getElementById('tagList');
 
         tagInput.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter') {
+            if (e.key === 'Enter') {
                 e.preventDefault();
                 const val = tagInput.value.trim();
-                if(val && tags.length < 5 && !tags.includes(val)) {
+                if (val && tags.length < 5 && !tags.includes(val)) {
                     tags.push(val);
                     renderTags();
                 }
@@ -473,23 +518,23 @@
             const text = editor.innerText.trim();
             const words = text ? text.split(/\s+/).length : 0;
             document.getElementById('wordCount').textContent = words;
-            
+
             const time = Math.max(1, Math.ceil(words / 200));
             document.getElementById('readTime').textContent = `${time} min`;
         });
 
         // Modal Logic
         const modal = document.getElementById('publishModal');
-        
+
         window.openPublishModal = () => {
             const title = document.getElementById('aTitle').value;
             const cat = document.getElementById('catSelect');
-            
-            if(!title) {
+
+            if (!title) {
                 alert('Please enter a title before publishing.');
                 return;
             }
-            if(!cat.value) {
+            if (!cat.value) {
                 alert('Please select a category.');
                 return;
             }
@@ -506,16 +551,57 @@
             modal.classList.remove('active');
         };
 
-        window.confirmPublish = () => {
+        window.confirmPublish = async () => {
             const btn = document.querySelector('#publishModal .btn-primary');
             btn.textContent = 'Publishing...';
+            btn.disabled = true;
             btn.style.opacity = '0.7';
 
-            setTimeout(() => {
+            const title = document.getElementById('aTitle').value;
+            const subtitle = document.getElementById('aSubtitle').value;
+            const content = document.getElementById('aContent').innerText.trim();
+            const cat = document.getElementById('catSelect').value;
+            const subcat = document.getElementById('subcatSelect').value;
+            const readTime = document.getElementById('readTime').textContent;
+            const visibilityRadio = document.querySelector('input[name="visibility"]:checked');
+
+            const allowComments = document.getElementById('allowComments').checked;
+
+            const payload = {
+                title,
+                subtitle,
+                content,
+                coverImage: uploadedCoverUrl,
+                category: cat,
+                subcategory: subcat,
+                tags,
+                readTime,
+                visibility: visibilityRadio ? visibilityRadio.value : 'public',
+                allowComments
+            };
+
+            try {
+                // 1. Create the article (initially drafted)
+                const article = await apiFetch('/articles', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                // 2. Mark it as published immediately
+                await apiFetch(`/articles/${article.id}/publish`, {
+                    method: 'PATCH'
+                });
+
                 alert('Article published successfully!');
                 window.location.href = 'community.html';
-            }, 1000);
+            } catch (error) {
+                alert('Failed to publish: ' + error.message);
+                btn.textContent = 'Publish Now';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
         };
     </script>
 </body>
+
 </html>

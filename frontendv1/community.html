@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,8 @@
     <link rel="stylesheet" href="global.css">
     <style>
         .feed-layout {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 2rem;
+            max-width: 680px;
+            margin: 0 auto;
         }
 
         .category-nav {
@@ -31,34 +31,31 @@
             font-weight: 500;
         }
 
-        .category-tab.active, .category-tab:hover {
+        .category-tab.active,
+        .category-tab:hover {
             background-color: var(--primary-color);
-            color: #fff;
+            color: var(--text-heading);
             border-color: var(--primary-color);
         }
 
         .article-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.2s;
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
             cursor: pointer;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            gap: 12px;
         }
 
         .article-card:hover {
-            border-color: #8b949e;
-            transform: translateY(-2px);
+            background-color: var(--glass-panel, rgba(255,255,255,0.02));
         }
 
         .article-meta {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.2rem;
         }
 
         .author-avatar {
@@ -81,7 +78,7 @@
 
         .author-name {
             font-weight: 600;
-            color: #fff;
+            color: var(--text-heading);
             font-size: 0.9rem;
         }
 
@@ -92,7 +89,7 @@
 
         .article-title {
             font-size: 1.5rem;
-            color: #fff;
+            color: var(--text-heading);
             margin-bottom: 0.5rem;
         }
 
@@ -101,79 +98,23 @@
             margin-bottom: 1.5rem;
             display: -webkit-box;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-        }
-
-        .article-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1rem;
-        }
-
-        .article-stats {
-            display: flex;
-            gap: 1rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            transition: color 0.2s;
         }
 
         .stat-item:hover {
             color: var(--primary-color);
         }
 
-        /* Sidebar stats */
-        .trending-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .trending-item {
-            margin-bottom: 1.5rem;
-        }
-
-        .trending-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .trending-tag {
-            font-size: 0.8rem;
-            color: var(--primary-color);
-            margin-bottom: 0.25rem;
-            display: block;
-        }
-
-        .trending-title {
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 0.25rem;
-            display: block;
-            text-decoration: none;
-        }
-
-        .trending-title:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 1024px) {
-            .feed-layout {
-                grid-template-columns: 1fr;
+        @media (max-width: 680px) {
+            .article-card {
+                padding: 1rem 0.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -183,7 +124,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -225,128 +166,35 @@
             </header>
 
             <div class="page-content">
-                <div class="page-title">
-                    <span style="font-size: 2.5rem; color: #bc8cff;">🌐</span>
-                    <h1>Community Feed</h1>
-                </div>
-                <p class="page-subtitle">Discover ideas, tutorials, and stories from the Co-Notes community.</p>
+                <!-- Top Nav Container -->
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; gap: 2rem;">
+                        <div style="position: relative; flex: 1; max-width: 500px;">
+                            <input type="text" id="feedSearch" placeholder="Search articles, tutorials, or topics..." 
+                                style="width: 100%; background: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-heading); padding: 0.8rem 1rem 0.8rem 3rem; border-radius: 12px; font-size: 1rem; outline: none; transition: all 0.2s;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem;">🔍</span>
+                        </div>
+                        <div class="category-nav" style="margin-bottom: 0; padding-bottom: 0;">
+                            <button class="category-tab active">For You</button>
+                            <button class="category-tab">Trending Now</button>
+                            <button class="category-tab">Coding</button>
+                            <button class="category-tab">Business</button>
+                            <button class="category-tab">Marketing</button>
+                            <button class="category-tab">Design</button>
+                        </div>
+                    </div>
 
-                <div class="category-nav">
-                    <button class="category-tab active">For You</button>
-                    <button class="category-tab">Following</button>
-                    <button class="category-tab">Technology</button>
-                    <button class="category-tab">Productivity</button>
-                    <button class="category-tab">Writing</button>
-                    <button class="category-tab">Design</button>
+                    <div class="page-title">
+                        <span style="font-size: 2.5rem; color: #bc8cff;">🌐</span>
+                        <h1 style="font-size: 2.5rem;">Community Feed</h1>
+                    </div>
+                    <p class="page-subtitle" style="font-size: 1.1rem; margin-bottom: 3rem;">Discover ideas, tutorials, and stories from the Co-Notes community.</p>
                 </div>
 
                 <div class="feed-layout">
                     <!-- Feed Column -->
-                    <div class="feed-column">
-                        <div class="article-card" onclick="window.location.href='#'">
-                            <div class="article-meta">
-                                <div class="author-avatar" style="background: linear-gradient(135deg, #f6d365, #fda085);">S</div>
-                                <div class="author-info">
-                                    <span class="author-name">Sarah Jenkins</span>
-                                    <span class="post-time">2 hours ago in Productivity</span>
-                                </div>
-                            </div>
-                            <h2 class="article-title">How I structured my second brain in Co-Notes</h2>
-                            <p class="article-excerpt">After trying dozens of tools over the last 5 years, I finally found a system that works for me. It relies heavily on utilizing tags, smart collections, and daily reviews. Here is my exact workflow step by step.</p>
-                            <div class="article-footer">
-                                <div class="article-stats">
-                                    <span class="stat-item">❤️ 125</span>
-                                    <span class="stat-item">💬 34</span>
-                                    <span class="stat-item">🔖 42</span>
-                                </div>
-                                <span class="badge" style="background: none; border: 1px solid var(--border-color);">5 min read</span>
-                            </div>
-                        </div>
-
-                        <div class="article-card" onclick="window.location.href='#'">
-                            <div class="article-meta">
-                                <div class="author-avatar" style="background: linear-gradient(135deg, #84fab0, #8fd3f4);">M</div>
-                                <div class="author-info">
-                                    <span class="author-name">Marcus Dev</span>
-                                    <span class="post-time">5 hours ago in Technology</span>
-                                </div>
-                            </div>
-                            <h2 class="article-title">Understanding Web Components in 2024</h2>
-                            <p class="article-excerpt">Web components have come a long way. Are they ready to replace React? In this deep dive, we explore custom elements, shadow DOM, and HTML templates, and build a simple todo app using zero frameworks.</p>
-                            <div class="article-footer">
-                                <div class="article-stats">
-                                    <span class="stat-item">❤️ 412</span>
-                                    <span class="stat-item">💬 89</span>
-                                    <span class="stat-item">🔖 156</span>
-                                </div>
-                                <span class="badge" style="background: none; border: 1px solid var(--border-color);">12 min read</span>
-                            </div>
-                        </div>
-
-                        <div class="article-card" onclick="window.location.href='#'">
-                            <div class="article-meta">
-                                <div class="author-avatar" style="background: linear-gradient(135deg, #a18cd1, #fbc2eb);">E</div>
-                                <div class="author-info">
-                                    <span class="author-name">Elena UI</span>
-                                    <span class="post-time">1 day ago in Design</span>
-                                </div>
-                            </div>
-                            <h2 class="article-title">The Psychology of Color in UI Design</h2>
-                            <p class="article-excerpt">Color is more than just aesthetics. It drives user behavior, establishes hierarchy, and communicates state. Let's look at how successful apps use color palettes to increase engagement and conversion rates.</p>
-                            <div class="article-footer">
-                                <div class="article-stats">
-                                    <span class="stat-item">❤️ 289</span>
-                                    <span class="stat-item">💬 45</span>
-                                    <span class="stat-item">🔖 112</span>
-                                </div>
-                                <span class="badge" style="background: none; border: 1px solid var(--border-color);">8 min read</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Trending Sidebar -->
-                    <div class="trending-sidebar">
-                        <div class="trending-card">
-                            <h3 style="margin-bottom: 2rem; color: #fff;">📈 Trending Now</h3>
-                            
-                            <div class="trending-item">
-                                <span class="trending-tag">#development</span>
-                                <a href="#" class="trending-title">Why I moved from VSCode to Neovim (and you shouldn't)</a>
-                                <span style="font-size: 0.8rem; color: var(--text-muted);">15.2k reads</span>
-                            </div>
-
-                            <div class="trending-item">
-                                <span class="trending-tag">#productivity</span>
-                                <a href="#" class="trending-title">The Pomodoro technique is broken. Do this instead.</a>
-                                <span style="font-size: 0.8rem; color: var(--text-muted);">12.8k reads</span>
-                            </div>
-
-                            <div class="trending-item">
-                                <span class="trending-tag">#writing</span>
-                                <a href="#" class="trending-title">How to write consistently when you have a full-time job</a>
-                                <span style="font-size: 0.8rem; color: var(--text-muted);">9.4k reads</span>
-                            </div>
-                            
-                            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 2rem 0;">
-
-                            <h3 style="margin-bottom: 1.5rem; color: #fff;">Suggested Authors</h3>
-                            
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <div class="author-avatar" style="width: 24px; height: 24px; font-size: 0.8rem;">D</div>
-                                    <span style="font-weight: 500; font-size: 0.9rem;">David K.</span>
-                                </div>
-                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Follow</button>
-                            </div>
-                            
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <div class="author-avatar" style="width: 24px; height: 24px; font-size: 0.8rem;">M</div>
-                                    <span style="font-weight: 500; font-size: 0.9rem;">Marina</span>
-                                </div>
-                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Follow</button>
-                            </div>
-                        </div>
+                    <div class="feed-column" id="feedColumn" style="border-right: 1px solid var(--border-color); border-left: 1px solid var(--border-color); min-height: 100vh;">
+                        <!-- Dynamic Articles -->
                     </div>
                 </div>
 
@@ -354,14 +202,113 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
+        checkAuth();
+
+        let articles = [];
+        let activeCategory = 'For You';
+
+        const feedColumn = document.getElementById('feedColumn');
+
+        function formatRelativeTime(dateStr) {
+            const diff = Date.now() - new Date(dateStr).getTime();
+            const min = Math.floor(diff / 60000);
+            if (min < 1) return 'Just now';
+            if (min < 60) return `${min}m ago`;
+            const hrs = Math.floor(min / 60);
+            if (hrs < 24) return `${hrs}h ago`;
+            return `${Math.floor(hrs / 24)}d ago`;
+        }
+
+        function renderFeed() {
+            feedColumn.innerHTML = '';
+
+            let filtered = articles;
+            if (activeCategory !== 'For You') {
+                filtered = articles.filter(a => (a.category || '').toLowerCase() === activeCategory.toLowerCase() || (a.tags || []).includes(activeCategory.toLowerCase()));
+            }
+
+            if (filtered.length === 0) {
+                feedColumn.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No posts found in this category.</p>';
+                return;
+            }
+
+            filtered.forEach(article => {
+                const authorName = article.author ? (article.author.name || article.author.username || 'Anonymous') : 'Anonymous';
+                const initial = authorName.charAt(0).toUpperCase();
+                const timeStr = formatRelativeTime(article.createdAt);
+                const likeCount = typeof article.likes === 'number' ? article.likes : (article.likes || []).length;
+                const commentCount = typeof article.comments === 'number' ? article.comments : (article.comments || []).length;
+
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.onclick = () => { window.location.href = `article-detail.html?id=${article.id || article._id}`; };
+
+                card.innerHTML = `
+                    <div class="author-avatar" style="width: 44px; height: 44px; font-size: 1.2rem; flex-shrink: 0; margin-top: 4px;">${initial}</div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="article-meta" style="margin-bottom: 0.15rem;">
+                            <span class="author-name" style="margin-right: 0.4rem; font-size: 0.95rem;">${authorName}</span>
+                            <span class="post-time" style="font-size: 0.85rem;">@${authorName.toLowerCase().replace(/\s/g, '')} • ${timeStr} • ${article.category || 'General'}</span>
+                        </div>
+                        <h2 class="article-title" style="font-size: 1.1rem; margin-bottom: 0.4rem; line-height: 1.35; font-weight: 500;">${article.title}</h2>
+                        <p class="article-excerpt" style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.8rem; color: var(--text-color);">${article.subtitle || article.content}</p>
+                        
+                        ${article.coverImage ? `<div style="margin-bottom: 1rem; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);"><img src="${article.coverImage}" style="width: 100%; max-height: 400px; object-fit: cover; display: block;"></div>` : ''}
+                        
+                        <div style="display: flex; justify-content: space-between; max-width: 400px; color: var(--text-muted); font-size: 0.85rem;">
+                            <span class="stat-item">💬 ${commentCount}</span>
+                            <span class="stat-item">🔁 0</span>
+                            <span class="stat-item">❤️ ${likeCount}</span>
+                            <span class="stat-item">📊 ${article.readTime || '3'}m</span>
+                            <span class="stat-item">📤</span>
+                        </div>
+                    </div>
+                `;
+                feedColumn.appendChild(card);
+            });
+        }
+
+        async function loadFeed(cat = '', search = '') {
+            try {
+                let url = '/articles/feed';
+                const params = new URLSearchParams();
+                if (cat && cat !== 'For You') params.append('category', cat.toLowerCase());
+                if (search) params.append('search', search);
+                
+                if (params.toString()) url += `?${params.toString()}`;
+
+                const response = await apiFetch(url);
+                articles = response.articles || response || [];
+                renderFeed();
+            } catch (error) {
+                console.error('Failed to load community feed', error);
+                feedColumn.innerHTML = '<p style="color: var(--danger-color); text-align: center;">Failed to load feed. Check your connection.</p>';
+            }
+        }
+
         // Tab logic
         document.querySelectorAll('.category-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 e.target.classList.add('active');
+                activeCategory = e.target.textContent;
+                loadFeed(activeCategory, document.getElementById('feedSearch').value);
             });
         });
+
+        // Search logic
+        let searchTimeout;
+        document.getElementById('feedSearch').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadFeed(activeCategory, e.target.value);
+            }, 500);
+        });
+
+        loadFeed();
     </script>
 </body>
+
 </html>

@@ -32,7 +32,7 @@
         }
 
         .filter-tab.active {
-            color: #fff;
+            color: var(--text-heading);
         }
 
         .filter-tab.active::after {
@@ -94,7 +94,7 @@
         }
 
         .notification-text strong {
-            color: #fff;
+            color: var(--text-heading);
         }
 
         .notification-time {
@@ -183,7 +183,9 @@
         </main>
     </div>
 
+    <script src="api.js"></script>
     <script>
+        checkAuth();
         let notifications = [
             { id: 1, type: 'mention', user: 'Alex Reyes', action: 'mentioned you in', target: 'Project Brainstorm', time: '10 minutes ago', unread: true, icon: '@' },
             { id: 2, type: 'share', user: 'Sarah Jenkins', action: 'shared a collection with you:', target: 'Q4 Marketing Assets', time: '2 hours ago', unread: true, icon: '📁' },

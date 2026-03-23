@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,7 +57,7 @@
 
         .collection-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
             border-color: #8b949e;
         }
 
@@ -78,14 +79,14 @@
 
         .icon-btn {
             color: var(--text-muted);
-            background: rgba(255,255,255,0.05);
+            background: var(--glass-bg);
             border-radius: 4px;
             padding: 0.25rem 0.5rem;
         }
 
         .icon-btn:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.1);
+            color: var(--text-heading);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .icon-btn.active {
@@ -104,6 +105,7 @@
             margin-bottom: 1.5rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -124,7 +126,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            background: rgba(13, 17, 23, 0.5);
+            background: var(--glass-panel);
             min-height: 200px;
         }
 
@@ -144,6 +146,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app-container">
         <!-- Sidebar -->
@@ -153,7 +156,7 @@
                     <span>📝</span> Co-Notes
                 </a>
             </div>
-            
+
             <div class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Home</div>
@@ -214,11 +217,12 @@
 
                 <div class="collections-grid" id="collectionsGrid">
                     <!-- Add Card -->
-                    <div class="collection-card add-card" style="--collection-color: transparent;" onclick="openModal()">
+                    <div class="collection-card add-card" style="--collection-color: transparent;"
+                        onclick="openModal()">
                         <div class="add-icon">➕</div>
                         <h3 style="color: var(--text-color);">Create Collection</h3>
                     </div>
-                    
+
                     <!-- Dymanically Generated Cards -->
                 </div>
             </div>
@@ -232,7 +236,7 @@
                 <h2>✨ Create Collection</h2>
                 <button class="icon-btn" onclick="closeModal()">✕</button>
             </div>
-            
+
             <form id="createForm">
                 <div class="form-group">
                     <label>Collection Name</label>
@@ -240,7 +244,8 @@
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea id="cDesc" class="form-control" rows="3" placeholder="What is this collection for?"></textarea>
+                    <textarea id="cDesc" class="form-control" rows="3"
+                        placeholder="What is this collection for?"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Icon Emoji</label>
@@ -254,17 +259,15 @@
         </div>
     </div>
 
+    <script src="api.js"></script>
     <script>
+        checkAuth();
+
         // Data
-        let collections = [
-            { id: 1, name: 'Work Projects', desc: 'All work-related documents', icon: '💼', color: '#667eea', count: 12, private: false, star: true },
-            { id: 2, name: 'Personal Notes', desc: 'My personal thoughts and journals', icon: '📝', color: '#f093fb', count: 8, private: true, star: false },
-            { id: 3, name: 'Learning Resources', desc: 'Courses, tutorials, and materials', icon: '📚', color: '#4facfe', count: 24, private: false, star: true },
-            { id: 4, name: 'Travel Plans', desc: 'Trip itineraries', icon: '✈️', color: '#43e97b', count: 5, private: true, star: false }
-        ];
+        let collections = [];
 
         let showStarredOnly = false;
-        
+
         const grid = document.getElementById('collectionsGrid');
         const searchInput = document.getElementById('searchInput');
         let activeSearch = '';
@@ -282,41 +285,82 @@
             });
 
             filtered.forEach(c => {
+                const docCount = c.documents ? c.documents.length : c.documentCount || 0;
+                const isPrivate = c.isPrivate !== undefined ? c.isPrivate : true;
+                const isStarred = c.isStarred || c.star || false;
+                const id = c._id || c.id;
+
                 const a = document.createElement('a');
-                a.href = `document.html?collection=${c.id}`;
+                a.href = `document.html?collection=${id}`;
                 a.className = 'collection-card';
-                a.style.setProperty('--collection-color', c.color);
-                
+                a.style.setProperty('--collection-color', c.color || '#667eea');
+
                 a.innerHTML = `
                     <div class="collection-header">
-                        <span class="collection-icon">${c.icon}</span>
+                        <span class="collection-icon">${c.icon || '📁'}</span>
                         <div class="collection-actions">
-                            <button class="icon-btn ${c.star ? 'active' : ''}" onclick="toggleStar(${c.id}, event)">⭐</button>
-                            <button class="icon-btn" onclick="deleteCol(${c.id}, event)">🗑️</button>
+                            <button class="icon-btn ${isStarred ? 'active' : ''}" onclick="toggleStar('${id}', event)">⭐</button>
+                            <button class="icon-btn" onclick="deleteCol('${id}', event)">🗑️</button>
                         </div>
                     </div>
                     <h3 class="collection-name">${c.name}</h3>
-                    <p class="collection-desc">${c.desc}</p>
+                    <p class="collection-desc">${c.description || c.desc || ''}</p>
                     <div class="collection-meta">
-                        <span>📄 ${c.count} items</span>
-                        <span>${c.private ? '🔒 Private' : '🌐 Shared'}</span>
+                        <span>📄 ${docCount} items</span>
+                        <span>${isPrivate ? '🔒 Private' : '🌐 Shared'}</span>
                     </div>
                 `;
                 grid.appendChild(a);
             });
         }
 
-        window.toggleStar = (id, event) => {
-            event.preventDefault(); // stop navigation
-            collections = collections.map(c => c.id === id ? {...c, star: !c.star} : c);
-            render();
+        async function fetchCollections() {
+            try {
+                const response = await apiFetch('/collections');
+                collections = response.collections || response || [];
+                // standardise star property for local filtering
+                collections = collections.map(c => ({ ...c, star: c.isStarred, desc: c.description }));
+                render();
+            } catch (error) {
+                console.error("Failed to fetch collections", error);
+            }
         }
 
-        window.deleteCol = (id, event) => {
-            event.preventDefault();
-            if(confirm('Delete this collection?')) {
-                collections = collections.filter(c => c.id !== id);
+        window.toggleStar = async (id, event) => {
+            event.preventDefault(); // stop navigation
+
+            const col = collections.find(c => (c._id || c.id) === id);
+            if (!col) return;
+
+            const newStar = !col.isStarred;
+            col.isStarred = newStar;
+            col.star = newStar; // local filter compat
+            render();
+
+            try {
+                await apiFetch(`/collections/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isStarred: newStar })
+                });
+            } catch (error) {
+                // revert
+                col.isStarred = !newStar;
+                col.star = !newStar;
                 render();
+                alert('Failed to update star status');
+            }
+        }
+
+        window.deleteCol = async (id, event) => {
+            event.preventDefault();
+            if (confirm('Delete this collection?')) {
+                try {
+                    await apiFetch(`/collections/${id}`, { method: 'DELETE' });
+                    collections = collections.filter(c => (c._id || c.id) !== id);
+                    render();
+                } catch (error) {
+                    alert('Failed to delete collection');
+                }
             }
         }
 
@@ -333,7 +377,7 @@
         });
 
         // Initial render
-        render();
+        fetchCollections();
 
         // Modal Logic
         const modal = document.getElementById('createModal');
@@ -349,24 +393,40 @@
             closeModal();
         });
 
-        document.getElementById('createForm').addEventListener('submit', (e) => {
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const colors = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140'];
-            
-            collections.unshift({
-                id: Date.now(),
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            const payload = {
                 name: document.getElementById('cName').value,
-                desc: document.getElementById('cDesc').value,
+                description: document.getElementById('cDesc').value,
                 icon: document.getElementById('cIcon').value || '📁',
                 color: colors[Math.floor(Math.random() * colors.length)],
-                count: 0,
-                private: true,
-                star: false
-            });
-            render();
-            closeModal();
+                isPrivate: true,
+            };
+
+            try {
+                const response = await apiFetch('/collections', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const newCol = response.collection || response;
+                newCol.star = newCol.isStarred;
+                newCol.desc = newCol.description;
+                collections.unshift(newCol);
+
+                render();
+                closeModal();
+            } catch (error) {
+                alert('Failed to create collection: ' + error.message);
+            } finally {
+                btn.disabled = false;
+            }
         });
 
     </script>
 </body>
+
 </html>
