@@ -103,6 +103,43 @@ export async function getDashboardStats(req, res) {
     }
 }
 
+// GET /api/users/me/activity
+export async function getUserActivity(req, res) {
+    try {
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        oneYearAgo.setHours(0, 0, 0, 0);
+
+        const [docs, ideas, todos, articles, quickNotes] = await Promise.all([
+            Document.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            Idea.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            Todo.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            Article.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+            QuickNote.find({ userId: req.userId, createdAt: { $gte: oneYearAgo } }).select("createdAt"),
+        ]);
+
+        const allActivity = [...docs, ...ideas, ...todos, ...articles, ...quickNotes];
+        const activityMap = {};
+
+        allActivity.forEach(item => {
+            const d = new Date(item.createdAt);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
+        });
+
+        return res.json({
+            total: allActivity.length,
+            activities: activityMap
+        });
+    } catch (error) {
+        console.error("getUserActivity error:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 // POST /api/users/:id/follow
 export async function toggleFollow(req, res) {
     try {
