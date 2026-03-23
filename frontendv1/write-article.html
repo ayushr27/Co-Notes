@@ -245,7 +245,7 @@
                 <span style="color: var(--text-muted); font-size: 0.9rem;"><i data-lucide="clock" class="nav-icon"></i> Draft • Auto-saved</span>
             </div>
             <div class="header-right" style="display: flex; gap: 1rem;">
-                <button class="btn btn-secondary" onclick="alert('Preview coming soon!')">👁️ Preview</button>
+                <button class="btn btn-secondary" onclick="openPreviewModal()">👁️ Preview</button>
                 <button class="btn btn-secondary" onclick="alert('Draft saved!')">💾 Save Draft</button>
                 <button class="btn btn-primary" onclick="openPublishModal()"><i data-lucide="rocket" class="nav-icon"></i> Publish</button>
             </div>
@@ -390,6 +390,42 @@
             <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
                 <button class="btn btn-secondary" onclick="closePublishModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="confirmPublish()">Publish Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal" style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>👁️ Article Preview</h2>
+                <button class="btn" style="padding: 0;" onclick="closePreviewModal()">✕</button>
+            </div>
+            <div class="modal-body" style="padding-top: 0;">
+                <div class="article-container" style="padding: 0; max-width: 100%;">
+                    <header class="article-header" style="margin-bottom: 2rem; margin-top: 1rem;">
+                        <div id="previewCategoryBadge" style="margin-bottom: 1rem;"></div>
+                        <h1 class="article-title-large" id="previewTitle" style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-heading);"></h1>
+                        <p class="article-subtitle-large" id="previewSubtitle" style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--text-muted);"></p>
+                    </header>
+                    
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
+                        <div class="author-avatar-large" style="width: 48px; height: 48px; font-size: 1.2rem; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), #7928ca); display: flex; align-items: center; justify-content: center; color: white;">A</div>
+                        <div>
+                            <strong style="display: block; color: var(--text-heading); font-size: 1.05rem;" id="previewAuthorName">Author</strong>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;" id="previewDateRead"></span>
+                        </div>
+                    </div>
+
+                    <img src="" alt="Cover" class="article-cover-image" id="previewCover" style="display: none; width: 100%; height: auto; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                    
+                    <div class="article-content" id="previewContent" style="font-size: 1.15rem; line-height: 1.8; color: #e6edf3; white-space: pre-wrap; margin-bottom: 2rem;">
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closePreviewModal()">Close Preview</button>
+                <button class="btn btn-primary" onclick="closePreviewModal(); openPublishModal();">Proceed to Publish</button>
             </div>
         </div>
     </div>
@@ -561,6 +597,75 @@
 
         window.closePublishModal = () => {
             modal.classList.remove('active');
+        };
+
+        // Preview Modal Logic
+        const previewModal = document.getElementById('previewModal');
+
+        window.openPreviewModal = () => {
+            const title = document.getElementById('aTitle').value || 'Untitled Article';
+            const subtitle = document.getElementById('aSubtitle').value;
+            const cat = document.getElementById('catSelect');
+            const categoryText = cat.value ? cat.options[cat.selectedIndex].text : 'General';
+            const readTime = document.getElementById('readTime').textContent;
+
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewSubtitle').textContent = subtitle;
+            document.getElementById('previewSubtitle').style.display = subtitle ? 'block' : 'none';
+            
+            document.getElementById('previewCategoryBadge').innerHTML = `<span class="badge" style="background: rgba(88, 166, 255, 0.1); color: #58a6ff; border: 1px solid #58a6ff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">${categoryText}</span>`;
+            
+            const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('previewDateRead').textContent = `${today} · ${readTime} read`;
+
+            // Try to get current user name if available
+            try {
+                const currentUser = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+                if (currentUser && currentUser.name) {
+                    document.getElementById('previewAuthorName').textContent = currentUser.name;
+                    document.querySelector('#previewModal .author-avatar-large').textContent = currentUser.name.charAt(0).toUpperCase();
+                }
+            } catch (e) {
+                console.error("Could not fetch user for preview:", e);
+            }
+
+            const coverEl = document.getElementById('previewCover');
+            const uploadEl = document.getElementById('coverUpload');
+            const bgImage = uploadEl.style.backgroundImage;
+            
+            if (bgImage && bgImage !== 'none' && bgImage !== '') {
+                // Extract url("...") from background-image
+                const urlMatch = bgImage.match(/url\(['"]?(.*?)['"]?\)/);
+                if (urlMatch && urlMatch[1]) {
+                    coverEl.src = urlMatch[1];
+                    coverEl.style.display = 'block';
+                } else {
+                    coverEl.style.display = 'none';
+                }
+            } else if (typeof uploadedCoverUrl !== 'undefined' && uploadedCoverUrl) {
+                if (typeof resolveApiAssetUrl === 'function') {
+                    coverEl.src = resolveApiAssetUrl(uploadedCoverUrl);
+                } else {
+                    coverEl.src = uploadedCoverUrl;
+                }
+                coverEl.style.display = 'block';
+            } else {
+                coverEl.style.display = 'none';
+            }
+            
+            const contentEl = document.getElementById('previewContent');
+            const editorContent = document.getElementById('aContent').innerHTML;
+            if (editorContent.trim() && editorContent !== '<br>') {
+                contentEl.innerHTML = editorContent;
+            } else {
+                contentEl.innerHTML = '<p style="color: var(--text-muted); font-style: italic;">No content written yet.</p>';
+            }
+            
+            previewModal.classList.add('active');
+        };
+
+        window.closePreviewModal = () => {
+            previewModal.classList.remove('active');
         };
 
         window.confirmPublish = async () => {
