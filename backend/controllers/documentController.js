@@ -1,5 +1,6 @@
 import Document from "../models/Document.js";
 import Collection from "../models/Collection.js";
+import { createNotification } from "../services/notificationService.js";
 
 // GET /api/documents
 export async function getDocuments(req, res) {
@@ -72,6 +73,15 @@ export async function createDocument(req, res) {
             isArchived: isArchived || false,
             userId: req.userId
         });
+
+        await createNotification(
+            req,
+            req.userId,
+            `New document "${doc.title}" created.`,
+            "document_created",
+            `/document.html?id=${doc._id}`
+        );
+
         return res.status(201).json(doc);
     } catch (error) {
         console.error("createDocument error:", error.message);

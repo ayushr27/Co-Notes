@@ -199,21 +199,31 @@
 
         async function loadNotifications() {
             try {
-                const invites = await apiFetch('/projects/invites/mine');
-                notifications = invites.map(inv => ({
-                    id: inv.id,
-                    type: 'invite',
-                    user: inv.from?.name || inv.from?.username || 'Someone',
-                    action: inv.status === 'pending' ? 'invited you to collaborate on' : (inv.status === 'accepted' ? 'You joined the project' : 'You declined the invite for'),
-                    target: inv.project?.title || 'a project',
-                    time: timeAgo(inv.createdAt),
-                    unread: inv.status === 'pending',
-                    status: inv.status,
-                    icon: '<i data-lucide="mail" class="nav-icon"></i>'
+                const data = await apiFetch('/notifications?limit=50');
+                notifications = data.notifications.map(n => ({
+                    id: n._id,
+                    message: n.message,
+                    type: n.type,
+                    time: timeAgo(n.createdAt),
+                    unread: !n.isRead,
+                    link: n.link,
+                    dateObj: new Date(n.createdAt)
                 }));
                 renderNotifs();
             } catch (err) {
                 list.innerHTML = `<p style="color:var(--danger); text-align:center; padding:2rem;">Failed to load notifications: ${err.message}</p>`;
+            }
+        }
+
+        function getIconForType(type) {
+            switch(type) {
+                case 'article_created':
+                case 'article_published': return '<i data-lucide="file-text" class="nav-icon"></i>';
+                case 'document_created': return '<i data-lucide="file" class="nav-icon"></i>';
+                case 'todo_created':
+                case 'todo_completed': return '<i data-lucide="check-square" class="nav-icon"></i>';
+                case 'idea_created': return '<i data-lucide="lightbulb" class="nav-icon"></i>';
+                default: return '<i data-lucide="bell" class="nav-icon"></i>';
             }
         }
 
@@ -235,28 +245,38 @@
                 const div = document.createElement('div');
                 div.className = `notification-item ${n.unread ? 'unread' : ''}`;
                 
-                let actionsHtml = '';
-                if(n.unread) {
-                    actionsHtml = `
-                        <button class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size:0.8rem; margin-right: 0.5rem;" onclick="respondInvite('${n.id}', 'accept', event)">Accept</button>
-                        <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size:0.8rem;" onclick="respondInvite('${n.id}', 'reject', event)">Decline</button>
-                    `;
-                }
-
                 div.innerHTML = `
-                    <div class="notification-icon">${n.icon}</div>
+                    <div class="notification-icon">${getIconForType(n.type)}</div>
                     <div class="notification-content">
                         <div class="notification-text">
-                            <strong>${escHtml(n.user)}</strong> ${n.action} <strong>${escHtml(n.target)}</strong>
-                            ${n.unread ? '' : ` <span style="font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--text-muted); margin-left: 6px;">${n.status}</span>`}
+                            ${n.message}
                         </div>
                         <div class="notification-time">${n.time}</div>
                     </div>
-                    <div class="notification-actions" style="opacity: 1;">
-                        ${actionsHtml}
-                    </div>
                 `;
                 
+                // Clicking the notification can also read it
+                div.addEventListener('click', async (e) => {
+                    // Prevent rapid double clicks
+                    if (div.style.pointerEvents === 'none') return;
+                    
+                    if (n.unread) {
+                        div.style.pointerEvents = 'none';
+                        try {
+                            await apiFetch('/notifications/read', {
+                                method: 'PUT',
+                                body: JSON.stringify({ notificationIds: [n.id] })
+                            });
+                            n.unread = false;
+                            div.classList.remove('unread');
+                        } catch(err) {
+                            console.error(err);
+                        } finally {
+                            div.style.pointerEvents = 'auto';
+                        }
+                    }
+                });
+
                 list.appendChild(div);
             });
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -269,22 +289,14 @@
             renderNotifs();
         };
 
-        window.respondInvite = async (inviteId, action, e) => {
-            if(e) e.stopPropagation();
-            try {
-                await apiFetch(`/projects/invites/${inviteId}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({ action })
-                });
-                alert(action === 'accept' ? 'You joined the project!' : 'Invite declined.');
-                await loadNotifications();
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
-        };
-
         window.markAllRead = async () => {
-            alert('Mark all as read implemented!');
+            try {
+                await apiFetch('/notifications/read', { method: 'PUT', body: JSON.stringify({}) });
+                notifications.forEach(n => n.unread = false);
+                renderNotifs();
+            } catch (err) {
+                alert('Error marking as read: ' + err.message);
+            }
         };
 
         function escHtml(str) {
