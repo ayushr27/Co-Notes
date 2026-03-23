@@ -20,12 +20,13 @@ export async function getMe(req, res) {
 
 // PUT /api/users/me
 export async function updateMe(req, res) {
-    const { name, bio, avatar, location, website } = req.body;
+    const { name, bio, avatar, coverImage, location, website } = req.body;
     try {
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (bio !== undefined) updateData.bio = bio;
         if (avatar !== undefined) updateData.avatar = avatar;
+        if (coverImage !== undefined) updateData.coverImage = coverImage;
         if (location !== undefined) updateData.location = location;
         if (website !== undefined) updateData.website = website;
 

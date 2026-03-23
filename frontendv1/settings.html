@@ -97,6 +97,24 @@
             margin-bottom: 2rem;
         }
 
+        .profile-visuals {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cover-preview {
+            width: 100%;
+            max-width: 420px;
+            height: 110px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+            background-size: cover;
+            background-position: center;
+        }
+
         .avatar-large {
             width: 80px;
             height: 80px;
@@ -249,8 +267,21 @@
                         <div id="profile-panel" class="settings-panel active">
                             <h2 style="margin-bottom: 1.5rem;">Profile Settings</h2>
 
-                            <div class="profile-avatar-section">
-                                <div class="avatar-large">J</div>
+                            <div class="profile-visuals">
+                                <div class="cover-preview" id="cover-preview"></div>
+                                <div class="profile-avatar-section">
+                                    <div class="avatar-large">J</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Profile Picture URL</label>
+                                <input type="url" id="setting-avatar" class="form-control" placeholder="https://example.com/avatar.jpg">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Cover Image URL</label>
+                                <input type="url" id="setting-cover-image" class="form-control" placeholder="https://example.com/cover.jpg">
                             </div>
 
                             <div class="form-group">
@@ -320,15 +351,33 @@
                 document.getElementById('setting-email').value = user.email || "";
                 document.getElementById('setting-bio').value = user.bio || "";
                 document.getElementById('setting-location').value = user.location || "";
+                document.getElementById('setting-avatar').value = user.avatar || "";
+                document.getElementById('setting-cover-image').value = user.coverImage || "";
 
-                const avatarEl = document.querySelector('.avatar-large');
-                if (user.avatar) {
-                    avatarEl.innerHTML = `<img src="${user.avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                } else {
-                    avatarEl.innerText = user.name ? user.name.charAt(0).toUpperCase() : "U";
-                }
+                setAvatarPreview(user.avatar, user.name);
+                setCoverPreview(user.coverImage);
             } catch (error) {
                 console.error("Settings init error:", error);
+            }
+        }
+
+        function setAvatarPreview(avatarUrl, name) {
+            const avatarEl = document.querySelector('.avatar-large');
+            const resolved = resolveApiAssetUrl(avatarUrl);
+            if (resolved) {
+                avatarEl.innerHTML = `<img src="${resolved}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                avatarEl.innerText = name ? name.charAt(0).toUpperCase() : "U";
+            }
+        }
+
+        function setCoverPreview(coverUrl) {
+            const coverEl = document.getElementById('cover-preview');
+            const resolved = resolveApiAssetUrl(coverUrl);
+            if (resolved) {
+                coverEl.style.backgroundImage = `url('${resolved}')`;
+            } else {
+                coverEl.style.backgroundImage = "linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04))";
             }
         }
 
@@ -343,12 +392,16 @@
             const name = document.getElementById('setting-name').value;
             const bio = document.getElementById('setting-bio').value;
             const location = document.getElementById('setting-location').value;
+            const avatar = document.getElementById('setting-avatar').value.trim();
+            const coverImage = document.getElementById('setting-cover-image').value.trim();
 
             try {
                 await apiFetch('/users/me', {
                     method: 'PUT',
-                    body: JSON.stringify({ name, bio, location })
+                    body: JSON.stringify({ name, bio, location, avatar, coverImage })
                 });
+                setAvatarPreview(avatar, name);
+                setCoverPreview(coverImage);
                 alert("Profile settings updated successfully!");
             } catch (error) {
                 alert("Failed to update profile: " + error.message);
@@ -356,6 +409,17 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
             }
+        });
+
+        document.getElementById('setting-avatar').addEventListener('input', () => {
+            const name = document.getElementById('setting-name').value;
+            const avatar = document.getElementById('setting-avatar').value.trim();
+            setAvatarPreview(avatar, name);
+        });
+
+        document.getElementById('setting-cover-image').addEventListener('input', () => {
+            const coverImage = document.getElementById('setting-cover-image').value.trim();
+            setCoverPreview(coverImage);
         });
 
         // Tab switching logic

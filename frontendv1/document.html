@@ -19,6 +19,7 @@
       --border-strong: var(--border-color);
       --text-primary: var(--text-color);
       --text-secondary: var(--text-muted);
+      --text-muted: var(--text-muted);
       --accent: var(--primary-color);
       --accent-soft: rgba(88, 166, 255, 0.1);
       --accent-glow: var(--glow-color);
@@ -34,6 +35,7 @@
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.24);
       --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.24);
       --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.32);
+      --shadow-glow: var(--glow-color);
       --sidebar-w: 240px;
       --header-h: 58px;
       --editor-w: 420px;
@@ -58,30 +60,25 @@
       background: var(--bg-base);
       color: var(--text-primary);
       min-height: 100vh;
-      overflow: hidden;
       transition: background var(--transition), color var(--transition);
     }
 
     .document-page {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
       padding: 2rem;
-      gap: 1.5rem;
+      flex: 1;
+      overflow: auto;
     }
 
     .document-shell {
       display: flex;
       flex-direction: column;
-      flex: 1;
-      min-height: 0;
+      min-height: calc(100vh - 156px);
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 16px;
       overflow: hidden;
       backdrop-filter: blur(10px);
+      position: relative;
     }
 
     ::-webkit-scrollbar {
@@ -114,48 +111,39 @@
       backdrop-filter: blur(10px);
     }
 
-    .panel-title {
+    .logo {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 10px;
+      text-decoration: none;
       flex-shrink: 0;
     }
 
-    .panel-title-icon {
-      width: 34px;
-      height: 34px;
+    .logo-mark {
+      width: 32px;
+      height: 32px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .panel-title-copy {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .panel-title-label {
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 16px;
       color: var(--text-heading);
-      letter-spacing: -0.02em;
     }
 
-    .panel-title-meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .logo-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
     }
 
     .search-wrap {
       flex: 1;
-      max-width: 460px;
-      margin: 0 1.5rem 0 auto;
+      max-width: 440px;
+      margin: 0 auto;
       position: relative;
     }
 
@@ -170,11 +158,12 @@
 
     #searchInput {
       width: 100%;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
+      background: var(--bg-overlay);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 8px 12px 8px 38px;
       color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
       font-size: .9rem;
       outline: none;
       transition: border var(--transition), background var(--transition);
@@ -193,7 +182,8 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 6px;
+      margin-left: auto;
     }
 
     .icon-btn {
@@ -273,12 +263,13 @@
       flex: 1;
       overflow: hidden;
       min-height: 0;
+      position: relative;
     }
 
     #sidebar {
-      width: 280px;
-      background: rgba(255, 255, 255, 0.02);
-      border-right: 1px solid var(--border-color);
+      width: var(--sidebar-w);
+      background: var(--bg-elevated);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
@@ -287,7 +278,7 @@
     }
 
     .sidebar-section {
-      padding: 18px 16px 10px;
+      padding: 16px 12px 8px;
     }
 
     .sidebar-label {
@@ -390,9 +381,9 @@
     }
 
     .stats-card {
-      margin: 8px 16px 18px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
+      margin: 8px 12px 16px;
+      background: var(--bg-overlay);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 14px;
     }
@@ -1045,14 +1036,14 @@
     }
 
     .btn-primary {
-      background: var(--text-primary);
-      color: var(--bg-base);
+      background: var(--accent);
+      color: var(--text-heading);
       flex: 1;
       justify-content: center;
     }
 
     .btn-primary:hover {
-      background: var(--text-secondary);
+      background: #3182ce;
       box-shadow: 0 2px 12px var(--accent-glow);
     }
 
@@ -1089,7 +1080,7 @@
 
     .word-count-fill {
       height: 100%;
-      background: var(--text-primary);
+      background: linear-gradient(90deg, var(--accent), #3182ce);
       border-radius: 99px;
       transition: width .3s ease;
       max-width: 100%;
@@ -1101,10 +1092,10 @@
       right: 24px;
       width: 52px;
       height: 52px;
-      background: var(--text-primary);
+      background: linear-gradient(135deg, var(--accent), #3182ce);
       border: none;
       border-radius: 50%;
-      color: var(--bg-base);
+      color: var(--text-heading);
       font-size: 22px;
       cursor: pointer;
       box-shadow: 0 4px 20px var(--accent-glow), 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -1345,39 +1336,18 @@
       display: none;
     }
 
-    @media (max-width: 900px) {
-      :root {
-        --editor-w: 100vw;
-        --sidebar-w: 220px;
-      }
-
-      #editorPanel {
-        position: fixed;
-        top: var(--header-h);
-        right: 0;
-        bottom: 0;
-        z-index: 90;
-        box-shadow: var(--shadow-lg);
-      }
-
-      #fab.shifted {
-        right: 24px;
-      }
-    }
-
-    @media (max-width: 680px) {
-      :root {
-        --sidebar-w: 100vw;
+    @media (max-width: 1200px) {
+      .document-page {
+        padding: 1.25rem;
       }
 
       #sidebar {
-        position: fixed;
-        top: var(--header-h);
+        position: absolute;
+        top: 0;
         left: 0;
         bottom: 0;
-        z-index: 80;
+        z-index: 25;
         transform: translateX(-100%);
-        transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: var(--shadow-lg);
       }
 
@@ -1388,17 +1358,91 @@
       #sidebarToggle {
         display: flex;
       }
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --editor-w: min(100%, 560px);
+      }
+
+      #globalSidebar {
+        display: none;
+      }
+
+      .document-page {
+        padding: 1rem;
+      }
+
+      #editorPanel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 90;
+        box-shadow: var(--shadow-lg);
+      }
+
+      #contentHeader {
+        flex-wrap: wrap;
+      }
+
+      .view-toggle {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+      }
+
+      #fab.shifted {
+        right: 24px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .document-page {
+        padding: 0.75rem;
+      }
+
+      .document-shell {
+        min-height: calc(100vh - 120px);
+        border-radius: 12px;
+      }
+
+      #header {
+        height: auto;
+        min-height: var(--header-h);
+        padding: 12px;
+        flex-wrap: wrap;
+      }
+
+      .search-wrap {
+        order: 3;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+
+      .header-actions {
+        margin-left: auto;
+      }
+
+      #sidebar {
+        width: min(320px, 100%);
+      }
 
       #notesGrid {
         grid-template-columns: 1fr;
       }
 
-      .logo-text {
-        display: none;
+      #notesScroll {
+        padding: 14px 14px 96px;
       }
 
-      .search-wrap {
-        max-width: none;
+      #editorPanel {
+        width: 100%;
+      }
+
+      .editor-footer {
+        flex-wrap: wrap;
       }
     }
 
@@ -1431,31 +1475,33 @@
 
 <body>
   <div class="app-container">
-
-    <!-- Site-wide Sidebar -->
     <aside class="sidebar" id="globalSidebar">
       <div class="sidebar-header">
         <a href="dashboard.html" class="sidebar-brand">
           <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
         </a>
       </div>
+
       <div class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-title">Home</div>
           <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
           <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
         </div>
+
         <div class="nav-section">
           <div class="nav-section-title">Quick Links</div>
           <a href="ideas.html" class="nav-item"><i data-lucide="lightbulb" class="nav-icon"></i> Ideas</a>
           <a href="quick-notes.html" class="nav-item"><i data-lucide="zap" class="nav-icon"></i> Quick Notes</a>
           <a href="todos.html" class="nav-item"><i data-lucide="check-square" class="nav-icon"></i> To-Do List</a>
         </div>
+
         <div class="nav-section">
           <div class="nav-section-title">Community</div>
           <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
           <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
         </div>
+
         <div class="nav-section">
           <div class="nav-section-title">Account</div>
           <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
@@ -1465,7 +1511,6 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
       <header class="header">
         <div class="header-left">
@@ -1482,46 +1527,76 @@
           <span><i data-lucide="file-text" class="nav-icon"></i></span>
           <h1>Documents</h1>
         </div>
-        <p class="page-subtitle">Capture, organize, and revisit your notes with the same workspace layout as the rest of Co-Notes.</p>
+        <p class="page-subtitle">Create and organize notes in the same workspace shell used across the rest of Co-Notes.</p>
 
         <div class="document-shell">
   <header id="header">
-    <div class="panel-title">
-      <button class="icon-btn" id="sidebarToggle" title="Toggle sidebar" type="button">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-      </button>
-      <div class="panel-title-icon">
-        <i data-lucide="file-text" class="nav-icon"></i>
-      </div>
-      <div class="panel-title-copy">
-        <span class="panel-title-label">Document Manager</span>
-        <span class="panel-title-meta">Notes Workspace</span>
-      </div>
-    </div>
+    <button class="icon-btn" id="sidebarToggle" title="Toggle sidebar" type="button">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <a class="logo" href="dashboard.html">
+      <div class="logo-mark"><i data-lucide="file-text" class="nav-icon"></i></div>
+      <span class="logo-text">Co-Notes</span>
+    </a>
 
     <div class="search-wrap">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
       <input type="text" id="searchInput" placeholder="Search notes... (/)" />
     </div>
 
     <div class="header-actions">
       <div class="sort-wrap">
         <button class="icon-btn" id="sortBtn" title="Sort notes" type="button">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"></path></svg>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 6h18M7 12h10M11 18h2"></path>
+          </svg>
         </button>
         <div id="sortMenu">
-          <div class="sort-item active" data-sort="newest">&#8595; Newest first</div>
-          <div class="sort-item" data-sort="oldest">&#8593; Oldest first</div>
-          <div class="sort-item" data-sort="updated"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Updated</div>
-          <div class="sort-item" data-sort="title">A&#8594;Z Title</div>
-          <div class="sort-item" data-sort="words">W Word count</div>
+          <div class="sort-item active" data-sort="newest">Newest first</div>
+          <div class="sort-item" data-sort="oldest">Oldest first</div>
+          <div class="sort-item" data-sort="updated">Last updated</div>
+          <div class="sort-item" data-sort="title">Title A-Z</div>
+          <div class="sort-item" data-sort="words">Word count</div>
         </div>
       </div>
+
       <button class="icon-btn" id="exportBtn" title="Export notes (E)" type="button">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
       </button>
+
       <button class="icon-btn" id="importBtn" title="Import notes (I)" type="button">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </button>
+
+      <button class="icon-btn" id="themeBtn" title="Toggle theme (T)" type="button">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+          id="themeIcon">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
       </button>
     </div>
   </header>
@@ -1529,11 +1604,47 @@
   <div id="appBody">
     <aside id="sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-label">Notes</div>
-        <div class="nav-item active" data-section="all"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> All Notes <span class="nav-badge" id="badge-all">0</span></div>
-        <div class="nav-item" data-section="pinned"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg> Pinned <span class="nav-badge" id="badge-pinned">0</span></div>
-        <div class="nav-item" data-section="favorites"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> Favorites <span class="nav-badge" id="badge-favorites">0</span></div>
-        <div class="nav-item" data-section="archived"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg> Archived <span class="nav-badge" id="badge-archived">0</span></div>
+        <div class="sidebar-label">Navigation</div>
+
+        <div class="nav-item active" data-section="all">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          All Notes
+          <span class="nav-badge" id="badge-all">0</span>
+        </div>
+
+        <div class="nav-item" data-section="pinned">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="12" y1="17" x2="12" y2="22"></line>
+            <path
+              d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z">
+            </path>
+          </svg>
+          Pinned
+          <span class="nav-badge" id="badge-pinned">0</span>
+        </div>
+
+        <div class="nav-item" data-section="favorites">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+            </path>
+          </svg>
+          Favorites
+          <span class="nav-badge" id="badge-favorites">0</span>
+        </div>
+
+        <div class="nav-item" data-section="archived">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+            <rect x="1" y="3" width="22" height="5"></rect>
+            <line x1="10" y1="12" x2="14" y2="12"></line>
+          </svg>
+          Archived
+          <span class="nav-badge" id="badge-archived">0</span>
+        </div>
       </div>
 
       <div class="sidebar-section">
@@ -1685,13 +1796,12 @@
       </div>
 
       <div class="editor-footer">
-        <button class="btn btn-ghost" id="duplicateBtn" title="Duplicate note" type="button">⎘</button>
-        <button class="btn btn-danger" id="deleteEditorBtn" type="button">🗑️</button>
+        <button class="btn btn-ghost" id="duplicateBtn" title="Duplicate note" type="button">Duplicate</button>
+        <button class="btn btn-danger" id="deleteEditorBtn" type="button">Delete</button>
         <button class="btn btn-primary" id="saveBtn" type="button">Save note</button>
       </div>
     </aside>
   </div>
-        </div>
 
   <button id="fab" title="New note (Ctrl+N)" type="button">+</button>
 
@@ -1722,6 +1832,8 @@
   </div>
 
   <div id="toastContainer"></div>
+
+        </div>
       </div>
 
   <script src="api.js"></script>
@@ -1903,7 +2015,7 @@
       if (notes.length === 0) {
         grid.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon">${state.query ? "Search" : state.section === "archived" ? "Archive" : "Notes"}</div>
+            <div class="empty-icon">${state.query ? "ðŸ”" : state.section === "archived" ? "ðŸ“¦" : "âœ¦"}</div>
             <div class="empty-title">${state.query ? "No results found" : "No notes here"}</div>
             <div class="empty-sub">${state.query ? "Try a different search term" : "Press Ctrl+N or the + button to create your first note."}</div>
           </div>
@@ -1918,7 +2030,7 @@
         const pinned = notes.filter((n) => n.pinned);
         const rest = notes.filter((n) => !n.pinned);
 
-        html += `<div class="section-divider">Pinned</div>`;
+        html += `<div class="section-divider">📌 Pinned</div>`;
         pinned.forEach((n) => (html += noteCardHTML(n)));
 
         if (rest.length) {
@@ -2119,9 +2231,9 @@
         s.classList.toggle("active", s.dataset.c === (note.color || "none"));
       });
 
-      updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "Pin", "Pinned", false);
-      updateToggleBtn(document.getElementById("favBtn"), note.favorite, "Favorite", "Favorited", true);
-      updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "Archive", "Archived", false);
+      updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "📌 Pin", "📌 Pinned", false);
+      updateToggleBtn(document.getElementById("favBtn"), note.favorite, "♡ Favorite", "♥ Favorited", true);
+      updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "📦 Archive", "📦 Archived", false);
 
       updateEditorMeta(note);
       updateAutosave(false);
@@ -2250,9 +2362,9 @@
       note.updated = Date.now();
 
       if (id === state.activeNote) {
-        if (prop === "pinned") updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "Pin", "Pinned", false);
-        if (prop === "favorite") updateToggleBtn(document.getElementById("favBtn"), note.favorite, "Favorite", "Favorited", true);
-        if (prop === "archived") updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "Archive", "Archived", false);
+        if (prop === "pinned") updateToggleBtn(document.getElementById("pinBtn"), note.pinned, "📌 Pin", "📌 Pinned", false);
+        if (prop === "favorite") updateToggleBtn(document.getElementById("favBtn"), note.favorite, "♡ Favorite", "♥ Favorited", true);
+        if (prop === "archived") updateToggleBtn(document.getElementById("archiveBtn"), note.archived, "📦 Archive", "📦 Archived", false);
       }
 
       renderAll();
@@ -2391,23 +2503,18 @@
         showToast(`Imported ${added.length} note${added.length !== 1 ? "s" : ""}`, "success");
         return true;
       } catch (e) {
-        showToast("Import failed - invalid JSON format", "error");
+        showToast("Import failed â€” invalid JSON format", "error");
         return false;
       }
     }
 
     function showToast(msg, type = "info") {
-      const icons = { 
-        success: '<i data-lucide="check-circle" style="width: 16px; height: 16px;"></i>', 
-        error: '<i data-lucide="x-circle" style="width: 16px; height: 16px;"></i>', 
-        info: '<i data-lucide="info" style="width: 16px; height: 16px;"></i>', 
-        warning: '<i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>' 
-      };
+      const icons = { success: "✓", error: "✕", info: "ℹ", warning: "⚡" };
       const container = document.getElementById("toastContainer");
       const toast = document.createElement("div");
 
       toast.className = `toast toast-${type}`;
-      toast.innerHTML = `<span class="toast-icon" style="display:flex;align-items:center;">${icons[type] || icons.info}</span>${escHtml(msg)}`;
+      toast.innerHTML = `<span class="toast-icon">${icons[type] || "•"}</span>${escHtml(msg)}`;
 
       container.appendChild(toast);
 
@@ -2738,11 +2845,9 @@
     </main>
   </div>
   <script>
-    if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+    if (typeof lucide !== "undefined") { lucide.createIcons(); }
   </script>
 </body>
 
 </html>
-
-
 

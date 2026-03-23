@@ -429,7 +429,9 @@
                 if (!response.ok) throw new Error('Failed to upload image');
                 
                 const data = await response.json();
-                uploadedCoverUrl = resolveApiAssetUrl(data.url);
+                // Store the relative path, NOT the resolved URL
+                // The API will store the path, and resolveApiAssetUrl() will handle it when displaying
+                uploadedCoverUrl = data.url;
                 return uploadedCoverUrl;
                 
             })();

@@ -58,6 +58,93 @@
             margin-bottom: 0.2rem;
         }
 
+        .article-head-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .article-owner-actions {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .my-post-chip {
+            font-size: 0.72rem;
+            color: var(--text-heading);
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 0.15rem 0.5rem;
+            background: var(--glass-bg);
+            white-space: nowrap;
+        }
+
+        .article-options-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            background: var(--card-bg);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .article-options-btn:hover {
+            color: var(--text-heading);
+            border-color: var(--primary-color);
+        }
+
+        .article-options-menu {
+            position: absolute;
+            top: 36px;
+            right: 0;
+            min-width: 160px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 20;
+            padding: 0.4rem;
+        }
+
+        .article-options-menu.open {
+            display: block;
+        }
+
+        .article-options-item {
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            padding: 0.45rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.86rem;
+            cursor: pointer;
+        }
+
+        .article-options-item:hover {
+            background: var(--glass-bg);
+            color: var(--text-heading);
+        }
+
+        .article-options-item.delete {
+            color: var(--danger-color);
+        }
+
+        .article-options-item.delete:hover {
+            background: rgba(239, 68, 68, 0.12);
+        }
+
         .author-avatar {
             width: 32px;
             height: 32px;
@@ -209,8 +296,25 @@
 
         let articles = [];
         let activeCategory = 'For You';
+        let currentUser = null;
 
         const feedColumn = document.getElementById('feedColumn');
+
+        function getCurrentUserId() {
+            if (!currentUser) return null;
+            return currentUser.id || currentUser._id || null;
+        }
+
+        function getAuthorId(article) {
+            if (!article || !article.author) return null;
+            return article.author.id || article.author._id || null;
+        }
+
+        function isOwnArticle(article) {
+            const userId = getCurrentUserId();
+            const authorId = getAuthorId(article);
+            return Boolean(userId && authorId && userId.toString() === authorId.toString());
+        }
 
         function formatRelativeTime(dateStr) {
             const diff = Date.now() - new Date(dateStr).getTime();
@@ -242,17 +346,33 @@
                 const likeCount = typeof article.likes === 'number' ? article.likes : (article.likes || []).length;
                 const commentCount = typeof article.comments === 'number' ? article.comments : (article.comments || []).length;
                 const coverImageUrl = resolveApiAssetUrl(article.coverImage);
+                const articleId = article.id || article._id;
+                const ownArticle = isOwnArticle(article);
 
                 const card = document.createElement('div');
                 card.className = 'article-card';
-                card.onclick = () => { window.location.href = `article-detail.html?id=${article.id || article._id}`; };
+                card.onclick = () => { window.location.href = `article-detail.html?id=${articleId}`; };
 
                 card.innerHTML = `
                     <div class="author-avatar" style="width: 44px; height: 44px; font-size: 1.2rem; flex-shrink: 0; margin-top: 4px;">${initial}</div>
                     <div style="flex: 1; min-width: 0;">
-                        <div class="article-meta" style="margin-bottom: 0.15rem;">
-                            <span class="author-name" style="margin-right: 0.4rem; font-size: 0.95rem;">${authorName}</span>
-                            <span class="post-time" style="font-size: 0.85rem;">@${authorName.toLowerCase().replace(/\s/g, '')} • ${timeStr} • ${article.category || 'General'}</span>
+                        <div class="article-head-row">
+                            <div class="article-meta" style="margin-bottom: 0; min-width: 0;">
+                                <span class="author-name" style="margin-right: 0.4rem; font-size: 0.95rem;">${authorName}</span>
+                                <span class="post-time" style="font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@${authorName.toLowerCase().replace(/\s/g, '')} • ${timeStr} • ${article.category || 'General'}</span>
+                            </div>
+                            ${ownArticle ? `
+                                <div class="article-owner-actions">
+                                    <span class="my-post-chip">Your post</span>
+                                    <button class="article-options-btn" onclick="toggleArticleMenu(event, '${articleId}')" aria-label="Article options">
+                                        <i data-lucide="more-horizontal" class="nav-icon"></i>
+                                    </button>
+                                    <div id="article-menu-${articleId}" class="article-options-menu">
+                                        <button class="article-options-item" onclick="copyArticleLink(event, '${articleId}')">Copy article link</button>
+                                        <button class="article-options-item delete" onclick="deleteArticleFromFeed(event, '${articleId}')">Delete article</button>
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                         <h2 class="article-title" style="font-size: 1.1rem; margin-bottom: 0.4rem; line-height: 1.35; font-weight: 500;">${article.title}</h2>
                         <p class="article-excerpt" style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.8rem; color: var(--text-color);">${article.subtitle || article.content}</p>
@@ -270,7 +390,57 @@
                 `;
                 feedColumn.appendChild(card);
             });
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
+
+        function closeAllArticleMenus() {
+            document.querySelectorAll('.article-options-menu.open').forEach(menu => {
+                menu.classList.remove('open');
+            });
+        }
+
+        function toggleArticleMenu(event, articleId) {
+            event.stopPropagation();
+            const menu = document.getElementById(`article-menu-${articleId}`);
+            if (!menu) return;
+            const shouldOpen = !menu.classList.contains('open');
+            closeAllArticleMenus();
+            if (shouldOpen) menu.classList.add('open');
+        }
+
+        async function copyArticleLink(event, articleId) {
+            event.stopPropagation();
+            const link = new URL(`article-detail.html?id=${articleId}`, window.location.href).href;
+            try {
+                await navigator.clipboard.writeText(link);
+                alert('Article link copied.');
+            } catch {
+                alert(link);
+            }
+            closeAllArticleMenus();
+        }
+
+        async function deleteArticleFromFeed(event, articleId) {
+            event.stopPropagation();
+            const ok = confirm('Delete this article? This cannot be undone.');
+            if (!ok) return;
+
+            try {
+                await apiFetch(`/articles/${articleId}`, { method: 'DELETE' });
+                articles = articles.filter(a => (a.id || a._id) !== articleId);
+                renderFeed();
+            } catch (error) {
+                alert(`Failed to delete article: ${error.message}`);
+            }
+            closeAllArticleMenus();
+        }
+
+        document.addEventListener('click', () => {
+            closeAllArticleMenus();
+        });
 
         async function loadFeed(cat = '', search = '') {
             try {
@@ -309,7 +479,16 @@
             }, 500);
         });
 
-        loadFeed();
+        async function initFeed() {
+            try {
+                currentUser = await apiFetch('/users/me');
+            } catch {
+                currentUser = null;
+            }
+            await loadFeed();
+        }
+
+        initFeed();
     </script>
     <script>
         if(typeof lucide !== 'undefined') { lucide.createIcons(); }

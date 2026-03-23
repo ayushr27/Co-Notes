@@ -383,7 +383,7 @@
                 }
 
                 if (article.coverImage) {
-                    document.getElementById('article-cover').src = article.coverImage;
+                    document.getElementById('article-cover').src = resolveApiAssetUrl(article.coverImage);
                     document.getElementById('article-cover').style.display = 'block';
                 }
 
