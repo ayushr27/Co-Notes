@@ -1860,7 +1860,10 @@
 
     async function loadStorage() {
       try {
-        const response = await apiFetch('/documents?limit=100');
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('collection');
+        const endpoint = collectionId ? `/documents?limit=100&collectionId=${collectionId}` : '/documents?limit=100';
+        const response = await apiFetch(endpoint);
         // Map backend objects to UI format
         state.notes = (response.documents || []).map(doc => ({
           id: doc.id || doc._id,
@@ -2257,7 +2260,24 @@
           })
         });
 
-        const doc = response.document || response;
+        const doc = response ? (response.document || response) : null;
+        if (!doc) {
+          showToast("Error creating note", "error");
+          return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('collection');
+        if (collectionId) {
+          try {
+            await apiFetch(`/collections/${collectionId}/items`, {
+              method: 'POST',
+              body: JSON.stringify({ documentId: doc.id || doc._id })
+            });
+          } catch (err) {
+            console.error("Failed to add note to collection", err);
+          }
+        }
 
         const note = {
           id: doc.id || doc._id,
@@ -2412,7 +2432,21 @@
           })
         });
 
-        const doc = response.document || response;
+        const doc = response ? (response.document || response) : null;
+        if (!doc) return;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const collectionId = urlParams.get('collection');
+        if (collectionId) {
+          try {
+            await apiFetch(`/collections/${collectionId}/items`, {
+              method: 'POST',
+              body: JSON.stringify({ documentId: doc.id || doc._id })
+            });
+          } catch (err) {
+            console.error("Failed to add duplicated note to collection", err);
+          }
+        }
 
         const copy = {
           ...note,
