@@ -252,13 +252,13 @@
 
         <div class="write-layout">
             <main class="write-main">
-                <div class="cover-upload" id="coverUpload" onclick="document.getElementById('coverFileInput').click()">
+                <label class="cover-upload" id="coverUpload" for="coverFileInput">
                     <div style="text-align: center; color: var(--text-muted);" id="coverPlaceholder">
                         <span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>
                         Add cover image
                     </div>
                     <input type="file" id="coverFileInput" accept="image/*" style="display: none;" onchange="handleCoverSelection(event)">
-                </div>
+                </label>
 
                 <input type="text" id="aTitle" class="article-title-input" placeholder="Article Title...">
                 <input type="text" id="aSubtitle" class="article-subtitle-input"
@@ -402,15 +402,27 @@
             const uploadEl = document.getElementById('coverUpload');
             const placeholder = document.getElementById('coverPlaceholder');
             
-            placeholder.innerText = 'Uploading...';
+            // Show preview directly from local file reader instantly
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadEl.style.backgroundImage = `url('${e.target.result}')`;
+                uploadEl.style.borderStyle = 'solid';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
 
             const formData = new FormData();
             formData.append('cover', file);
 
             try {
-                // Not using apiFetch here to avoid JSON headers
+                // Not using apiFetch here to avoid JSON headers overriding multipart
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:3000/api/articles/upload-cover', {
+                
+                // Use API_BASE_URL from api.js to dynamically figure out the host
+                const hostObj = new URL(API_BASE_URL);
+                const hostUrl = hostObj.protocol + '//' + hostObj.host;
+
+                const response = await fetch(`${API_BASE_URL}/articles/upload-cover`, {
                     method: 'POST',
                     headers: token ? { 'Authorization': `Bearer ${token}` } : {},
                     body: formData
@@ -419,13 +431,14 @@
                 if (!response.ok) throw new Error('Failed to upload image');
                 
                 const data = await response.json();
-                uploadedCoverUrl = 'http://localhost:3000' + data.url;
+                // Append the relative URL to the host
+                uploadedCoverUrl = hostUrl + data.url;
                 
-                uploadEl.style.backgroundImage = `url('${uploadedCoverUrl}')`;
-                uploadEl.style.borderStyle = 'solid';
-                placeholder.style.display = 'none';
             } catch (error) {
                 alert('Upload error: ' + error.message);
+                uploadEl.style.backgroundImage = 'none';
+                uploadEl.style.borderStyle = 'dashed';
+                placeholder.style.display = 'block';
                 placeholder.innerHTML = '<span style="font-size: 2rem; display: block; margin-bottom: 0.5rem;">🖼️</span>Add cover image';
             }
         }
