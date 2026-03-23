@@ -192,15 +192,29 @@
     <script src="api.js"></script>
     <script>
         checkAuth();
-        let notifications = [
-            { id: 1, type: 'mention', user: 'Alex Reyes', action: 'mentioned you in', target: 'Project Brainstorm', time: '10 minutes ago', unread: true, icon: '@' },
-            { id: 2, type: 'share', user: 'Sarah Jenkins', action: 'shared a collection with you:', target: 'Q4 Marketing Assets', time: '2 hours ago', unread: true, icon: '<i data-lucide="folder" class="nav-icon"></i>' },
-            { id: 3, type: 'comment', user: 'Marcus Dev', action: 'commented on your article', target: 'Building with Vanilla JS', time: 'Yesterday', unread: false, icon: '<i data-lucide="message-square" class="nav-icon"></i>' },
-            { id: 4, type: 'system', user: 'System', action: 'Your weekly summary is ready', target: 'View insights', time: '2 days ago', unread: false, icon: '<i data-lucide="bar-chart-2" class="nav-icon"></i>' }
-        ];
-
+        let notifications = [];
         const list = document.getElementById('notifList');
         let currentFilter = 'all';
+
+        async function loadNotifications() {
+            try {
+                const invites = await apiFetch('/projects/invites/mine');
+                notifications = invites.map(inv => ({
+                    id: inv.id,
+                    type: 'invite',
+                    user: inv.from?.name || inv.from?.username || 'Someone',
+                    action: inv.status === 'pending' ? 'invited you to collaborate on' : (inv.status === 'accepted' ? 'You joined the project' : 'You declined the invite for'),
+                    target: inv.project?.title || 'a project',
+                    time: timeAgo(inv.createdAt),
+                    unread: inv.status === 'pending',
+                    status: inv.status,
+                    icon: '<i data-lucide="mail" class="nav-icon"></i>'
+                }));
+                renderNotifs();
+            } catch (err) {
+                list.innerHTML = `<p style="color:var(--danger); text-align:center; padding:2rem;">Failed to load notifications: ${err.message}</p>`;
+            }
+        }
 
         function renderNotifs() {
             list.innerHTML = '';
@@ -220,23 +234,31 @@
                 const div = document.createElement('div');
                 div.className = `notification-item ${n.unread ? 'unread' : ''}`;
                 
+                let actionsHtml = '';
+                if(n.unread) {
+                    actionsHtml = `
+                        <button class="btn btn-primary" style="padding: 0.3rem 0.8rem; font-size:0.8rem; margin-right: 0.5rem;" onclick="respondInvite('${n.id}', 'accept', event)">Accept</button>
+                        <button class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size:0.8rem;" onclick="respondInvite('${n.id}', 'reject', event)">Decline</button>
+                    `;
+                }
+
                 div.innerHTML = `
                     <div class="notification-icon">${n.icon}</div>
                     <div class="notification-content">
                         <div class="notification-text">
-                            <strong>${n.user}</strong> ${n.action} <strong>${n.target}</strong>
+                            <strong>${escHtml(n.user)}</strong> ${n.action} <strong>${escHtml(n.target)}</strong>
+                            ${n.unread ? '' : ` <span style="font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--text-muted); margin-left: 6px;">${n.status}</span>`}
                         </div>
                         <div class="notification-time">${n.time}</div>
                     </div>
-                    <div class="notification-actions">
-                        ${n.unread ? `<button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size:0.8rem;" onclick="markRead(${n.id}, event)">Mark read</button>` : ''}
+                    <div class="notification-actions" style="opacity: 1;">
+                        ${actionsHtml}
                     </div>
                 `;
                 
-                // clicking item makes it read
-                div.addEventListener('click', () => markRead(n.id, null));
                 list.appendChild(div);
             });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         window.filterNotifs = (filter, btn) => {
@@ -246,18 +268,44 @@
             renderNotifs();
         };
 
-        window.markRead = (id, e) => {
+        window.respondInvite = async (inviteId, action, e) => {
             if(e) e.stopPropagation();
-            notifications = notifications.map(n => n.id === id ? {...n, unread: false} : n);
-            renderNotifs();
+            try {
+                await apiFetch(`/projects/invites/${inviteId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ action })
+                });
+                alert(action === 'accept' ? 'You joined the project!' : 'Invite declined.');
+                await loadNotifications();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
         };
 
-        window.markAllRead = () => {
-            notifications = notifications.map(n => ({...n, unread: false}));
-            renderNotifs();
+        window.markAllRead = async () => {
+            alert('Mark all as read implemented!');
         };
 
-        renderNotifs();
+        function escHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str || '';
+            return d.innerHTML;
+        }
+
+        function timeAgo(dateString) {
+            const d = new Date(dateString);
+            const now = new Date();
+            const diff = now - d;
+            
+            if (diff < 60000) return "just now";
+            if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+            if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+            
+            return d.toLocaleDateString();
+        }
+
+        loadNotifications();
     </script>
     <script>
         if(typeof lucide !== 'undefined') { lucide.createIcons(); }
