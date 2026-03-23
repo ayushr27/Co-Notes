@@ -1,4 +1,5 @@
 import QuickNote from "../models/QuickNote.js";
+import { moveToTrash } from "../utils/trashService.js";
 
 // GET /api/quick-notes
 export async function getQuickNotes(req, res) {
@@ -67,6 +68,14 @@ export async function deleteQuickNote(req, res) {
     try {
         const note = await QuickNote.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!note) return res.status(404).json({ message: "Note not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "quick-note",
+            item: note,
+            displayName: note.content?.slice(0, 60) || "Quick Note",
+            icon: "📝"
+        });
 
         return res.json({ message: "Note deleted" });
     } catch (error) {

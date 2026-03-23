@@ -1,4 +1,5 @@
 import Idea from "../models/Idea.js";
+import { moveToTrash } from "../utils/trashService.js";
 import { createNotification } from "../services/notificationService.js";
 
 // GET /api/ideas
@@ -85,6 +86,14 @@ export async function deleteIdea(req, res) {
     try {
         const idea = await Idea.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!idea) return res.status(404).json({ message: "Idea not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "idea",
+            item: idea,
+            displayName: idea.title,
+            icon: "💡"
+        });
 
         return res.json({ message: "Idea deleted" });
     } catch (error) {

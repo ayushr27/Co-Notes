@@ -261,14 +261,15 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
-                    <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
+                    <a href="my-articles.html" class="nav-item"><i data-lucide="newspaper" class="nav-icon"></i> My Articles</a>
+<a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
                     <a href="profile.html" class="nav-item active"><i data-lucide="user" class="nav-icon"></i> Profile</a>
-                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
                     <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                    <a href="trash.html" class="nav-item"><i data-lucide="trash-2" class="nav-icon"></i> Trash</a>
                 </div>
             </div>
         </aside>
@@ -356,23 +357,6 @@
                     </div>
                 </div>
 
-                <div class="articles-section" style="margin-top: 3rem;">
-                    <h3 id="articles-section-title" style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                        <span><i data-lucide="pen-tool" class="nav-icon"></i></span> My Published Articles
-                    </h3>
-                    <div id="user-articles-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <p style="color: var(--text-muted);">Loading articles...</p>
-                    </div>
-                </div>
-
-                <div class="articles-section" id="drafts-section" style="margin-top: 3rem; display: none;">
-                    <h3 style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                        <span><i data-lucide="file-clock" class="nav-icon"></i></span> Saved Drafts
-                    </h3>
-                    <div id="user-drafts-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <p style="color: var(--text-muted);">Loading drafts...</p>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
@@ -442,8 +426,6 @@
         function renderProfileControls() {
             const actionBtn = document.getElementById('profile-action-btn');
             const followBtn = document.getElementById('profile-follow-btn');
-            const titleEl = document.getElementById('articles-section-title');
-            const draftsSection = document.getElementById('drafts-section');
 
             if (viewingOwnProfile) {
                 actionBtn.href = 'settings.html';
@@ -451,8 +433,6 @@
                 actionBtn.onclick = null;
                 followBtn.style.display = 'none';
                 followBtn.onclick = null;
-                titleEl.innerHTML = '<span><i data-lucide="pen-tool" class="nav-icon"></i></span> My Published Articles';
-                draftsSection.style.display = 'block';
                 return;
             }
 
@@ -482,20 +462,6 @@
             };
             actionBtn.onclick = handleFollowToggle;
             followBtn.onclick = handleFollowToggle;
-
-            titleEl.innerHTML = `<span><i data-lucide="pen-tool" class="nav-icon"></i></span> ${(displayedUser.name || displayedUser.username)}'s Published Articles`;
-            draftsSection.style.display = 'none';
-        }
-
-        function scrollToDraftsIfRequested() {
-            if (!viewingOwnProfile || window.location.hash !== '#drafts-section') return;
-
-            const draftsSection = document.getElementById('drafts-section');
-            if (!draftsSection || draftsSection.style.display === 'none') return;
-
-            requestAnimationFrame(() => {
-                draftsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
         }
 
         async function loadUserActivity() {
@@ -504,6 +470,7 @@
                 renderActivityGraph(data.activities, data.total);
             } catch (err) {
                 console.error("Failed to load activity:", err);
+                renderActivityGraph({}, 0);
             }
         }
 
@@ -513,6 +480,10 @@
             grid.innerHTML = '';
             monthLabels.innerHTML = '';
 
+            const activityMap = activities && typeof activities === 'object' ? activities : {};
+            const fallbackTotal = Object.values(activityMap).reduce((sum, count) => sum + (Number(count) || 0), 0);
+            const safeTotal = Number.isFinite(Number(total)) ? Number(total) : fallbackTotal;
+
             const formatDateKey = (date) => {
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -520,7 +491,7 @@
                 return `${year}-${month}-${day}`;
             };
 
-            document.getElementById('activity-count').innerText = `${total} contribution${total === 1 ? '' : 's'} in the last year`;
+            document.getElementById('activity-count').innerText = `${safeTotal} contribution${safeTotal === 1 ? '' : 's'} in the last year`;
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -536,21 +507,27 @@
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             let currentMonth = -1;
 
-            const dayCount = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const maxCells = 53 * 7;
+            let dayCount = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            if (dayCount > maxCells) {
+                const overflow = dayCount - maxCells;
+                startDate.setDate(startDate.getDate() + overflow);
+                dayCount = maxCells;
+            }
 
             // Calculate streak
             let streak = 0;
             let checkDate = new Date(today);
             
             const todayKey = formatDateKey(today);
-            if (!activities[todayKey]) {
+            if (!activityMap[todayKey]) {
                 // If no activity today, check yesterday to see if streak is still alive
                 checkDate.setDate(checkDate.getDate() - 1);
             }
 
-            while (true) {
+            while (checkDate >= oneYearAgo) {
                 const dKey = formatDateKey(checkDate);
-                if (activities[dKey]) {
+                if (activityMap[dKey]) {
                     streak++;
                     checkDate.setDate(checkDate.getDate() - 1);
                 } else {
@@ -563,7 +540,7 @@
                 const currentDate = new Date(startDate);
                 currentDate.setDate(currentDate.getDate() + i);
                 const dKey = formatDateKey(currentDate);
-                const count = activities[dKey] || 0;
+                const count = Number(activityMap[dKey] || 0);
 
                 // Month labels
                 if (currentDate.getDay() === 0) {
@@ -593,80 +570,6 @@
             if(typeof lucide !== 'undefined') { lucide.createIcons(); }
         }
 
-        function renderArticleCards(items, containerId, options = {}) {
-            const { emptyMessage, isDraft = false } = options;
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-
-            if (!items.length) {
-                container.innerHTML = `<p style="color: var(--text-muted);">${emptyMessage}</p>`;
-                return;
-            }
-
-            items.forEach(article => {
-                const articleId = article.id || article._id;
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.style.cursor = 'pointer';
-                card.style.transition = 'all 0.2s';
-                card.onclick = () => {
-                    if (!articleId) return;
-                    window.location.href = isDraft ? `write-article.html?draftId=${articleId}` : `article-detail.html?id=${articleId}`;
-                };
-
-                card.onmouseover = () => { card.style.borderColor = 'var(--primary-color)'; };
-                card.onmouseout = () => { card.style.borderColor = 'var(--border-color)'; };
-
-                const dateLabel = isDraft ? 'Last updated' : 'Published';
-                const dateValue = new Date((isDraft ? article.updatedAt : article.publishedAt) || article.createdAt).toLocaleDateString();
-
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
-                        <div style="flex: 1;">
-                            <h4 style="color: var(--text-heading); margin-bottom: 0.5rem; font-size: 1.1rem;">${article.title}</h4>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">${article.subtitle || (isDraft ? 'Draft in progress' : 'No subtitle')}</p>
-                            <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem; flex-wrap: wrap;">
-                                <span>${isDraft ? 'Status Draft' : `Likes ${article.likes || 0}`}</span>
-                                <span><i data-lucide="${isDraft ? 'file-clock' : 'message-square'}" class="nav-icon"></i> ${isDraft ? `${article.readTime || 1} min read` : (article.comments || 0)}</span>
-                                <span><i data-lucide="calendar" class="nav-icon"></i> ${dateLabel}: ${dateValue}</span>
-                            </div>
-                        </div>
-                        <span class="badge" style="background: ${isDraft ? 'rgba(250, 204, 21, 0.1)' : 'rgba(88, 166, 255, 0.1)'}; color: ${isDraft ? '#facc15' : 'var(--primary-color)'}; border: 1px solid ${isDraft ? '#facc15' : 'var(--primary-color)'};">${article.category || 'General'}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        async function loadUserArticles(username = '') {
-            try {
-                if (viewingOwnProfile) {
-                    const ownArticles = await apiFetch('/articles/my');
-                    renderArticleCards(ownArticles.published || [], 'user-articles-list', {
-                        emptyMessage: "You haven't published any articles yet."
-                    });
-                    renderArticleCards(ownArticles.drafts || [], 'user-drafts-list', {
-                        emptyMessage: "You don't have any saved drafts yet.",
-                        isDraft: true
-                    });
-                } else {
-                    const articles = ((await apiFetch('/articles/feed')).articles || []).filter(article => (article.author?.username || '') === username);
-                    renderArticleCards(articles, 'user-articles-list', {
-                        emptyMessage: 'No published articles yet.'
-                    });
-                }
-
-                if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-            } catch (error) {
-                console.error("Failed to load user articles:", error);
-                document.getElementById('user-articles-list').innerHTML = '<p style="color: var(--danger-color);">Error loading articles.</p>';
-                const draftsList = document.getElementById('user-drafts-list');
-                if (draftsList) {
-                    draftsList.innerHTML = '<p style="color: var(--danger-color);">Error loading drafts.</p>';
-                }
-            }
-        }
-
         document.getElementById('share-profile-btn').addEventListener('click', async () => {
             const username = getUserUsername(displayedUser || currentViewer);
             const suffix = username ? `?username=${encodeURIComponent(username)}` : '';
@@ -688,17 +591,14 @@
                     renderProfileBasics(currentViewer);
                     renderOwnStats(await apiFetch('/users/me/stats'));
                     await loadUserActivity();
-                    await loadUserArticles();
                 } else {
                     const user = await apiFetch(`/users/${requestedUsername}`);
                     renderProfileBasics(user);
                     renderOtherStats(user);
                     renderActivityGraph({}, 0);
-                    await loadUserArticles(requestedUsername);
                 }
 
                 renderProfileControls();
-                scrollToDraftsIfRequested();
                 if (typeof lucide !== 'undefined') { lucide.createIcons(); }
             } catch (error) {
                 console.error("Profile error:", error);

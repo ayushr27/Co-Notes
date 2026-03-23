@@ -1,5 +1,6 @@
 import Article from "../models/Article.js";
 import mongoose from "mongoose";
+import { moveToTrash } from "../utils/trashService.js";
 import { createNotification } from "../services/notificationService.js";
 
 function isValidObjectId(id) {
@@ -201,6 +202,14 @@ export async function deleteArticle(req, res) {
     try {
         const article = await Article.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!article) return res.status(404).json({ message: "Article not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "article",
+            item: article,
+            displayName: article.title,
+            icon: "📰"
+        });
 
         return res.json({ message: "Article deleted" });
     } catch (error) {
