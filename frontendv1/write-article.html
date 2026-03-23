@@ -265,6 +265,11 @@
                 <input type="text" id="aSubtitle" class="article-subtitle-input"
                     placeholder="Add a subtitle (optional)...">
 
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="generateAiArticle()" title="Generate Article Content with AI">✨ AI Generate Content</button>
+                    <span style="color: var(--text-muted); font-size: 0.9rem; align-self: center;">Enter a title or subtitle first for better results.</span>
+                </div>
+
                 <div class="article-editor" id="aContent" contenteditable="true"
                     data-placeholder="Write your article... Share your knowledge with the community!"></div>
             </main>
@@ -610,6 +615,55 @@
                 btn.textContent = 'Publish Now';
                 btn.disabled = false;
                 btn.style.opacity = '1';
+            }
+        };
+
+        window.generateAiArticle = async () => {
+            const titleInput = document.getElementById('aTitle');
+            const subtitleInput = document.getElementById('aSubtitle');
+            const editor = document.getElementById('aContent');
+            
+            const title = titleInput.value.trim();
+            const subtitle = subtitleInput.value.trim();
+            
+            if (!title && !subtitle) {
+                alert("Please enter a title or subtitle first so the AI knows what to write about.");
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="generateAiArticle()"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "✨ Generating... (This might take a few seconds)";
+            
+            try {
+                const response = await apiFetch('/ai/generate-article', {
+                    method: 'POST',
+                    body: JSON.stringify({ title, description: subtitle })
+                });
+                
+                let formattedContent = response.content;
+                // Basic markdown to HTML conversion for the editor
+                formattedContent = formattedContent
+                    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                    .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+                    .replace(/\*(.*)\*/gim, '<i>$1</i>')
+                    .replace(/\n\n/g, '<br><br>')
+                    .replace(/\n/g, '<br>');
+
+                editor.innerHTML = formattedContent;
+                
+                // Update stats
+                const event = new Event('input', { bubbles: true });
+                editor.dispatchEvent(event);
+                
+            } catch (error) {
+                alert('AI Generation failed: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         };
     </script>

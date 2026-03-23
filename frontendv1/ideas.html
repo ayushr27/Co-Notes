@@ -201,6 +201,7 @@
                         <div style="display: flex; gap: 0.5rem;">
                             <button type="button" class="btn btn-secondary" title="Use Voice"
                                 onclick="alert('Mic access requested!')">🎤</button>
+                            <button type="button" class="btn btn-secondary" onclick="generateAiIdea()" title="Generate Idea with AI">✨ AI Generate</button>
                             <button type="submit" class="btn btn-primary">Save Idea</button>
                         </div>
                     </div>
@@ -370,6 +371,35 @@
                 renderIdeas();
             } catch (error) {
                 alert('Failed to delete idea');
+            }
+        };
+
+        window.generateAiIdea = async () => {
+            const titleInput = document.getElementById('iTitle');
+            const descInput = document.getElementById('iDesc');
+            const previousTitle = titleInput.value;
+            
+            titleInput.value = "Generating idea...";
+            descInput.value = "Please wait, AI is thinking...";
+            
+            const btn = document.querySelector('button[onclick="generateAiIdea()"]');
+            btn.disabled = true;
+            btn.innerText = "✨ Generating...";
+
+            try {
+                const response = await apiFetch('/ai/generate-idea', {
+                    method: 'POST',
+                    body: JSON.stringify({ topic: previousTitle })
+                });
+                titleInput.value = response.title || 'Brilliant Idea';
+                descInput.value = response.description || '';
+            } catch (error) {
+                alert('AI Generation failed: ' + error.message);
+                titleInput.value = previousTitle;
+                descInput.value = '';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "✨ AI Generate";
             }
         };
 
