@@ -38,8 +38,8 @@ async function apiFetch(endpoint, options = {}) {
         headers
     });
 
-    // Handle 401 globally — token expired or missing
-    if (response.status === 401 && !endpoint.includes('/auth/')) {
+    // Handle 401/403 globally — token expired or missing
+    if ((response.status === 401 || response.status === 403) && !endpoint.includes('/auth/')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = 'login.html';

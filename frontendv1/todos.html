@@ -219,15 +219,15 @@
                             <span style="font-size: 2.5rem; color: #58a6ff;"><i data-lucide="check-square" class="nav-icon"></i></span>
                             <h1>To-Do List</h1>
                         </div>
-                        <p class="page-subtitle" id="taskCountText">4 tasks remaining • 1 completed</p>
+                        <p class="page-subtitle" id="taskCountText">Loading tasks...</p>
                     </div>
                 </div>
 
                 <div class="todo-progress">
                     <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="progressBar" style="width: 20%;"></div>
+                        <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
                     </div>
-                    <span style="font-weight: bold; width: 45px; text-align: right;" id="progressText">20%</span>
+                    <span style="font-weight: bold; width: 45px; text-align: right;" id="progressText">0%</span>
                 </div>
 
                 <form class="new-todo-form" id="todoForm">
@@ -249,6 +249,20 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Delete Modal Overlay -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 style="color: var(--text-heading); font-size: 1.25rem;">Delete Task</h2>
+            </div>
+            <p style="margin-bottom: 2rem; color: var(--text-muted);">Are you sure you want to delete this task?</p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">No</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">Yes</button>
+            </div>
+        </div>
     </div>
 
     <script src="api.js"></script>
@@ -307,20 +321,19 @@
                         </div>
                     </div>
                     <div class="todo-actions">
-                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="deleteTodo('${id}')"><i data-lucide="trash-2" class="nav-icon"></i></button>
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="openDeleteModal('${id}')"><i data-lucide="trash-2" class="nav-icon"></i></button>
                     </div>
                 `;
                 list.appendChild(div);
             });
             updateProgress();
+            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
         }
 
         async function fetchTodos() {
             try {
                 const response = await apiFetch('/todos');
                 todos = response.todos || response || [];
-                // standardise completed 
-                todos = todos.map(t => ({ ...t, completed: t.isCompleted }));
                 renderTodos();
             } catch (error) {
                 console.error('Failed to fetch todos:', error);
@@ -337,9 +350,8 @@
             renderTodos();
 
             try {
-                await apiFetch(`/todos/${id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ isCompleted: newDone })
+                await apiFetch(`/todos/${id}/toggle`, {
+                    method: 'PATCH'
                 });
             } catch (error) {
                 todo.isCompleted = !newDone;
@@ -349,8 +361,23 @@
             }
         };
 
-        window.deleteTodo = async (id) => {
-            if (!confirm("Delete this task?")) return;
+        let todoToDelete = null;
+
+        window.openDeleteModal = (id) => {
+            todoToDelete = id;
+            document.getElementById('deleteModal').classList.add('active');
+        };
+
+        window.closeDeleteModal = () => {
+            todoToDelete = null;
+            document.getElementById('deleteModal').classList.remove('active');
+        };
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            if (!todoToDelete) return;
+            const id = todoToDelete;
+            closeDeleteModal();
+
             try {
                 await apiFetch(`/todos/${id}`, { method: 'DELETE' });
                 todos = todos.filter(t => (t._id || t.id) !== id);
@@ -358,7 +385,7 @@
             } catch (error) {
                 alert('Failed to delete todo');
             }
-        };
+        });
 
         document.getElementById('todoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -377,7 +404,7 @@
                     body: JSON.stringify(payload)
                 });
                 const newTodo = response.todo || response;
-                newTodo.completed = newTodo.isCompleted;
+                newTodo.completed = newTodo.completed || false;
                 todos.unshift(newTodo);
 
                 document.getElementById('todoInput').value = '';
