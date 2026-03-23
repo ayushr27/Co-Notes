@@ -11,13 +11,16 @@ export async function getFeed(req, res) {
         const { search, category, page = 1, limit = 20 } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
+        const isTrending = category && category.toLowerCase() === "trending now";
+        const actualCategory = isTrending ? null : category;
+
         const query = {
             published: true,
             visibility: "public",
-            ...(category && category !== "all" && { 
+            ...(actualCategory && actualCategory !== "all" && { 
                 $or: [
-                    { category: { $regex: new RegExp(`^${category}$`, "i") } },
-                    { tags: { $regex: new RegExp(`^${category}$`, "i") } }
+                    { category: { $regex: new RegExp(`^${actualCategory}$`, "i") } },
+                    { tags: { $regex: new RegExp(`^${actualCategory}$`, "i") } }
                 ]
             }),
             ...(search && {
@@ -30,9 +33,11 @@ export async function getFeed(req, res) {
             })
         };
 
+        const sortOptions = isTrending ? { views: -1, publishedAt: -1 } : { publishedAt: -1 };
+
         const [articles, total] = await Promise.all([
             Article.find(query)
-                .sort({ publishedAt: -1 })
+                .sort(sortOptions)
                 .skip(skip)
                 .limit(parseInt(limit))
                 .populate('userId', 'id name username avatar'),
