@@ -9,7 +9,12 @@ export async function getFeed(req, res) {
         const query = {
             published: true,
             visibility: "public",
-            ...(category && category !== "all" && { category }),
+            ...(category && category !== "all" && { 
+                $or: [
+                    { category: { $regex: new RegExp(`^${category}$`, "i") } },
+                    { tags: { $regex: new RegExp(`^${category}$`, "i") } }
+                ]
+            }),
             ...(search && {
                 $or: [
                     { title: { $regex: search, $options: "i" } },
