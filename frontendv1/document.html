@@ -1655,12 +1655,13 @@
 
     <main class="main-content">
       <header class="header">
-        <div class="header-left">
+        <div class="header-left" style="display: flex; align-items: center; gap: 0.75rem;">
+          <a href="collections.html" id="backToCollections" style="display: none; color: var(--text-muted); transition: color 0.2s;" title="Back to Collections"><i data-lucide="arrow-left" class="nav-icon"></i></a>
           <span>My Workspace</span>
         </div>
         <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
           <a href="search.html" style="color: var(--text-color);"><i data-lucide="search" class="nav-icon"></i> Search</a>
-          <button class="btn btn-primary" id="headerNewNoteBtn" type="button"><i data-lucide="plus" class="nav-icon"></i> New Page</button>
+          <button class="btn btn-secondary" id="headerNewNoteBtn" type="button"><i data-lucide="plus" class="nav-icon"></i> New Page</button>
         </div>
       </header>
 
@@ -1999,6 +2000,11 @@
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const collectionId = urlParams.get('collection');
+        // Show back arrow if inside a collection
+        const backBtn = document.getElementById('backToCollections');
+        if (collectionId && backBtn) {
+          backBtn.style.display = 'inline-flex';
+        }
         const endpoint = collectionId ? `/documents?limit=100&collectionId=${collectionId}` : '/documents?limit=100';
         const response = await apiFetch(endpoint);
         // Map backend objects to UI format
