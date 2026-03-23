@@ -2,6 +2,8 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "../services/emailService.js";
 
 function generateToken(userId) {
     return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -115,5 +117,77 @@ export async function Login(req, res) {
         return res.status(500).json({
             message: "Internal server error"
         });
+    }
+}
+
+export async function ForgotPassword(req, res) {
+    const email = req.body.email?.toLowerCase().trim();
+    if (!email) {
+        return res.status(400).json({ message: "Please provide an email address" });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            // Return success even if user not found for security purposes
+            return res.status(200).json({ message: "If that email is registered, a password reset link has been generated." });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString("hex");
+        
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        await user.save();
+
+        const clientUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const resetUrl = `${clientUrl}/reset-password.html?token=${resetToken}`;
+        
+        try {
+            await sendPasswordResetEmail(user.email, resetUrl);
+        } catch (emailError) {
+            console.error("Error sending email:", emailError);
+        }
+
+        return res.status(200).json({ 
+            message: "If that email is registered, a password reset link has been sent to it."
+        });
+    } catch (error) {
+        console.error("Forgot password error:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export async function ResetPassword(req, res) {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token || !password) {
+        return res.status(400).json({ message: "Invalid request. Token and new password are required." });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
+
+    try {
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() } // token not expired
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Password reset token is invalid or has expired" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        return res.status(200).json({ message: "Password has been successfully reset" });
+    } catch (error) {
+        console.error("Reset password error:", error.message);
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
