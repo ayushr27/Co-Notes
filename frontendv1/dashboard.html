@@ -280,11 +280,11 @@
 
                             <div class="streak-grid">
                                 <div class="streak-item">
-                                    <span class="streak-val">0</span>
+                                    <span class="streak-val" id="current-streak">0</span>
                                     <span style="font-size: 0.9rem; color: var(--text-muted);">Current Streak</span>
                                 </div>
                                 <div class="streak-item">
-                                    <span class="streak-val">0</span>
+                                    <span class="streak-val" id="total-active-days">0</span>
                                     <span style="font-size: 0.9rem; color: var(--text-muted);">Total Days</span>
                                 </div>
                             </div>
@@ -360,9 +360,12 @@
                 document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = stats.ideas || 0;
                 document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = stats.todosCompleted || 0;
 
-                document.getElementById('stat-documents').innerText = stats.documents || 0;
-                document.getElementById('stat-collections').innerText = stats.collections || 0;
-                document.getElementById('stat-articles').innerText = stats.articles || 0;
+                document.getElementById('current-streak').innerText = stats.currentStreak || 0;
+                document.getElementById('total-active-days').innerText = stats.activeDays || 0;
+
+                document.getElementById('stat-documents').innerText = stats.monthlyDocuments ?? stats.documents ?? 0;
+                document.getElementById('stat-collections').innerText = stats.monthlyCollections ?? stats.collections ?? 0;
+                document.getElementById('stat-articles').innerText = stats.monthlyArticles ?? stats.articles ?? 0;
 
                 // 3. Fetch Recent Documents
                 const docsObj = await apiFetch('/documents?limit=3');
