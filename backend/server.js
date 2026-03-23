@@ -17,6 +17,7 @@ import todoRoutes from "./routes/todoRoutes.js";
 import quickNoteRoutes from "./routes/quickNoteRoutes.js";
 import articleRoutes from "./routes/articleRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 
 // Middleware imports
@@ -37,6 +38,7 @@ if (!fs.existsSync(uploadsDir)) {
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
+app.use(express.static(path.join(__dirname, '../frontendv1')));
 app.use("/uploads", express.static(uploadsDir));
 
 // Multer Config
@@ -78,6 +80,7 @@ app.use("/api/todos", todoRoutes);
 app.use("/api/quick-notes", quickNoteRoutes);
 app.use("/api/articles", articleRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/ai", aiRoutes);
 app.use("/api/projects", projectRoutes);
 
 // Health check
