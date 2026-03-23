@@ -1,6 +1,7 @@
 import Project from "../models/Project.js";
 import CollabInvite from "../models/CollabInvite.js";
 import User from "../models/User.js";
+import { moveToTrash } from "../utils/trashService.js";
 
 // GET /api/projects — list projects where user is owner or collaborator
 export async function getProjects(req, res) {
@@ -93,6 +94,14 @@ export async function deleteProject(req, res) {
     try {
         const project = await Project.findOneAndDelete({ _id: req.params.id, owner: req.userId });
         if (!project) return res.status(404).json({ message: "Project not found or not owner" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "project",
+            item: project,
+            displayName: project.title,
+            icon: project.icon || "🚀"
+        });
 
         // Clean up related invites
         await CollabInvite.deleteMany({ project: req.params.id });

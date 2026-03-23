@@ -21,6 +21,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
+import trashRoutes from "./routes/trashRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Middleware imports
@@ -87,6 +88,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/trash", trashRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 // Health check

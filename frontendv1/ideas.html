@@ -165,14 +165,15 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
-                    <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
+                    <a href="my-articles.html" class="nav-item"><i data-lucide="newspaper" class="nav-icon"></i> My Articles</a>
+<a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
                     <div class="nav-section-title">Account</div>
                     <a href="profile.html" class="nav-item"><i data-lucide="user" class="nav-icon"></i> Profile</a>
-                    <a href="notifications.html" class="nav-item"><i data-lucide="bell" class="nav-icon"></i> Notifications</a>
                     <a href="settings.html" class="nav-item"><i data-lucide="settings" class="nav-icon"></i> Settings</a>
+                    <a href="trash.html" class="nav-item"><i data-lucide="trash-2" class="nav-icon"></i> Trash</a>
                 </div>
             </div>
         </aside>
@@ -204,6 +205,7 @@
                                 autocomplete="off">
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
+                            <button type="button" class="btn btn-secondary" id="cancelIdeaEditBtn" onclick="resetIdeaForm()" style="display: none;">Cancel Edit</button>
                             <button type="button" class="btn btn-secondary" title="Use Voice" id="ideaNotesMicBtn"
                                 onclick="startDictation('iDesc', 'ideaNotesMicBtn')">🎤</button>
                             <button type="button" class="btn btn-secondary" onclick="generateAiIdea()" title="Generate Idea with AI">✨ AI Generate</button>
@@ -234,6 +236,7 @@
 
         let activeFilter = 'all';
         let currentFormTags = [];
+        let editingIdeaId = null;
 
         const tagInput = document.getElementById('iTagInput');
 
@@ -268,6 +271,22 @@
             });
         }
 
+        function updateIdeaFormState() {
+            const submitBtn = document.querySelector('#ideaForm button[type="submit"]');
+            const cancelBtn = document.getElementById('cancelIdeaEditBtn');
+            submitBtn.textContent = editingIdeaId ? 'Update Idea' : 'Save Idea';
+            cancelBtn.style.display = editingIdeaId ? 'inline-flex' : 'none';
+        }
+
+        function resetIdeaForm() {
+            document.getElementById('iTitle').value = '';
+            document.getElementById('iDesc').value = '';
+            currentFormTags = [];
+            editingIdeaId = null;
+            renderFormTags();
+            updateIdeaFormState();
+        }
+
         const grid = document.getElementById('ideasGrid');
 
         function renderIdeas() {
@@ -299,9 +318,12 @@
                 div.innerHTML = `
                     <div class="idea-card-header">
                         <h3 class="idea-card-title">${title}</h3>
-                        <button class="btn btn-secondary" style="padding: 0.25rem; font-size: 0.8rem;" onclick="toggleStar('${id}')">
-                            ${isStarred ? '<i data-lucide="star" class="nav-icon"></i>' : '☆'}
-                        </button>
+                        <div style="display: flex; gap: 0.4rem; align-items: center;">
+                            <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem;" onclick="editIdea('${id}')"><i data-lucide="pencil" class="nav-icon"></i></button>
+                            <button class="btn btn-secondary" style="padding: 0.25rem; font-size: 0.8rem;" onclick="toggleStar('${id}')">
+                                ${isStarred ? '<i data-lucide="star" class="nav-icon"></i>' : '☆'}
+                            </button>
+                        </div>
                     </div>
                     <p class="idea-card-desc">${desc}</p>
                     <div class="idea-card-footer">
@@ -313,6 +335,8 @@
                 `;
                 grid.appendChild(div);
             });
+
+            if(typeof lucide !== 'undefined') { lucide.createIcons(); }
         }
 
         async function fetchIdeas() {
@@ -355,9 +379,8 @@
             renderIdeas();
 
             try {
-                await apiFetch(`/ideas/${id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ isStarred: newStar })
+                await apiFetch(`/ideas/${id}/star`, {
+                    method: 'PATCH'
                 });
             } catch (error) {
                 // revert
@@ -373,10 +396,27 @@
             try {
                 await apiFetch(`/ideas/${id}`, { method: 'DELETE' });
                 ideas = ideas.filter(i => (i._id || i.id) !== id);
+                if (editingIdeaId === id) {
+                    resetIdeaForm();
+                }
                 renderIdeas();
             } catch (error) {
                 alert('Failed to delete idea');
             }
+        };
+
+        window.editIdea = (id) => {
+            const idea = ideas.find(i => (i._id || i.id) === id);
+            if (!idea) return;
+
+            editingIdeaId = id;
+            document.getElementById('iTitle').value = idea.title || idea.text || '';
+            document.getElementById('iDesc').value = idea.description || idea.desc || '';
+            currentFormTags = [...(idea.tags || [])];
+            renderFormTags();
+            updateIdeaFormState();
+            document.getElementById('iTitle').focus();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.generateAiIdea = async () => {
@@ -420,18 +460,21 @@
             };
 
             try {
-                const response = await apiFetch('/ideas', {
-                    method: 'POST',
+                const endpoint = editingIdeaId ? `/ideas/${editingIdeaId}` : '/ideas';
+                const method = editingIdeaId ? 'PUT' : 'POST';
+                const response = await apiFetch(endpoint, {
+                    method,
                     body: JSON.stringify(payload)
                 });
 
-                const newIdea = response.idea || response;
-                ideas.unshift(newIdea);
+                const savedIdea = response.idea || response;
+                if (editingIdeaId) {
+                    ideas = ideas.map(idea => ((idea._id || idea.id) === editingIdeaId ? { ...idea, ...savedIdea } : idea));
+                } else {
+                    ideas.unshift(savedIdea);
+                }
 
-                document.getElementById('iTitle').value = '';
-                document.getElementById('iDesc').value = '';
-                currentFormTags = [];
-                renderFormTags();
+                resetIdeaForm();
                 renderIdeas();
             } catch (error) {
                 alert('Failed to save idea: ' + error.message);
@@ -478,6 +521,7 @@
         };
 
         // Initial fetch
+        updateIdeaFormState();
         fetchIdeas();
     </script>
     <script>

@@ -1,5 +1,6 @@
 import Document from "../models/Document.js";
 import Collection from "../models/Collection.js";
+import { moveToTrash } from "../utils/trashService.js";
 import { createNotification } from "../services/notificationService.js";
 
 // GET /api/documents
@@ -126,6 +127,14 @@ export async function deleteDocument(req, res) {
     try {
         const doc = await Document.findOneAndDelete({ _id: req.params.id, userId: req.userId });
         if (!doc) return res.status(404).json({ message: "Document not found" });
+
+        await moveToTrash({
+            userId: req.userId,
+            itemType: "document",
+            item: doc,
+            displayName: doc.title,
+            icon: doc.icon || "📄"
+        });
 
         return res.json({ message: "Document deleted" });
     } catch (error) {
