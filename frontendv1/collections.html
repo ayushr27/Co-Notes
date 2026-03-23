@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="global.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* ── Toolbar ── */
         .toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
@@ -23,7 +22,7 @@
             align-items: center;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 0.6rem 1rem;
             width: 300px;
             gap: 0.6rem;
@@ -31,8 +30,8 @@
         }
 
         .search-box:focus-within {
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+            border-color: #8b949e;
+            box-shadow: 0 0 0 2px rgba(139, 148, 158, 0.15);
         }
 
         .search-box input {
@@ -42,54 +41,38 @@
             width: 100%;
             outline: none;
             font-family: inherit;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
         }
 
-        .search-box input::placeholder { color: var(--text-muted); }
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
 
-        /* ── Grid ── */
         .collections-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-            gap: 1.25rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
-        /* ── Card ── */
         .collection-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 14px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             padding: 1.5rem;
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                        box-shadow 0.25s ease,
-                        border-color 0.25s ease;
+            transition: all 0.2s;
             cursor: pointer;
             text-decoration: none;
             color: inherit;
             display: block;
             position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        /* accent left border stripe */
-        .collection-card::before {
-            content: '';
-            position: absolute;
-            inset: 0 auto 0 0;
-            width: 3px;
-            background: var(--collection-color, rgba(255,255,255,0.3));
-            border-radius: 14px 0 0 14px;
-            opacity: 0.7;
         }
 
         .collection-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.45);
-            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            border-color: #8b949e;
         }
 
-        /* ── Card inner ── */
         .collection-header {
             display: flex;
             justify-content: space-between;
@@ -101,8 +84,8 @@
             width: 44px;
             height: 44px;
             border-radius: 10px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
+            background-color: rgba(88, 166, 255, 0.1);
+            border: 1px solid transparent;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -112,17 +95,13 @@
         .collection-actions {
             display: flex;
             gap: 0.4rem;
-            opacity: 0;
-            transition: opacity 0.2s;
         }
-
-        .collection-card:hover .collection-actions { opacity: 1; }
 
         .icon-btn {
             color: var(--text-muted);
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 6px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             padding: 0.3rem 0.45rem;
             display: flex;
             align-items: center;
@@ -132,25 +111,25 @@
 
         .icon-btn:hover {
             color: var(--text-heading);
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.12);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
-        .icon-btn.active { color: #f9d849; }
+        .icon-btn.active {
+            color: #e3b341;
+        }
 
         .collection-name {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.4rem;
             color: var(--text-heading);
-            letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
         }
 
         .collection-desc {
             color: var(--text-muted);
-            font-size: 0.83rem;
-            line-height: 1.6;
-            margin-bottom: 1.25rem;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             line-clamp: 2;
@@ -162,25 +141,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding-top: 1rem;
+            margin-top: auto;
+            gap: 0.5rem;
         }
 
         .meta-pill {
-            display: flex;
+            background-color: rgba(88, 166, 255, 0.1);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid transparent;
+            display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
-            padding: 0.2rem 0.6rem;
-            border-radius: 99px;
+            gap: 0.35rem;
         }
 
-        /* ── Add Card ── */
         .add-card {
-            border: 1px dashed rgba(255,255,255,0.1);
+            border: 1px dashed var(--border-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -188,25 +166,20 @@
             text-align: center;
             min-height: 220px;
             gap: 0.75rem;
-            background: rgba(255,255,255,0.01);
-            transition: border-color 0.2s, background 0.2s;
         }
 
-        .add-card::before { display: none; }
-
         .add-card:hover {
-            border-color: rgba(255,255,255,0.25);
-            background: rgba(255,255,255,0.03);
+            border-color: #8b949e;
             border-style: solid;
         }
 
         .add-icon {
             color: var(--text-muted);
-            transition: color 0.2s, transform 0.2s;
+            transition: color 0.2s;
         }
+
         .add-card:hover .add-icon {
             color: var(--text-heading);
-            transform: scale(1.15) rotate(5deg);
         }
 
         .add-card h3 {
@@ -215,25 +188,30 @@
             font-weight: 500;
             transition: color 0.2s;
         }
-        .add-card:hover h3 { color: var(--text-color); }
 
-        /* ── Empty State ── */
+        .add-card:hover h3 {
+            color: var(--text-color);
+        }
+
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 5rem 2rem;
+            padding: 4rem 2rem;
             color: var(--text-muted);
         }
-        .empty-state svg { margin: 0 auto 1.5rem; opacity: 0.25; }
-        .empty-state h3 { font-size: 1.1rem; color: var(--text-color); margin-bottom: 0.5rem; }
 
-        /* ── Modal improvements ── */
         .modal-header h2 {
             display: flex;
             align-items: center;
             gap: 0.6rem;
             font-size: 1.1rem;
             font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -271,6 +249,7 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
@@ -285,9 +264,8 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <div class="header-left" style="display:flex;align-items:center;gap:0.75rem;">
-                    <i data-lucide="folder" style="width:18px;height:18px;color:var(--text-muted)"></i>
-                    <span style="font-weight:500;color:var(--text-heading);">Collections</span>
+                <div class="header-left">
+                    <span>Collections Hub</span>
                 </div>
                 <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
                     <a href="search.html" style="color: var(--text-muted); display:flex; align-items:center; gap:0.4rem; font-size:0.875rem;">
@@ -300,12 +278,11 @@
             </header>
 
             <div class="page-content">
-                <div style="margin-bottom:2rem;">
-                    <h1 class="page-title" style="font-size:1.75rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.35rem;">
-                        Collections
-                    </h1>
-                    <p class="page-subtitle">Organize your notes and documents into meaningful groups</p>
+                <div class="page-title">
+                    <span style="font-size: 2.5rem; color: #f1e05a;"><i data-lucide="folder" class="nav-icon"></i></span>
+                    <h1>Collections</h1>
                 </div>
+                <p class="page-subtitle">Organize your notes and documents into meaningful groups.</p>
 
                 <div class="toolbar">
                     <div class="search-box">

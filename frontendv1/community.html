@@ -56,6 +56,8 @@
             display: flex;
             align-items: center;
             margin-bottom: 0.2rem;
+            gap: 0.45rem;
+            flex-wrap: wrap;
         }
 
         .article-head-row {
@@ -156,6 +158,13 @@
             color: #000;
             font-weight: bold;
             flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .author-avatar:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
         }
 
         .author-info {
@@ -167,6 +176,30 @@
             font-weight: 600;
             color: var(--text-heading);
             font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .author-name:hover {
+            text-decoration: underline;
+        }
+
+        .profile-link-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            color: var(--text-heading);
+            border-radius: 999px;
+            padding: 0.18rem 0.55rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .profile-link-chip:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         .post-time {
@@ -236,6 +269,7 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item active"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
@@ -315,10 +349,28 @@
             return article.author.id || article.author._id || null;
         }
 
+        function getAuthorUsername(article) {
+            if (!article || !article.author) return '';
+            return article.author.username || '';
+        }
+
         function isOwnArticle(article) {
             const userId = getCurrentUserId();
             const authorId = getAuthorId(article);
             return Boolean(userId && authorId && userId.toString() === authorId.toString());
+        }
+
+        function isFollowingAuthor(article) {
+            const authorId = getAuthorId(article);
+            const following = currentUser?.following || [];
+            if (!authorId || !following.length) return false;
+            return following.some(id => id?.toString() === authorId.toString());
+        }
+
+        function openProfile(event, username) {
+            event.stopPropagation();
+            if (!username) return;
+            window.location.href = `profile.html?username=${encodeURIComponent(username)}`;
         }
 
         function formatRelativeTime(dateStr) {
@@ -353,31 +405,49 @@
                 const coverImageUrl = resolveApiAssetUrl(article.coverImage);
                 const articleId = article.id || article._id;
                 const ownArticle = isOwnArticle(article);
+                const authorUsername = getAuthorUsername(article);
+                const followingAuthor = isFollowingAuthor(article);
 
                 const card = document.createElement('div');
                 card.className = 'article-card';
-                card.onclick = () => { window.location.href = `article-detail.html?id=${articleId}`; };
+                card.onclick = (event) => {
+                    if (event.target.closest('[data-stop-card-nav="true"]')) return;
+                    window.location.href = `article-detail.html?id=${articleId}`;
+                };
 
                 card.innerHTML = `
-                    <div class="author-avatar" style="width: 44px; height: 44px; font-size: 1.2rem; flex-shrink: 0; margin-top: 4px;">${initial}</div>
+                    <div class="author-avatar" data-stop-card-nav="true" onclick="openProfile(event, '${authorUsername}')" style="width: 44px; height: 44px; font-size: 1.2rem; flex-shrink: 0; margin-top: 4px;">${initial}</div>
                     <div style="flex: 1; min-width: 0;">
                         <div class="article-head-row">
                             <div class="article-meta" style="margin-bottom: 0; min-width: 0;">
-                                <span class="author-name" style="margin-right: 0.4rem; font-size: 0.95rem;">${authorName}</span>
+                                <span class="author-name" data-stop-card-nav="true" onclick="openProfile(event, '${authorUsername}')" style="font-size: 0.95rem;">${authorName}</span>
+                                <span class="profile-link-chip" data-stop-card-nav="true" onclick="openProfile(event, '${authorUsername}')"><i data-lucide="user" class="nav-icon"></i> Profile</span>
                                 <span class="post-time" style="font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@${authorName.toLowerCase().replace(/\s/g, '')} • ${timeStr} • ${article.category || 'General'}</span>
                             </div>
                             ${ownArticle ? `
                                 <div class="article-owner-actions">
                                     <span class="my-post-chip">Your post</span>
-                                    <button class="article-options-btn" onclick="toggleArticleMenu(event, '${articleId}')" aria-label="Article options">
+                                    <button class="article-options-btn" data-stop-card-nav="true" onclick="toggleArticleMenu(event, '${articleId}')" aria-label="Article options">
                                         <i data-lucide="more-horizontal" class="nav-icon"></i>
                                     </button>
-                                    <div id="article-menu-${articleId}" class="article-options-menu">
-                                        <button class="article-options-item" onclick="copyArticleLink(event, '${articleId}')">Copy article link</button>
-                                        <button class="article-options-item delete" onclick="deleteArticleFromFeed(event, '${articleId}')">Delete article</button>
+                                    <div id="article-menu-${articleId}" class="article-options-menu" data-stop-card-nav="true">
+                                        <button class="article-options-item" data-stop-card-nav="true" onclick="openProfile(event, '${authorUsername}')">View profile</button>
+                                        <button class="article-options-item" data-stop-card-nav="true" onclick="copyArticleLink(event, '${articleId}')">Copy article link</button>
+                                        <button class="article-options-item delete" data-stop-card-nav="true" onclick="deleteArticleFromFeed(event, '${articleId}')">Delete article</button>
                                     </div>
                                 </div>
-                            ` : ''}
+                            ` : `
+                                <div class="article-owner-actions">
+                                    <button class="article-options-btn" data-stop-card-nav="true" onclick="toggleArticleMenu(event, '${articleId}')" aria-label="Article options">
+                                        <i data-lucide="more-horizontal" class="nav-icon"></i>
+                                    </button>
+                                    <div id="article-menu-${articleId}" class="article-options-menu" data-stop-card-nav="true">
+                                        <button class="article-options-item" data-stop-card-nav="true" onclick="openProfile(event, '${authorUsername}')">View profile</button>
+                                        <button class="article-options-item" data-stop-card-nav="true" onclick="toggleFollowFromFeed(event, '${getAuthorId(article)}')">${followingAuthor ? 'Unfollow author' : 'Follow author'}</button>
+                                        <button class="article-options-item" data-stop-card-nav="true" onclick="copyArticleLink(event, '${articleId}')">Copy article link</button>
+                                    </div>
+                                </div>
+                            `}
                         </div>
                         <h2 class="article-title" style="font-size: 1.1rem; margin-bottom: 0.4rem; line-height: 1.35; font-weight: 500;">${article.title}</h2>
                         <p class="article-excerpt" style="font-size: 0.95rem; line-height: 1.5; margin-bottom: 0.8rem; color: var(--text-color);">${article.subtitle || article.content}</p>
@@ -439,6 +509,31 @@
                 renderFeed();
             } catch (error) {
                 alert(`Failed to delete article: ${error.message}`);
+            }
+            closeAllArticleMenus();
+        }
+
+        async function toggleFollowFromFeed(event, authorId) {
+            event.stopPropagation();
+            if (!authorId) return;
+
+            try {
+                const result = await apiFetch(`/users/${authorId}/follow`, { method: 'POST' });
+                if (!currentUser) currentUser = {};
+
+                const following = Array.isArray(currentUser.following) ? [...currentUser.following] : [];
+                if (result.following) {
+                    if (!following.some(id => id?.toString() === authorId.toString())) {
+                        following.push(authorId);
+                    }
+                    currentUser.following = following;
+                } else {
+                    currentUser.following = following.filter(id => id?.toString() !== authorId.toString());
+                }
+
+                renderFeed();
+            } catch (error) {
+                alert(`Failed to update follow status: ${error.message}`);
             }
             closeAllArticleMenus();
         }

@@ -14,7 +14,6 @@
             margin-bottom: 3rem;
             position: relative;
             padding-top: 100px;
-            /* Space for cover photo */
         }
 
         .cover-photo {
@@ -44,6 +43,7 @@
             font-size: 3rem;
             font-weight: bold;
             color: var(--text-heading);
+            overflow: hidden;
         }
 
         .profile-info {
@@ -52,6 +52,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            gap: 1rem;
         }
 
         .profile-name {
@@ -92,7 +93,6 @@
             color: var(--text-muted);
         }
 
-        /* Activity Grid (like GitHub) */
         .activity-section {
             margin-top: 3rem;
             padding: 2.5rem;
@@ -150,6 +150,10 @@
         }
 
         .activity-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background-color: var(--border-color);
             width: 13px;
             height: 13px;
             border-radius: 3px;
@@ -158,6 +162,22 @@
             cursor: pointer;
         }
 
+        .activity-cell[data-level="1"] { background-color: rgba(63, 185, 80, 0.4); }
+        .activity-cell[data-level="2"] { background-color: rgba(63, 185, 80, 0.6); }
+        .activity-cell[data-level="3"] { background-color: rgba(63, 185, 80, 0.8); }
+        .activity-cell[data-level="4"] { background-color: rgba(63, 185, 80, 1); }
+
+        @media (max-width: 760px) {
+            .profile-header,
+            .profile-info,
+            .profile-stats {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .profile-stats {
+                gap: 1rem;
+            }
         .activity-cell:hover {
             transform: scale(1.5);
             z-index: 10;
@@ -210,7 +230,6 @@
 
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-brand">
@@ -241,6 +260,7 @@
                     <div class="nav-section-title">Community</div>
                     <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
                     <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+                    <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
                 </div>
 
                 <div class="nav-section">
@@ -252,14 +272,13 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <header class="header">
                 <div class="header-left">
                     <span>Profile View</span>
                 </div>
                 <div class="header-right">
-                    <a href="settings.html" class="btn btn-secondary">Edit Profile</a>
+                    <a href="settings.html" class="btn btn-secondary" id="profile-action-btn">Edit Profile</a>
                 </div>
             </header>
 
@@ -275,8 +294,8 @@
                         </div>
                         <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
                             <span style="color: var(--text-muted); font-size: 0.9rem;" id="user-location"></span>
-                            <button class="btn btn-primary" onclick="alert('Profile share link copied!')">Share
-                                Profile</button>
+                            <button class="btn btn-secondary" id="profile-follow-btn" style="display: none;">Follow</button>
+                            <button class="btn btn-primary" id="share-profile-btn">Share Profile</button>
                         </div>
                     </div>
                 </div>
@@ -297,6 +316,10 @@
                 </div>
 
                 <div class="activity-section">
+                    <h3 style="color: var(--text-heading); margin-bottom: 1rem;">Writing Activity</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">0 contributions in the last year</p>
+
+                    <div class="activity-grid" id="activityGrid"></div>
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
                         <div>
                             <h3 style="color: var(--text-heading); margin-bottom: 0.25rem; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
@@ -337,7 +360,7 @@
                 </div>
 
                 <div class="articles-section" style="margin-top: 3rem;">
-                    <h3 style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <h3 id="articles-section-title" style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
                         <span><i data-lucide="pen-tool" class="nav-icon"></i></span> My Published Articles
                     </h3>
                     <div id="user-articles-list" style="display: flex; flex-direction: column; gap: 1rem;">
@@ -345,6 +368,14 @@
                     </div>
                 </div>
 
+                <div class="articles-section" id="drafts-section" style="margin-top: 3rem; display: none;">
+                    <h3 style="color: var(--text-heading); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <span><i data-lucide="file-clock" class="nav-icon"></i></span> Saved Drafts
+                    </h3>
+                    <div id="user-drafts-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <p style="color: var(--text-muted);">Loading drafts...</p>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -353,29 +384,127 @@
     <script>
         checkAuth();
 
-        async function initProfile() {
-            try {
-                const user = await apiFetch('/users/me');
-                document.getElementById('user-name').innerText = user.name;
+        const profileParams = new URLSearchParams(window.location.search);
+        const requestedUsername = profileParams.get('username');
+        const statLabels = document.querySelectorAll('.stat-label');
+        let currentViewer = null;
+        let displayedUser = null;
+        let viewingOwnProfile = true;
 
-                const coverEl = document.querySelector('.cover-photo');
-                const coverUrl = resolveApiAssetUrl(user.coverImage);
-                if (coverUrl) {
-                    coverEl.style.backgroundImage = `url('${coverUrl}')`;
-                    coverEl.style.borderStyle = 'solid';
+        function getUserId(user) {
+            return user?.id || user?._id || null;
+        }
+
+        function getUserUsername(user) {
+            return user?.username || '';
+        }
+
+        function renderProfileBasics(user) {
+            displayedUser = user;
+            document.getElementById('user-name').innerText = user.name || user.username || 'Unnamed user';
+
+            const coverEl = document.querySelector('.cover-photo');
+            const coverUrl = resolveApiAssetUrl(user.coverImage);
+            if (coverUrl) {
+                coverEl.style.backgroundImage = `url('${coverUrl}')`;
+                coverEl.style.borderStyle = 'solid';
+            } else {
+                coverEl.style.backgroundImage = '';
+                coverEl.style.borderStyle = 'dashed';
+            }
+
+            const avatarEl = document.querySelector('.profile-avatar');
+            if (user.avatar) {
+                avatarEl.innerHTML = `<img src="${resolveApiAssetUrl(user.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            } else {
+                avatarEl.innerText = (user.name || user.username || 'U').charAt(0).toUpperCase();
+            }
+
+            document.getElementById('user-bio').innerText = user.bio || "No bio added yet.";
+            document.getElementById('user-location').innerText = user.location ? `Location: ${user.location}` : "";
+        }
+
+        function renderOwnStats(stats) {
+            document.getElementById('stat-documents').innerText = stats.documents;
+            statLabels[0].innerText = 'Notes Written';
+            document.getElementById('stat-collections').innerText = stats.collections;
+            statLabels[1].innerText = 'Collections';
+            document.getElementById('stat-articles').innerText = stats.articles;
+            statLabels[2].innerText = 'Articles Published';
+        }
+
+        function renderOtherStats(user) {
+            document.getElementById('stat-documents').innerText = (user.followers || []).length;
+            statLabels[0].innerText = 'Followers';
+            document.getElementById('stat-collections').innerText = user._count?.collections || 0;
+            statLabels[1].innerText = 'Collections';
+            document.getElementById('stat-articles').innerText = user._count?.articles || 0;
+            statLabels[2].innerText = 'Articles Published';
+        }
+
+        function renderProfileControls() {
+            const actionBtn = document.getElementById('profile-action-btn');
+            const followBtn = document.getElementById('profile-follow-btn');
+            const titleEl = document.getElementById('articles-section-title');
+            const draftsSection = document.getElementById('drafts-section');
+
+            if (viewingOwnProfile) {
+                actionBtn.href = 'settings.html';
+                actionBtn.innerText = 'Edit Profile';
+                actionBtn.onclick = null;
+                followBtn.style.display = 'none';
+                followBtn.onclick = null;
+                titleEl.innerHTML = '<span><i data-lucide="pen-tool" class="nav-icon"></i></span> My Published Articles';
+                draftsSection.style.display = 'block';
+                return;
+            }
+
+            const displayedId = getUserId(displayedUser);
+            const following = currentViewer?.following || [];
+            const isFollowing = displayedId ? following.some(id => id?.toString() === displayedId.toString()) : false;
+
+            actionBtn.href = '#';
+            actionBtn.innerText = isFollowing ? 'Unfollow' : 'Follow';
+            followBtn.style.display = 'inline-flex';
+            followBtn.innerText = isFollowing ? 'Unfollow' : 'Follow';
+
+            const handleFollowToggle = async (event) => {
+                event.preventDefault();
+                if (!displayedId) return;
+
+                try {
+                    const result = await apiFetch(`/users/${displayedId}/follow`, { method: 'POST' });
+                    const list = Array.isArray(currentViewer?.following) ? [...currentViewer.following] : [];
+                    currentViewer.following = result.following
+                        ? (list.some(id => id?.toString() === displayedId.toString()) ? list : [...list, displayedId])
+                        : list.filter(id => id?.toString() !== displayedId.toString());
+                    renderProfileControls();
+                } catch (error) {
+                    alert(`Failed to update follow status: ${error.message}`);
                 }
+            };
+            actionBtn.onclick = handleFollowToggle;
+            followBtn.onclick = handleFollowToggle;
 
-                // Avatar Letter
-                const avatarEl = document.querySelector('.profile-avatar');
-                if (user.avatar) {
-                    avatarEl.innerHTML = `<img src="${resolveApiAssetUrl(user.avatar)}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-                } else {
-                    avatarEl.innerText = user.name.charAt(0).toUpperCase();
-                }
+            titleEl.innerHTML = `<span><i data-lucide="pen-tool" class="nav-icon"></i></span> ${(displayedUser.name || displayedUser.username)}'s Published Articles`;
+            draftsSection.style.display = 'none';
+        }
 
-                document.getElementById('user-bio').innerText = user.bio || "No bio added yet.";
-                document.getElementById('user-location').innerText = user.location ? `📍 ${user.location}` : "";
+        function scrollToDraftsIfRequested() {
+            if (!viewingOwnProfile || window.location.hash !== '#drafts-section') return;
 
+            const draftsSection = document.getElementById('drafts-section');
+            if (!draftsSection || draftsSection.style.display === 'none') return;
+
+            requestAnimationFrame(() => {
+                draftsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        function renderArticleCards(items, containerId, options = {}) {
+            const { emptyMessage, isDraft = false } = options;
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
                 const stats = await apiFetch('/users/me/stats');
                 document.getElementById('stat-documents').innerText = stats.documents;
                 document.getElementById('stat-collections').innerText = stats.collections;
@@ -491,49 +620,125 @@
                 const container = document.getElementById('user-articles-list');
                 container.innerHTML = '';
 
-                if (articles.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-muted);">You haven\'t published any articles yet.</p>';
-                    return;
+            if (!items.length) {
+                container.innerHTML = `<p style="color: var(--text-muted);">${emptyMessage}</p>`;
+                return;
+            }
+
+            items.forEach(article => {
+                const articleId = article.id || article._id;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.cursor = 'pointer';
+                card.style.transition = 'all 0.2s';
+                card.onclick = () => {
+                    if (!articleId) return;
+                    window.location.href = isDraft ? `write-article.html?draftId=${articleId}` : `article-detail.html?id=${articleId}`;
+                };
+
+                card.onmouseover = () => { card.style.borderColor = 'var(--primary-color)'; };
+                card.onmouseout = () => { card.style.borderColor = 'var(--border-color)'; };
+
+                const dateLabel = isDraft ? 'Last updated' : 'Published';
+                const dateValue = new Date((isDraft ? article.updatedAt : article.publishedAt) || article.createdAt).toLocaleDateString();
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                        <div style="flex: 1;">
+                            <h4 style="color: var(--text-heading); margin-bottom: 0.5rem; font-size: 1.1rem;">${article.title}</h4>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">${article.subtitle || (isDraft ? 'Draft in progress' : 'No subtitle')}</p>
+                            <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem; flex-wrap: wrap;">
+                                <span>${isDraft ? 'Status Draft' : `Likes ${article.likes || 0}`}</span>
+                                <span><i data-lucide="${isDraft ? 'file-clock' : 'message-square'}" class="nav-icon"></i> ${isDraft ? `${article.readTime || 1} min read` : (article.comments || 0)}</span>
+                                <span><i data-lucide="calendar" class="nav-icon"></i> ${dateLabel}: ${dateValue}</span>
+                            </div>
+                        </div>
+                        <span class="badge" style="background: ${isDraft ? 'rgba(250, 204, 21, 0.1)' : 'rgba(88, 166, 255, 0.1)'}; color: ${isDraft ? '#facc15' : 'var(--primary-color)'}; border: 1px solid ${isDraft ? '#facc15' : 'var(--primary-color)'};">${article.category || 'General'}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function loadUserArticles(username = '') {
+            try {
+                if (viewingOwnProfile) {
+                    const ownArticles = await apiFetch('/articles/my');
+                    renderArticleCards(ownArticles.published || [], 'user-articles-list', {
+                        emptyMessage: "You haven't published any articles yet."
+                    });
+                    renderArticleCards(ownArticles.drafts || [], 'user-drafts-list', {
+                        emptyMessage: "You don't have any saved drafts yet.",
+                        isDraft: true
+                    });
+                } else {
+                    const articles = ((await apiFetch('/articles/feed')).articles || []).filter(article => (article.author?.username || '') === username);
+                    renderArticleCards(articles, 'user-articles-list', {
+                        emptyMessage: 'No published articles yet.'
+                    });
                 }
 
-                articles.forEach(article => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.style.cursor = 'pointer';
-                    card.style.transition = 'all 0.2s';
-                    card.onclick = () => { window.location.href = `article-detail.html?id=${article._id}`; };
-                    
-                    card.onmouseover = () => { card.style.borderColor = 'var(--primary-color)'; };
-                    card.onmouseout = () => { card.style.borderColor = 'var(--border-color)'; };
-
-                    card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div>
-                                <h4 style="color: var(--text-heading); margin-bottom: 0.5rem; font-size: 1.1rem;">${article.title}</h4>
-                                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">${article.subtitle || 'No subtitle'}</p>
-                                <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.8rem;">
-                                    <span>❤️ ${article.likes || 0}</span>
-                                    <span><i data-lucide="message-square" class="nav-icon"></i> ${article.comments || 0}</span>
-                                    <span><i data-lucide="calendar" class="nav-icon"></i> ${new Date(article.publishedAt || article.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                            <span class="badge" style="background: rgba(88, 166, 255, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">${article.category || 'General'}</span>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
+                if (typeof lucide !== 'undefined') { lucide.createIcons(); }
             } catch (error) {
                 console.error("Failed to load user articles:", error);
                 document.getElementById('user-articles-list').innerHTML = '<p style="color: var(--danger-color);">Error loading articles.</p>';
+                const draftsList = document.getElementById('user-drafts-list');
+                if (draftsList) {
+                    draftsList.innerHTML = '<p style="color: var(--danger-color);">Error loading drafts.</p>';
+                }
+            }
+        }
+
+        document.getElementById('share-profile-btn').addEventListener('click', async () => {
+            const username = getUserUsername(displayedUser || currentViewer);
+            const suffix = username ? `?username=${encodeURIComponent(username)}` : '';
+            const link = new URL(`profile.html${suffix}`, window.location.href).href;
+            try {
+                await navigator.clipboard.writeText(link);
+                alert('Profile share link copied!');
+            } catch {
+                alert(link);
+            }
+        });
+
+        async function initProfile() {
+            try {
+                currentViewer = await apiFetch('/users/me');
+                viewingOwnProfile = !requestedUsername || requestedUsername === getUserUsername(currentViewer);
+
+                if (viewingOwnProfile) {
+                    renderProfileBasics(currentViewer);
+                    renderOwnStats(await apiFetch('/users/me/stats'));
+                    await loadUserArticles();
+                } else {
+                    const user = await apiFetch(`/users/${requestedUsername}`);
+                    renderProfileBasics(user);
+                    renderOtherStats(user);
+                    await loadUserArticles(requestedUsername);
+                }
+
+                renderProfileControls();
+                scrollToDraftsIfRequested();
+                if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            } catch (error) {
+                console.error("Profile error:", error);
             }
         }
 
         initProfile();
 
+        const grid = document.getElementById('activityGrid');
+        for (let i = 0; i < 364; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'activity-cell';
+            cell.setAttribute('data-level', 0);
+            cell.title = '0 contributions on this day';
+            grid.appendChild(cell);
+        }
         initProfile();
     </script>
     <script>
-        if(typeof lucide !== 'undefined') { lucide.createIcons(); }
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
 

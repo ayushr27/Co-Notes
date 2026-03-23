@@ -21,7 +21,7 @@
       --text-secondary: var(--text-muted);
       --text-muted: var(--text-muted);
       --accent: var(--primary-color);
-      --accent-soft: rgba(88, 166, 255, 0.1);
+      --accent-soft: var(--focus-ring);
       --accent-glow: var(--glow-color);
       --danger: var(--danger-color);
       --danger-soft: rgba(239, 68, 68, 0.12);
@@ -79,24 +79,6 @@
       overflow: hidden;
       backdrop-filter: blur(10px);
       position: relative;
-    }
-
-    ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--bg-active);
-      border-radius: 99px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--text-muted);
     }
 
     #header {
@@ -1336,6 +1318,159 @@
       display: none;
     }
 
+    /* Ideas page visual language applied to documents UI */
+    .document-shell {
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+    }
+
+    #header {
+      background-color: transparent;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    #contentHeader {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .content-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+
+    .content-count {
+      border: 1px solid var(--border-color);
+      background-color: rgba(139, 148, 158, 0.12);
+      color: var(--text-muted);
+    }
+
+    #notesGrid {
+      gap: 1rem;
+    }
+
+    .note-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      gap: 0.75rem;
+    }
+
+    .note-card::before {
+      height: 0;
+    }
+
+    .note-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+      border-color: #8b949e;
+    }
+
+    .note-card.selected {
+      border-color: #8b949e;
+      box-shadow: 0 0 0 1px rgba(139, 148, 158, 0.35);
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      color: var(--text-heading);
+      font-weight: 600;
+    }
+
+    .card-body {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .tag-chip,
+    .editor-tag {
+      background-color: rgba(88, 166, 255, 0.1);
+      color: var(--primary-color);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 0.25rem 0.65rem;
+      font-size: 0.8rem;
+    }
+
+    #editorPanel {
+      background-color: var(--card-bg);
+      border-left: 1px solid var(--border-color);
+    }
+
+    .editor-header,
+    .editor-meta,
+    .editor-footer {
+      border-color: var(--border-color);
+    }
+
+    #editorTitle {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+
+    #editorContent {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .toggle-btn {
+      border-color: var(--border-color);
+    }
+
+    .editor-footer .btn,
+    .modal .btn,
+    .meta-row .btn {
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .editor-footer .btn-primary,
+    .modal .btn-primary {
+      background-color: var(--primary-color);
+      color: var(--bg-color);
+      border: 1px solid transparent;
+    }
+
+    .editor-footer .btn-primary:hover,
+    .modal .btn-primary:hover {
+      background-color: var(--primary-hover);
+      color: var(--bg-color);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+    }
+
+    .editor-footer .btn-ghost,
+    .modal .btn-ghost,
+    .meta-row .btn-ghost {
+      border: 1px solid var(--border-color);
+    }
+
+    .word-count-fill {
+      background: var(--primary-color);
+    }
+
+    #fab {
+      background: var(--primary-color);
+      color: var(--bg-color);
+      border: 1px solid transparent;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    #fab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal {
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+    }
+
     @media (max-width: 1200px) {
       .document-page {
         padding: 1.25rem;
@@ -1365,7 +1500,7 @@
         --editor-w: min(100%, 560px);
       }
 
-      #globalSidebar {
+      #sidebar {
         display: none;
       }
 
@@ -1475,7 +1610,7 @@
 
 <body>
   <div class="app-container">
-    <aside class="sidebar" id="globalSidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <a href="dashboard.html" class="sidebar-brand">
           <span><i data-lucide="file-text" class="nav-icon" style="color: var(--primary-color)"></i></span> Co-Notes
@@ -1485,8 +1620,8 @@
       <div class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-title">Home</div>
-          <a href="dashboard.html" class="nav-item active"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
-          <a href="collections.html" class="nav-item"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
+          <a href="dashboard.html" class="nav-item"><i data-lucide="home" class="nav-icon"></i> Dashboard</a>
+          <a href="collections.html" class="nav-item active"><i data-lucide="folder" class="nav-icon"></i> Collections</a>
         </div>
 
         <div class="nav-section">
@@ -1505,6 +1640,7 @@
           <div class="nav-section-title">Community</div>
           <a href="community.html" class="nav-item"><i data-lucide="globe" class="nav-icon"></i> Feed</a>
           <a href="write-article.html" class="nav-item"><i data-lucide="pen-tool" class="nav-icon"></i> Write Article</a>
+          <a href="drafts.html" class="nav-item"><i data-lucide="file-clock" class="nav-icon"></i> Drafts</a>
         </div>
 
         <div class="nav-section">
@@ -1529,7 +1665,7 @@
 
       <div class="page-content document-page">
         <div class="page-title">
-          <span><i data-lucide="file-text" class="nav-icon"></i></span>
+          <span style="font-size: 2.5rem; color: #f1e05a;"><i data-lucide="file-text" class="nav-icon"></i></span>
           <h1>Documents</h1>
         </div>
         <p class="page-subtitle">Create and organize notes in the same workspace shell used across the rest of Co-Notes.</p>

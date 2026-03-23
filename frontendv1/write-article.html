@@ -246,7 +246,7 @@
             </div>
             <div class="header-right" style="display: flex; gap: 1rem;">
                 <button class="btn btn-secondary" onclick="openPreviewModal()">👁️ Preview</button>
-                <button class="btn btn-secondary" onclick="alert('Draft saved!')">💾 Save Draft</button>
+                <button class="btn btn-secondary" id="saveDraftBtn" onclick="saveDraft()">💾 Save Draft</button>
                 <button class="btn btn-primary" onclick="openPublishModal()"><i data-lucide="rocket" class="nav-icon"></i> Publish</button>
             </div>
         </header>
@@ -434,6 +434,9 @@
     <script>
         checkAuth();
 
+        const draftParams = new URLSearchParams(window.location.search);
+        let currentDraftId = draftParams.get('draftId');
+
         // Cover Image Upload
         let uploadedCoverUrl = null;
         let coverUploadPromise = null;
@@ -553,6 +556,112 @@
             document.getElementById('readTime').textContent = `${time} min`;
         });
 
+        function updateEditorStats() {
+            const event = new Event('input', { bubbles: true });
+            editor.dispatchEvent(event);
+        }
+
+        function getArticlePayload() {
+            const visibilityRadio = document.querySelector('input[name="visibility"]:checked');
+
+            return {
+                title: document.getElementById('aTitle').value.trim(),
+                subtitle: document.getElementById('aSubtitle').value.trim(),
+                content: document.getElementById('aContent').innerText.trim(),
+                coverImage: uploadedCoverUrl,
+                category: document.getElementById('catSelect').value,
+                subcategory: document.getElementById('subcatSelect').value,
+                tags,
+                visibility: visibilityRadio ? visibilityRadio.value : 'public',
+                allowComments: document.getElementById('allowComments').checked
+            };
+        }
+
+        async function persistDraft(showSuccess = true) {
+            if (coverUploadPromise) {
+                await coverUploadPromise;
+            }
+
+            const payload = getArticlePayload();
+            if (!payload.title) {
+                throw new Error('Please enter a title before saving a draft.');
+            }
+
+            const endpoint = currentDraftId ? `/articles/${currentDraftId}` : '/articles';
+            const method = currentDraftId ? 'PUT' : 'POST';
+            const article = await apiFetch(endpoint, {
+                method,
+                body: JSON.stringify(payload)
+            });
+
+            currentDraftId = article.id || article._id || currentDraftId;
+            if (currentDraftId) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('draftId', currentDraftId);
+                window.history.replaceState({}, '', url);
+            }
+
+            if (showSuccess) {
+                alert('Draft saved successfully!');
+            }
+
+            return article;
+        }
+
+        window.saveDraft = async () => {
+            const btn = document.getElementById('saveDraftBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await persistDraft(true);
+            } catch (error) {
+                alert('Failed to save draft: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+
+        async function loadDraft() {
+            if (!currentDraftId) return;
+
+            try {
+                const article = await apiFetch(`/articles/${currentDraftId}`);
+
+                document.getElementById('aTitle').value = article.title || '';
+                document.getElementById('aSubtitle').value = article.subtitle || '';
+                document.getElementById('aContent').innerText = article.content || '';
+                document.getElementById('catSelect').value = article.category || '';
+                updateSubcats();
+                document.getElementById('subcatSelect').value = article.subcategory || '';
+                tags = Array.isArray(article.tags) ? article.tags : [];
+                renderTags();
+
+                const visibility = article.visibility || 'public';
+                const visibilityInput = document.querySelector(`input[name="visibility"][value="${visibility}"]`);
+                if (visibilityInput) {
+                    visibilityInput.checked = true;
+                }
+
+                document.getElementById('allowComments').checked = article.allowComments !== false;
+
+                uploadedCoverUrl = article.coverImage || null;
+                if (uploadedCoverUrl) {
+                    const uploadEl = document.getElementById('coverUpload');
+                    const placeholder = document.getElementById('coverPlaceholder');
+                    uploadEl.style.backgroundImage = `url('${resolveApiAssetUrl(uploadedCoverUrl)}')`;
+                    uploadEl.style.borderStyle = 'solid';
+                    placeholder.style.display = 'none';
+                }
+
+                updateEditorStats();
+            } catch (error) {
+                alert('Failed to load draft: ' + error.message);
+            }
+        }
+
         // Modal Logic
         const modal = document.getElementById('publishModal');
 
@@ -656,42 +765,18 @@
             btn.disabled = true;
             btn.style.opacity = '0.7';
 
-            const title = document.getElementById('aTitle').value;
-            const subtitle = document.getElementById('aSubtitle').value;
-            const content = document.getElementById('aContent').innerText.trim();
-            const cat = document.getElementById('catSelect').value;
-            const subcat = document.getElementById('subcatSelect').value;
-            const readTime = document.getElementById('readTime').textContent;
-            const visibilityRadio = document.querySelector('input[name="visibility"]:checked');
-
-            const allowComments = document.getElementById('allowComments').checked;
-
             try {
-                if (coverUploadPromise) {
-                    await coverUploadPromise;
+                const payload = getArticlePayload();
+                if (!payload.title) {
+                    throw new Error('Please enter a title before publishing.');
+                }
+                if (!payload.category) {
+                    throw new Error('Please select a category before publishing.');
                 }
 
-                const payload = {
-                    title,
-                    subtitle,
-                    content,
-                    coverImage: uploadedCoverUrl,
-                    category: cat,
-                    subcategory: subcat,
-                    tags,
-                    readTime,
-                    visibility: visibilityRadio ? visibilityRadio.value : 'public',
-                    allowComments
-                };
-
-                // 1. Create the article (initially drafted)
-                const article = await apiFetch('/articles', {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                // 2. Mark it as published immediately
-                await apiFetch(`/articles/${article.id}/publish`, {
+                const article = await persistDraft(false);
+                const articleId = article.id || article._id;
+                await apiFetch(`/articles/${articleId}/publish`, {
                     method: 'PATCH'
                 });
 
@@ -742,9 +827,7 @@
 
                 editor.innerHTML = formattedContent;
                 
-                // Update stats
-                const event = new Event('input', { bubbles: true });
-                editor.dispatchEvent(event);
+                updateEditorStats();
                 
             } catch (error) {
                 alert('AI Generation failed: ' + error.message);
@@ -755,6 +838,8 @@
         };
     </script>
     <script>
+        loadDraft();
+        updateEditorStats();
         if(typeof lucide !== 'undefined') { lucide.createIcons(); }
     </script>
 </body>
