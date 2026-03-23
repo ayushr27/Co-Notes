@@ -1,6 +1,3 @@
-// frontendv1/api.js
-// Shared utility for making authenticated API requests to the backend
-
 const API_BASE_URL = 'http://localhost:3000/api';
 
 function getApiOrigin() {

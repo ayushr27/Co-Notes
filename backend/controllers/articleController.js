@@ -1,4 +1,9 @@
 import Article from "../models/Article.js";
+import mongoose from "mongoose";
+
+function isValidObjectId(id) {
+    return mongoose.Types.ObjectId.isValid(id);
+}
 
 // GET /api/articles/feed
 export async function getFeed(req, res) {
@@ -73,6 +78,10 @@ export async function getMyArticles(req, res) {
 // GET /api/articles/:id
 export async function getArticle(req, res) {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: "Invalid article ID" });
+        }
+
         const article = await Article.findById(req.params.id)
             .populate('userId', 'id name username avatar bio');
 
@@ -230,6 +239,10 @@ export async function toggleLike(req, res) {
 // GET /api/articles/:id/comments
 export async function getComments(req, res) {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: "Invalid article ID" });
+        }
+
         const article = await Article.findById(req.params.id)
             .populate('comments.user', 'id name username avatar');
 
@@ -248,6 +261,9 @@ export async function addComment(req, res) {
     try {
         const { content } = req.body;
         if (!content?.trim()) return res.status(400).json({ message: "Comment content is required" });
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: "Invalid article ID" });
+        }
 
         const article = await Article.findById(req.params.id);
         if (!article) return res.status(404).json({ message: "Article not found" });
