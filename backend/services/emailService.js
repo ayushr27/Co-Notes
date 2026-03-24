@@ -1,4 +1,69 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns/promises';
+import net from 'node:net';
+
+const NETWORK_RETRY_ERROR_CODES = new Set(['ETIMEDOUT', 'ESOCKET', 'ECONNECTION', 'ENETUNREACH', 'EHOSTUNREACH', 'ECONNRESET']);
+
+const isRetriableNetworkError = (error) => {
+    const code = error?.code;
+    const message = String(error?.message || '').toLowerCase();
+
+    if (code && NETWORK_RETRY_ERROR_CODES.has(code)) {
+        return true;
+    }
+
+    return message.includes('timeout') || message.includes('unreach');
+};
+
+const createSmtpTransport = ({ hostOverride } = {}) => {
+    const smtpPort = Number(process.env.SMTP_PORT || 587);
+    const smtpSecure = process.env.SMTP_SECURE
+        ? process.env.SMTP_SECURE === 'true'
+        : smtpPort === 465;
+
+    return nodemailer.createTransport({
+        host: hostOverride || process.env.SMTP_HOST,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+        // Hosted environments may fail on IPv6 routes; prefer IPv4 sockets.
+        family: 4,
+        // Keep SMTP calls from hanging indefinitely.
+        connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT_MS || 15000),
+        greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT_MS || 15000),
+        socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT_MS || 20000),
+        // Preserve TLS SNI when retrying with an IP address.
+        tls: hostOverride ? { servername: process.env.SMTP_HOST } : undefined,
+    });
+};
+
+const sendWithOptionalIpv4Retry = async (mailOptions) => {
+    let primaryError;
+
+    try {
+        const primaryTransporter = createSmtpTransport();
+        return await primaryTransporter.sendMail(mailOptions);
+    } catch (error) {
+        primaryError = error;
+    }
+
+    if (!isRetriableNetworkError(primaryError)) {
+        throw primaryError;
+    }
+
+    const host = process.env.SMTP_HOST;
+    const isIpHost = net.isIP(host) !== 0;
+    const fallbackHost = isIpHost ? host : (await dns.resolve4(host))[0];
+    if (!fallbackHost) {
+        throw primaryError;
+    }
+
+    const fallbackTransporter = createSmtpTransport({ hostOverride: fallbackHost });
+    return fallbackTransporter.sendMail(mailOptions);
+};
 
 export const sendPasswordResetEmail = async (to, resetUrl) => {
     // Determine if using real SMTP or Ethereal for testing
@@ -8,20 +73,7 @@ export const sendPasswordResetEmail = async (to, resetUrl) => {
     
     if (hasSmtpConfig) {
         // Real SMTP configuration (e.g., Gmail, SendGrid, etc.)
-        const smtpPort = Number(process.env.SMTP_PORT || 587);
-        const smtpSecure = process.env.SMTP_SECURE
-            ? process.env.SMTP_SECURE === 'true'
-            : smtpPort === 465;
-
-        transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: smtpPort,
-            secure: smtpSecure,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-        });
+        transporter = createSmtpTransport();
     } else if (isProduction) {
         // In deployed environments, don't silently fall back to test SMTP.
         throw new Error('SMTP is not configured in production. Please set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM.');
@@ -69,7 +121,9 @@ export const sendPasswordResetEmail = async (to, resetUrl) => {
         // `sendMail` already establishes the SMTP connection. Running `verify`
         // on every forgot-password request can fail in some hosted environments
         // even when the message itself can be sent successfully.
-        info = await transporter.sendMail(mailOptions);
+        info = hasSmtpConfig
+            ? await sendWithOptionalIpv4Retry(mailOptions)
+            : await transporter.sendMail(mailOptions);
     } catch (error) {
         throw new Error(`Failed to send password reset email: ${error.message}`);
     }
