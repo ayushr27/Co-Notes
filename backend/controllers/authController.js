@@ -139,13 +139,16 @@ export async function ForgotPassword(req, res) {
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
         await user.save();
 
-        const clientUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        const resetUrl = `${clientUrl}/reset-password.html?token=${resetToken}`;
-        
         try {
+            const clientUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+            const resetPasswordPath = process.env.RESET_PASSWORD_PATH || '/reset-password.html';
+            const normalizedResetPath = resetPasswordPath.startsWith('/') ? resetPasswordPath : `/${resetPasswordPath}`;
+            const resetUrl = `${clientUrl}${normalizedResetPath}?token=${encodeURIComponent(resetToken)}`;
+
             await sendPasswordResetEmail(user.email, resetUrl);
         } catch (emailError) {
             console.error("Error sending email:", emailError);
+            return res.status(500).json({ message: "Unable to send reset email right now. Please try again shortly." });
         }
 
         return res.status(200).json({ 

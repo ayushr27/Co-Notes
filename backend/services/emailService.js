@@ -3,18 +3,28 @@ import nodemailer from 'nodemailer';
 export const sendPasswordResetEmail = async (to, resetUrl) => {
     // Determine if using real SMTP or Ethereal for testing
     let transporter;
+    const hasSmtpConfig = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    const isProduction = process.env.NODE_ENV === 'production';
     
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    if (hasSmtpConfig) {
         // Real SMTP configuration (e.g., Gmail, SendGrid, etc.)
+        const smtpPort = Number(process.env.SMTP_PORT || 587);
+        const smtpSecure = process.env.SMTP_SECURE
+            ? process.env.SMTP_SECURE === 'true'
+            : smtpPort === 465;
+
         transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT || 587,
-            secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
+            port: smtpPort,
+            secure: smtpSecure,
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
         });
+    } else if (isProduction) {
+        // In deployed environments, don't silently fall back to test SMTP.
+        throw new Error('SMTP is not configured in production. Please set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, and SMTP_FROM.');
     } else {
         // Fallback to Ethereal Email (fake SMTP service) for local testing
         console.log("No SMTP settings found in .env. Falling back to Ethereal Email.");
@@ -54,10 +64,11 @@ export const sendPasswordResetEmail = async (to, resetUrl) => {
         `,
     };
 
+    await transporter.verify();
     const info = await transporter.sendMail(mailOptions);
     
     // If using Ethereal, log the preview URL
-    if (info.messageId && !process.env.SMTP_HOST) {
+    if (info.messageId && !hasSmtpConfig) {
         console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     }
     
