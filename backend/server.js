@@ -53,6 +53,7 @@ io.on("connection", (socket) => {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const PORT = Number(process.env.PORT || 3000);
 
 // Middlewares
 app.use(cors());
@@ -108,6 +109,6 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message: err.message || "Internal server error" });
 });
 
-server.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
