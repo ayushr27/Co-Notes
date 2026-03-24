@@ -64,8 +64,15 @@ export const sendPasswordResetEmail = async (to, resetUrl) => {
         `,
     };
 
-    await transporter.verify();
-    const info = await transporter.sendMail(mailOptions);
+    let info;
+    try {
+        // `sendMail` already establishes the SMTP connection. Running `verify`
+        // on every forgot-password request can fail in some hosted environments
+        // even when the message itself can be sent successfully.
+        info = await transporter.sendMail(mailOptions);
+    } catch (error) {
+        throw new Error(`Failed to send password reset email: ${error.message}`);
+    }
     
     // If using Ethereal, log the preview URL
     if (info.messageId && !hasSmtpConfig) {
